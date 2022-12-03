@@ -42,9 +42,29 @@
 #include "menus/commands.h"
 #include "menus/settings.h"
 
+static u32 sfxId = 0;
+
+void PlaySFX(s32 selected) {
+    sfxId = PlaySFXMenu.items[selected].amount;
+    PlaySound(0x1000000 + sfxId);
+}
+
+AmountMenu PlaySFXMenu = {
+    "Play SFX",
+    .nbItems = 1,
+    .initialCursorPos = 0,
+    {
+        {0, 1,  0, "SFX ID", .method = PlaySFX},
+    }
+};
+
+void showSFXMenu(void) {
+    AmountMenuShow(&PlaySFXMenu);
+}
+
 Menu gz3DMenu = {
     "Practice Menu",
-    .nbItems = 10,
+    .nbItems = 11,
     .initialCursorPos = 0,
     {
         { "Warps", MENU, .menu = &WarpsMenu },
@@ -57,5 +77,6 @@ Menu gz3DMenu = {
         { "Debug", MENU, .menu = &DebugMenu },
         { "Commands", METHOD, .method = Commands_ShowCommandsMenu },
         { "Settings", MENU, .menu = &SettingsMenu },
+        { "PlaySFX", METHOD, .method = showSFXMenu },
     }
 };

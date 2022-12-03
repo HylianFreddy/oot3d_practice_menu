@@ -536,14 +536,18 @@ typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
 #endif
 #define Flags_SetEnv ((Flags_SetEnv_proc)Flags_SetEnv_addr)
 
+typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor* actor);
+#define DisplayTextbox_addr 0x367C7C
+#define DisplayTextbox ((DisplayTextbox_proc)DisplayTextbox_addr)
+
+typedef void (*PlaySound_proc)(u32);
+#define PlaySound_addr 0x35C528
+#define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
+
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
 #define Item_Give_addr 0x376A78
 #define Item_Give ((Item_Give_proc)Item_Give_addr)
-
-typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor* actor);
-#define DisplayTextbox_addr 0x367C7C
-#define DisplayTextbox ((DisplayTextbox_proc)DisplayTextbox_addr)
 
 typedef u32 (*EventCheck_proc)(u32 param_1);
 #define EventCheck_addr 0x350CF4
@@ -564,10 +568,6 @@ typedef void (*LinkDamage_proc)(GlobalContext* globalCtx, Player* player, s32 ar
 typedef u32 (*Inventory_HasEmptyBottle_proc)(void);
 #define Inventory_HasEmptyBottle_addr 0x377A04
 #define Inventory_HasEmptyBottle ((Inventory_HasEmptyBottle_proc)Inventory_HasEmptyBottle_addr)
-
-typedef void (*PlaySound_proc)(u32);
-#define PlaySound_addr 0x35C528
-#define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
 
 typedef void (*FireDamage_proc)(Actor* player, GlobalContext* globalCtx, int flamesColor);
 #define FireDamage_addr 0x35D8D8

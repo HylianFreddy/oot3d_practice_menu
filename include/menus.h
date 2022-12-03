@@ -31,3 +31,4 @@
 #include "menu.h"
 
 extern Menu gz3DMenu;
+extern AmountMenu PlaySFXMenu;
