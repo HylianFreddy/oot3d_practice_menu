@@ -168,6 +168,8 @@ void pauseDisplay(void) {
     Draw_FlushFramebufferTop();
 }
 
+//static s32 c = 0;
+#define SOUND 448
 void advance_main(void) {
     if(practice_menu_init == 0){
         Draw_SetupFramebuffer();
@@ -175,6 +177,14 @@ void advance_main(void) {
         Settings_LoadExtSaveData();
         practice_menu_init = 1;
     }
+
+    /*if (rInputCtx.pressed.x) {
+        PlaySound(0x1000000 + NA_SE_EN_MGANON_ROAR + c++);
+    }
+
+    if (rInputCtx.pressed.y) {
+        PlaySound(0x1000000 + NA_SE_EN_MGANON_ROAR + c--);
+    }*/
 
     if(gSaveContext.entranceIndex == 0x0629 && gSaveContext.cutsceneIndex == 0xFFF3 && gSaveContext.gameMode != 2){
         titleScreenDisplay();
