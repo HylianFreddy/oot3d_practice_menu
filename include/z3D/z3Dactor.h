@@ -229,7 +229,9 @@ typedef struct {
     /* 0x221C */ float  xzSpeed; //probably
     /* 0x2220 */ char   unk_2220[0x0007];
     /* 0x2227 */ u8     meleeWeaponState;
-    /* 0x2228 */ char   unk_2228[0x260];
+    /* 0x2228 */ char   unk_2228[0x20];
+    /* 0x2248 */ s16    stickFlameTimer; // value manipulated by action swap
+    /* 0x224A */ char   unk_224A[0x23E];
     /* 0x2488 */ s8     invincibilityTimer; // prevents damage when nonzero (positive = visible, counts towards zero each frame)
     /* 0x2489 */ char   unk_2489[0x27B];
     /* 0x2704 */ struct SkeletonAnimationModel_unk_0C* bodyTexAnim;
