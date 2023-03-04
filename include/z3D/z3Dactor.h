@@ -208,32 +208,59 @@ typedef struct {
 } ActorMesh; // size = 0x6C
 
 typedef struct {
-    /* 0x0000 */ Actor  actor;
-    /* 0x01A4 */ char   unk_148[0x0006];
-    /* 0x01AA */ u8     heldItemId;
-    /* 0x01AB */ char   unk_1AB[0x00A1];
-    /* 0x024C */ void*  giDrawSpace;
-    /* 0x0250 */ char   unk_250[0x0004];
+    /* 0x0000 */ Actor actor;
+    /* 0x01A4 */ char unk_148[0x0005];
+    /* 0x01A9 */ s8 heldItemActionParam;
+    /* 0x01AA */ u8 heldItemId;
+    /* 0x01AB */ char unk_1AB[0x1];
+    /* 0x01AC */ s8 itemActionParam;
+    /* 0x01AD */ char unk_1AD[0x0003];
+    /* 0x01B0 */ u8 modelGroup;
+    /* 0x01B1 */ u8 nextModelGroup;
+    /* 0x01B2 */ s8 unk_1B2;
+    /* 0x01B3 */ u8 modelAnimType;
+    /* 0x01B4 */ u8 leftHandType;
+    /* 0x01B5 */ u8 rightHandType;
+    /* 0x01B6 */ u8 sheathType;
+    /* 0x01B7 */ u8 currentMask;
+    /* 0x01B8 */ char unk_1B8[0x0004];
+    /* 0x01BC */ void* rightHandDLists;
+    /* 0x01C0 */ void* leftHandDLists;
+    /* 0x01C4 */ void* sheathDLists;
+    /* 0x01C8 */ void* waistDLists;
+    /* 0x01CC */ char unk_1CC[0x80];
+    /* 0x024C */ void* giDrawSpace;
+    /* 0x0250 */ char unk_250[0x0004];
     /* 0x0254 */ struct SkelAnime skelAnime;
-    /* 0x02D8 */ char   unk_2D8[0x0FD4];
-    /* 0x12AC */ u8     getItemId;
-    /* 0x12AD */ char   unk_12AD[0x0001];
-    /* 0x12AE */ u16    getItemDirection;
+    /* 0x02D8 */ char unk_2D8[0x0F4C];
+    /* 0x1224 */ Actor* heldActor;
+    /* 0x1228 */ char unk_1228[0x84];
+    /* 0x12AC */ u8 getItemId;
+    /* 0x12AD */ char unk_12AD[0x0001];
+    /* 0x12AE */ u16 getItemDirection;
     /* 0x12B0 */ Actor* interactRangeActor;
-    /* 0x12B4 */ char   unk_12B4[0x045C];
-    /* 0x1710 */ u32    stateFlags1;
-    /* 0x1714 */ u32    stateFlags2;
-    /* 0x1718 */ char   unk_1718[0x0013];
-    /* 0x172B */ s8     exchangeItemId;
-    /* 0x172C */ char   unk_172C[0x0AF0];
-    /* 0x221C */ float  xzSpeed; //probably
-    /* 0x2220 */ char   unk_2220[0x0007];
-    /* 0x2227 */ u8     meleeWeaponState;
-    /* 0x2228 */ char   unk_2228[0x20];
-    /* 0x2248 */ s16    stickFlameTimer; // value manipulated by action swap
-    /* 0x224A */ char   unk_224A[0x23E];
-    /* 0x2488 */ s8     invincibilityTimer; // prevents damage when nonzero (positive = visible, counts towards zero each frame)
-    /* 0x2489 */ char   unk_2489[0x27B];
+    /* 0x12B4 */ char unk_12B4[0x0454];
+    /* 0x1708 */ void* stateFuncPtr;
+    /* 0x170C */ char unk_170C[0x0004];
+    /* 0x1710 */ u32 stateFlags1;
+    /* 0x1714 */ u32 stateFlags2;
+    /* 0x1718 */ Actor* unk_1718;
+    /* 0x171C */ Actor* boomerangActor;
+    /* 0x1720 */ Actor* unk_1720;
+    /* 0x1724 */ Actor* naviActor;
+    /* 0x1728 */ s16 naviTextId;
+    /* 0x172A */ u8 stateFlags3;
+    /* 0x172B */ s8 exchangeItemId;
+    /* 0x172C */ char unk_172C[0x0AF0];
+    /* 0x221C */ float xzSpeed; // probably
+    /* 0x2220 */ char unk_2220[0x0007];
+    /* 0x2227 */ s8 meleeWeaponState;
+    /* 0x2228 */ char unk_2228[0x20];
+    /* 0x2248 */ s16 stickFlameTimer; // value manipulated by action swap
+    /* 0x224A */ char unk_224A[0x23E];
+    /* 0x2488 */ s8 invincibilityTimer; // prevents damage when nonzero
+                                        // (positive = visible, counts towards zero each frame)
+    /* 0x2489 */ char unk_2489[0x27B];
     /* 0x2704 */ struct SkeletonAnimationModel_unk_0C* bodyTexAnim;
 } Player; //total size (from init vars): 2A4C
 
