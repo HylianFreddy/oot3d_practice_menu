@@ -45,7 +45,7 @@ u8 check_crashed() {
     return crashed;
 }
 
-void show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
+u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
     Draw_Lock();
     Draw_ClearFramebuffer();
     if (calledSFX) {
@@ -62,10 +62,16 @@ void show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
     while(1) {
         u32 pressed = Input_WaitWithTimeout(1000);
 
+        if(pressed & BUTTON_B) {
+            return 1;
+        }
+
         if(pressed & BUTTON_A) {
             break;
         }
     }
+
+    return 0;
 }
 
 void start_loop() {
@@ -76,7 +82,10 @@ void start_loop() {
         callSFX(&PLAYER->actor, sFpsItemReadySfx[stickFlameTimer]);
 
         if (!crashed) {
-            show_message(stickFlameTimer, calledSFX, sFpsItemReadySfx[stickFlameTimer]);
+            u8 stop = show_message(stickFlameTimer, calledSFX, sFpsItemReadySfx[stickFlameTimer]);
+            if (stop) {
+                break;
+            }
         }
     }
 
