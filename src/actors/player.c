@@ -29,6 +29,7 @@ void PlayerActor_rDraw(Actor* thisx, GlobalContext* globalCtx) {
 typedef void (*callSFX_proc)(Actor *actor, u32 sfx_id);
 #define callSFX ((callSFX_proc)0x36f59c)
 
+#define sFpsItemNoAmmoSfx ((u32*)0x53A288)
 #define sFpsItemReadySfx ((u32*)0x53C000)
 
 static u8 calledSFX = 0;
@@ -79,10 +80,10 @@ void start_loop() {
         calledSFX = 0;
         crashed = 0;
 
-        callSFX(&PLAYER->actor, sFpsItemReadySfx[stickFlameTimer]);
+        callSFX(&PLAYER->actor, sFpsItemNoAmmoSfx[stickFlameTimer]);
 
         if (!crashed) {
-            u8 stop = show_message(stickFlameTimer, calledSFX, sFpsItemReadySfx[stickFlameTimer]);
+            u8 stop = show_message(stickFlameTimer, calledSFX, sFpsItemNoAmmoSfx[stickFlameTimer]);
             if (stop) {
                 break;
             }
