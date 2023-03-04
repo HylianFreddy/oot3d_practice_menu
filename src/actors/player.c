@@ -5,6 +5,7 @@
 
 ActorInit vanillaActorInit_Player = {0};
 void start_loop();
+static u8 continueLoop = 0;
 
 void PlayerActor_rInit(Actor* thisx, GlobalContext* globalCtx) {
     vanillaActorInit_Player.init(thisx, globalCtx);
@@ -13,7 +14,7 @@ void PlayerActor_rInit(Actor* thisx, GlobalContext* globalCtx) {
 void PlayerActor_rUpdate(Actor* thisx, GlobalContext* globalCtx) {
     vanillaActorInit_Player.update(thisx, globalCtx);
 
-    if (rInputCtx.cur.l && rInputCtx.cur.r) {
+    if (continueLoop || (gSaveContext.rupees == 0 && rInputCtx.cur.l && rInputCtx.cur.r)) {
         start_loop();
     }
 }
@@ -63,6 +64,10 @@ u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
     while(1) {
         u32 pressed = Input_WaitWithTimeout(1000);
 
+        if(pressed & BUTTON_R1) {
+            return 2;
+        }
+
         if(pressed & BUTTON_B) {
             return 1;
         }
@@ -76,14 +81,17 @@ u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
 }
 
 void start_loop() {
-    for (u32 stickFlameTimer = 1; stickFlameTimer < 0x50; stickFlameTimer++) {
+    static u32 loopCounter = 0x1;
+    static u8 stop = 0;
+
+    for (; loopCounter < 0x7FFF; loopCounter++) {
         calledSFX = 0;
         crashed = 0;
 
-        callSFX(&PLAYER->actor, sFpsItemNoAmmoSfx[stickFlameTimer]);
+        callSFX(&PLAYER->actor, sFpsItemReadySfx[loopCounter]);
 
         if (!crashed) {
-            u8 stop = show_message(stickFlameTimer, calledSFX, sFpsItemNoAmmoSfx[stickFlameTimer]);
+            stop = show_message(loopCounter, calledSFX, sFpsItemReadySfx[loopCounter]);
             if (stop) {
                 break;
             }
@@ -92,4 +100,15 @@ void start_loop() {
 
     calledSFX = 0;
     crashed = 0;
+
+    if (stop == 2) {
+        loopCounter = 0x1;
+        continueLoop = 0;
+    } else if (loopCounter >= 0x7FFF) {
+        loopCounter = 1;
+        continueLoop = 0;
+    } else {
+        loopCounter++;
+        continueLoop = 1;
+    }
 }
