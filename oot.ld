@@ -8,6 +8,14 @@ SECTIONS
 		*(.patch_loader)
 	}
 
+	.patch_sfxprecrash 0x488340 : {
+		*(.patch_sfxprecrash)
+	}
+
+	.patch_sfxpostcrash 0x3754C0 : {
+		*(.patch_sfxpostcrash)
+	}
+
 	.patch_InstantTextFirstLine 0x2E049C : {
 		*(.patch_InstantTextFirstLine)
 	}

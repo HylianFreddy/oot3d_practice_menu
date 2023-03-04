@@ -5,6 +5,12 @@
 Gfx_Update_patch:
     b hook_into_Gfx_Update
 
+.section .patch_sfxprecrash
+    bl hook_sfxprecrash
+
+.section .patch_sfxpostcrash
+    bl hook_sfxpostcrash
+
 .section .patch_before_GlobalContext_Update
 .global before_GlobalContext_Update_patch
 before_GlobalContext_Update_patch:

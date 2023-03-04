@@ -8,6 +8,25 @@ hook_into_Gfx_Update:
     pop {r0-r12, lr}
     pop {r4-r8, pc}
 
+.global hook_sfxprecrash
+hook_sfxprecrash:
+    push {r0-r12, lr}
+    bl crash
+    pop {r0-r12, lr}
+    cmp r0,#0x0
+    addeq lr,lr,#0x10 @ skip crash
+    addne r0,r0,#0x14 @ continue normally
+    bx lr
+
+.global hook_sfxpostcrash
+hook_sfxpostcrash:
+    push {r0-r12, lr}
+    bl check_crashed
+    cmp r0,#0x1
+    pop {r0-r12, lr}
+    beq 0x375590
+    b 0x2dcee0
+
 .global hook_before_GlobalContext_Update
 hook_before_GlobalContext_Update:
     push {r0-r12, lr}
