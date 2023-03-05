@@ -4,6 +4,9 @@
 #include "input.h"
 
 ActorInit vanillaActorInit_Player = {0};
+
+#define STOP_AND_PLAY_SFX 1
+#define RESET_LOOP 2
 void start_loop();
 static u8 continueLoop = 0;
 
@@ -65,11 +68,11 @@ u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
         u32 pressed = Input_WaitWithTimeout(1000);
 
         if(pressed & BUTTON_R1) {
-            return 2;
+            return RESET_LOOP;
         }
 
         if(pressed & BUTTON_B) {
-            return 1;
+            return STOP_AND_PLAY_SFX;
         }
 
         if(pressed & BUTTON_A) {
@@ -88,10 +91,10 @@ void start_loop() {
         calledSFX = 0;
         crashed = 0;
 
-        callSFX(&PLAYER->actor, sFpsItemReadySfx[loopCounter]);
+        callSFX(&PLAYER->actor, sFpsItemNoAmmoSfx[loopCounter]);
 
         if (!crashed) {
-            stop = show_message(loopCounter, calledSFX, sFpsItemReadySfx[loopCounter]);
+            stop = show_message(loopCounter, calledSFX, sFpsItemNoAmmoSfx[loopCounter]);
             if (stop) {
                 break;
             }
@@ -101,7 +104,7 @@ void start_loop() {
     calledSFX = 0;
     crashed = 0;
 
-    if (stop == 2) {
+    if (stop == RESET_LOOP) {
         loopCounter = 0x1;
         continueLoop = 0;
     } else if (loopCounter >= 0x7FFF) {
