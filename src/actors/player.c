@@ -5,10 +5,30 @@
 
 ActorInit vanillaActorInit_Player = {0};
 
+#define LOOP_MAX 0x7FFF
+#define LOOP_START 0x1
+#define SFX_ARRAY sFpsItemReadySfx
+
 #define STOP_AND_PLAY_SFX 1
 #define RESET_LOOP 2
-void start_loop();
+
+typedef void (*callSFX_proc)(Actor *actor, u32 sfx_id);
+#define callSFX ((callSFX_proc)0x36f59c)
+
+#define sFpsItemNoAmmoSfx ((u32*)0x53A288)
+#define sFpsItemReadySfx ((u32*)0x53C000)
+
+void advance_sfx_test();
+void next_sfx();
+u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId);
+static u8 calledSFX = 0;
+static u8 lastCalledSFX = 0;
+static u8 crashed = 0;
 static u8 continueLoop = 0;
+static u8 loopStatus = 0;
+static u32 loopCounter = LOOP_START;
+static u32 currentSfxStickTimer = 0;
+static u32 currentSfxId = 0;
 
 void PlayerActor_rInit(Actor* thisx, GlobalContext* globalCtx) {
     vanillaActorInit_Player.init(thisx, globalCtx);
@@ -17,9 +37,7 @@ void PlayerActor_rInit(Actor* thisx, GlobalContext* globalCtx) {
 void PlayerActor_rUpdate(Actor* thisx, GlobalContext* globalCtx) {
     vanillaActorInit_Player.update(thisx, globalCtx);
 
-    if (continueLoop || (gSaveContext.rupees == 0 && rInputCtx.cur.l && rInputCtx.cur.r)) {
-        start_loop();
-    }
+    advance_sfx_test();
 }
 
 void PlayerActor_rDestroy(Actor* thisx, GlobalContext* globalCtx) {
@@ -30,24 +48,45 @@ void PlayerActor_rDraw(Actor* thisx, GlobalContext* globalCtx) {
     vanillaActorInit_Player.draw(thisx, globalCtx);
 }
 
-typedef void (*callSFX_proc)(Actor *actor, u32 sfx_id);
-#define callSFX ((callSFX_proc)0x36f59c)
+void advance_sfx_test() {
+    if (continueLoop && !crashed) {
+        loopStatus = show_message(currentSfxStickTimer, lastCalledSFX, currentSfxId);
+    } else if (gSaveContext.rupees == 0 && rInputCtx.cur.l && rInputCtx.cur.r) {
+        show_message(0, 2, 0);
+        continueLoop = 1;
+        loopStatus = 0;
+    }
 
-#define sFpsItemNoAmmoSfx ((u32*)0x53A288)
-#define sFpsItemReadySfx ((u32*)0x53C000)
-
-static u8 calledSFX = 0;
-static u8 crashed = 0;
-
-void crash(s32 r0) {
-    calledSFX = 1;
-    if (r0 == 0) {
-        crashed = 1;
+    if (continueLoop) {
+        next_sfx();
+        if (loopStatus == RESET_LOOP || loopCounter >= LOOP_MAX) {
+            loopCounter = LOOP_START;
+            continueLoop = 0;
+        } else {
+            loopCounter++;
+            continueLoop = 1;
+        }
+    } else {
+        calledSFX = 0;
+        crashed = 0;
     }
 }
 
-u8 check_crashed() {
-    return crashed;
+void next_sfx() {
+    for (; loopCounter < LOOP_MAX; loopCounter++) {
+        calledSFX = 0;
+        crashed = 0;
+
+        currentSfxStickTimer = loopCounter;
+        currentSfxId = SFX_ARRAY[loopCounter];
+
+        callSFX(&PLAYER->actor, currentSfxId);
+        lastCalledSFX = calledSFX;
+
+        if (!crashed) {
+            break;
+        }
+    }
 }
 
 u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
@@ -57,7 +96,7 @@ u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
         Draw_DrawFormattedString(20, 70, COLOR_TITLE, "No crash");
         Draw_DrawFormattedString(20, 90, COLOR_WHITE, "stickFlameTimer: %08X", stickFlameTimer);
         Draw_DrawFormattedString(20, 110, COLOR_WHITE, "sfxId: %08X", sfxId);
-    } else {
+    } else if (calledSFX == 1) {
         Draw_DrawFormattedString(20, 70, COLOR_WHITE, "Crashy function not called");
         Draw_DrawFormattedString(20, 90, COLOR_WHITE, "stickFlameTimer: %08X", stickFlameTimer);
     }
@@ -71,47 +110,21 @@ u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
             return RESET_LOOP;
         }
 
-        if(pressed & BUTTON_B) {
+        if(pressed & (BUTTON_A | BUTTON_B)) {
             return STOP_AND_PLAY_SFX;
-        }
-
-        if(pressed & BUTTON_A) {
-            break;
         }
     }
 
     return 0;
 }
 
-void start_loop() {
-    static u32 loopCounter = 0x1;
-    static u8 stop = 0;
-
-    for (; loopCounter < 0x7FFF; loopCounter++) {
-        calledSFX = 0;
-        crashed = 0;
-
-        callSFX(&PLAYER->actor, sFpsItemNoAmmoSfx[loopCounter]);
-
-        if (!crashed) {
-            stop = show_message(loopCounter, calledSFX, sFpsItemNoAmmoSfx[loopCounter]);
-            if (stop) {
-                break;
-            }
-        }
+void crash(s32 r0) {
+    calledSFX = 1;
+    if (r0 == 0) {
+        crashed = 1;
     }
+}
 
-    calledSFX = 0;
-    crashed = 0;
-
-    if (stop == RESET_LOOP) {
-        loopCounter = 0x1;
-        continueLoop = 0;
-    } else if (loopCounter >= 0x7FFF) {
-        loopCounter = 1;
-        continueLoop = 0;
-    } else {
-        loopCounter++;
-        continueLoop = 1;
-    }
+u8 check_crashed() {
+    return crashed;
 }
