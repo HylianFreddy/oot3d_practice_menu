@@ -63,6 +63,7 @@ void advance_sfx_test() {
         if (loopStatus == RESET_LOOP || loopCounter >= LOOP_MAX) {
             loopCounter = LOOP_START;
             continueLoop = 0;
+            show_message(0, 0, 0);
         } else {
             loopCounter++;
             continueLoop = 1;
