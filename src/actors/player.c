@@ -29,6 +29,7 @@ static u8 loopStatus = 0;
 static u32 loopCounter = LOOP_START;
 static u32 currentSfxStickTimer = 0;
 static u32 currentSfxId = 0;
+static u32 validCounter = 0;
 
 void PlayerActor_rInit(Actor* thisx, GlobalContext* globalCtx) {
     vanillaActorInit_Player.init(thisx, globalCtx);
@@ -69,6 +70,7 @@ void advance_sfx_test() {
     } else {
         calledSFX = 0;
         crashed = 0;
+        validCounter = 0;
     }
 }
 
@@ -97,6 +99,7 @@ u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
         Draw_DrawFormattedString(20, 70, COLOR_TITLE, "No crash");
         Draw_DrawFormattedString(20, 90, COLOR_WHITE, "stickFlameTimer: 0x%04X (%01d)", stickFlameTimer, stickFlameTimer);
         Draw_DrawFormattedString(20, 110, COLOR_WHITE, "sfxId: %08X", sfxId);
+        Draw_DrawFormattedString(20, 130, COLOR_WHITE, "valid sfx counter: %01d", ++validCounter);
     } else {
         Draw_DrawFormattedString(20, 70, COLOR_WHITE, "Crashy function not called");
         Draw_DrawFormattedString(20, 90, COLOR_WHITE, "stickFlameTimer: %08X", stickFlameTimer);
