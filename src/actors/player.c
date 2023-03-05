@@ -52,7 +52,7 @@ void advance_sfx_test() {
     if (continueLoop && !crashed) {
         loopStatus = show_message(currentSfxStickTimer, lastCalledSFX, currentSfxId);
     } else if (gSaveContext.rupees == 0 && rInputCtx.cur.l && rInputCtx.cur.r) {
-        show_message(0, 2, 0);
+        show_message(0, 0, 0);
         continueLoop = 1;
         loopStatus = 0;
     }
@@ -96,9 +96,13 @@ u8 show_message(s16 stickFlameTimer, u8 calledSFX, u32 sfxId) {
         Draw_DrawFormattedString(20, 70, COLOR_TITLE, "No crash");
         Draw_DrawFormattedString(20, 90, COLOR_WHITE, "stickFlameTimer: %08X", stickFlameTimer);
         Draw_DrawFormattedString(20, 110, COLOR_WHITE, "sfxId: %08X", sfxId);
-    } else if (calledSFX == 1) {
+    } else {
         Draw_DrawFormattedString(20, 70, COLOR_WHITE, "Crashy function not called");
         Draw_DrawFormattedString(20, 90, COLOR_WHITE, "stickFlameTimer: %08X", stickFlameTimer);
+    }
+
+    if (stickFlameTimer == 0) {
+        Draw_ClearFramebuffer();
     }
     Draw_FlushFramebuffer();
     Draw_Unlock();
