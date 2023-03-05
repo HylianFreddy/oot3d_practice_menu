@@ -13,7 +13,12 @@ ActorInit vanillaActorInit_Player = {0};
 #define RESET_LOOP 2
 
 typedef void (*callSFX_proc)(Actor *actor, u32 sfx_id);
-#define callSFX ((callSFX_proc)0x36f59c)
+#ifdef Version_JP
+    #define callSFX_addr 0x36f0b4
+#else //USA & EUR
+    #define callSFX_addr 0x36f59c
+#endif
+#define callSFX ((callSFX_proc)callSFX_addr)
 
 #define sFpsItemNoAmmoSfx ((u32*)0x53A288)
 #define sFpsItemReadySfx ((u32*)0x53C000)

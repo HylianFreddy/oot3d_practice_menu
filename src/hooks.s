@@ -24,8 +24,13 @@ hook_sfxpostcrash:
     bl check_crashed
     cmp r0,#0x1
     pop {r0-r12, lr}
+.if _JP_==1
+    beq 0x3750a8
+    b 0x2dc9f8
+.else
     beq 0x375590
     b 0x2dcee0
+.endif
 
 .global hook_before_GlobalContext_Update
 hook_before_GlobalContext_Update:
