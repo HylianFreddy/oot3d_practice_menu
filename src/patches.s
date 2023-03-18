@@ -95,6 +95,9 @@ OverrideSceneSetup_patch:
 LoadGame_patch:
     bl hook_LoadGame
 
+.section .patch_SaveMenuIgnoreOpen
+    bl hook_SaveMenuIgnoreOpen
+
 .section .patch_CameraUpdate
 .global CameraUpdate_patch
 CameraUpdate_patch:

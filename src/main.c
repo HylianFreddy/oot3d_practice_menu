@@ -63,6 +63,7 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
         irrstInit();
         gInit = 1;
     }
+    Input_Update();
 }
 
 void after_GlobalContext_Update(GlobalContext* globalCtx) {}

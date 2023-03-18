@@ -52,6 +52,10 @@ SECTIONS
 		*(.patch_ItemUsability_Shield)
 	}
 
+	.patch_SaveMenuIgnoreOpen 0x42EBD8 : {
+		*(.patch_SaveMenuIgnoreOpen)
+	}
+
 	.patch_LoadGame 0x447358 : {
 		*(.patch_LoadGame)
 	}

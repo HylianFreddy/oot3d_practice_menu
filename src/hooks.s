@@ -233,6 +233,23 @@ hook_LoadGame:
     pop {r0-r12, lr}
     bx lr
 
+.global hook_SaveMenuIgnoreOpen
+hook_SaveMenuIgnoreOpen:
+    push {r0-r12, lr}
+    bl SaveMenu_IgnoreOpen
+    cmp r0,#0x1
+    pop {r0-r12, lr}
+.if _USA_==1
+    beq 0x42F270
+.endif
+.if _EUR_==1
+    beq 0x42F294
+.endif
+.if _JP_==1
+    beq 0x42F248
+.endif
+    bx lr
+
 .global hook_CameraUpdate
 hook_CameraUpdate:
     push {r0,lr}

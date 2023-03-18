@@ -569,3 +569,20 @@ void Commands_ShowCommandsMenu(void){
         page = selected / COMMAND_MENU_MAX_SHOW;
     } while(menuOpen);
 }
+
+u16 SaveMenu_IgnoreOpen(void) {
+    u8 ignoreSelect = FALSE;
+    u8 ignoreStart = FALSE;
+    u32* openMenuInputs = commandList[COMMAND_OPEN_MENU].inputs;
+
+    for (u32 i = 0; i < COMMAND_COMBO_MAX; i++) {
+        if (openMenuInputs[i] & BUTTON_SELECT) {
+            ignoreSelect = TRUE;
+        }
+        if (openMenuInputs[i] & BUTTON_START) {
+            ignoreStart = TRUE;
+        }
+    }
+
+    return (ignoreSelect && rInputCtx.cur.sel) || (ignoreStart && rInputCtx.cur.strt);
+}
