@@ -12,5 +12,6 @@ extern void pauseDisplay();
 
 extern u32 alertFrames;
 extern char* alertMessage;
+extern u8 gInit;
 
 #endif //_COMMON_H_

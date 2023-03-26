@@ -35,6 +35,7 @@
 #include "input.h"
 #include "menus/commands.h"
 #include "menus/settings.h"
+#include "common.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -142,7 +143,7 @@ void menuShow()
     }
     while(menuOpen);
 
-    if(gGlobalContext->sceneLoadFlag != 0x14) {
+    if(!gInit || gGlobalContext->sceneLoadFlag != 0x14) {
         svcSleepThread(1000 * 1000 * 300LL); //wait 300 milliseconds for users to buffer inputs
     }
 }

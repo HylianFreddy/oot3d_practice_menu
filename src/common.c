@@ -1,8 +1,6 @@
 #include "common.h"
 #include "z3D/z3D.h"
 
-extern u8 gInit;
-
 MemInfo query_memory_permissions(u32 address) {
     MemInfo memory_info = {};
     PageInfo page_info = {};
