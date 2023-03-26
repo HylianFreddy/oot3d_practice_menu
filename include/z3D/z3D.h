@@ -344,6 +344,27 @@ typedef struct {
     /* 0x7C2 */ char unk_7C2[0x796];
 } RoomContext; // size 0xF58
 
+typedef struct {
+    /* 0x000 */ s32 topY;
+    /* 0x004 */ s32 bottomY;
+    /* 0x008 */ s32 leftX;
+    /* 0x00C */ s32 rightX;
+    /* 0x010 */ f32 fovY;
+    /* 0x014 */ f32 zNear;
+    /* 0x018 */ f32 zFar;
+    /* 0x01C */ f32 scale;
+    /* 0x020 */ char unk_01A8[0x0010];
+    /* 0x030 */ Vec3f eye;
+    /* 0x03C */ Vec3f at;
+    /* 0x048 */ Vec3f up;
+    /* 0x054 */ char unk_01DC[0x0150];
+    /* 0x1A4 */ Vec3f distortionOrientation;
+    /* 0x1B0 */ Vec3f distortionScale;
+    /* 0x1BC */ char unk_0344[0x0018];
+    /* 0x1D4 */ f32 distortionSpeed;
+    /* 0x1D8 */ char unk_0360[0x0004];
+} View; // size 0x1DC
+
 // Global Context (ram start: 0871E840)
 typedef struct GlobalContext {
     // /* 0x0000 */ GameState state;
@@ -353,7 +374,8 @@ typedef struct GlobalContext {
     /* 0x0110 */ void*                 sceneSegment;
     /* 0x0114 */ char                  unk_114[0x0004];
     /* 0x0118 */ SubGlobalContext_118  sub118;
-    /* 0x017C */ char                  unk_17C[0x01E8];
+    /* 0x017C */ char                  unk_17C[0x000C];
+    /* 0x0188 */ View                  view;
     /* 0x0364 */ Camera                mainCamera;
     /* 0x0520 */ Camera                subCameras[3];
     /* 0x0A54 */ Camera*               cameraPtrs[4];
@@ -444,6 +466,8 @@ extern const char DungeonNames[][25];
 #define gDrawItemTable ((DrawItemTableEntry*)0x4D88C8)
 #define gRestrictionFlags ((RestrictionFlags*)0x539DC4)
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
+#define ControlStick_X (*(f32*)0x5655C0)
+#define ControlStick_Y (*(f32*)0x5655C4)
 
 typedef enum {
     DUNGEON_DEKU_TREE = 0,

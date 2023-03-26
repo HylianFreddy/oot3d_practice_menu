@@ -53,6 +53,9 @@ void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chose
     if(noClip) {
         Scene_NoClipToggle();
     }
+    if(freeCam) {
+        Scene_FreeCamToggle();
+    }
 }
 
 void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelection){

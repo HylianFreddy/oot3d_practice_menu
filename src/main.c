@@ -13,6 +13,7 @@
 #include "menus/scene.h"
 #include "menus/settings.h"
 #include "3ds/extdata.h"
+#include "3ds/services/irrst.h"
 #include <string.h>
 
 #include "z3D/z3D.h"
@@ -30,6 +31,27 @@ char* alertMessage = "";
 GlobalContext* gGlobalContext;
 u8 gInit = 0;
 
+f32 sins(u16 angle) {
+    // Taylor expansion up to x^7. Use symmetries for larger angles.
+    if (angle <= 0x4000) {
+        f32 theta = angle * 0.0000958737992429, theta2 = theta * theta, result = theta;
+        theta *= theta2 * 0.166666666667;
+        result -= theta;
+        theta *= theta2 * 0.05;
+        result += theta;
+        theta *= theta2 * 0.0238095238095;
+        result -= theta;
+        return result;
+    } else if (angle <= 0x8000) {
+        return sins(0x8000 - angle);
+    }
+    return -sins(angle - 0x8000);
+}
+
+f32 coss(u16 angle) {
+    return sins(angle + 0x4000);
+}
+
 void setGlobalContext(GlobalContext* globalContext) {
     gGlobalContext = globalContext;
 }
@@ -38,6 +60,7 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
     if (!gInit) {
         setGlobalContext(globalCtx);
         Actor_Init();
+        irrstInit();
         gInit = 1;
     }
 }
@@ -237,7 +260,7 @@ void advance_main(void) {
     }
     isAsleep = false;
 
-    if(noClip && releasedABbuttons) { // TODO manage camera, redirect inputs accordingly or change the camera angle.
+    if(noClip && releasedABbuttons) {
         u32 in = rInputCtx.cur.val;
         f32 amount = (in & BUTTON_R1) ? NOCLIP_FAST_SPEED : NOCLIP_SLOW_SPEED;
         if(in & BUTTON_L1) {
@@ -263,6 +286,12 @@ void advance_main(void) {
             }
         }
 
+        s16 yaw = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir.y;
+        if(ControlStick_X * ControlStick_X + ControlStick_Y * ControlStick_Y > 100) {
+            PLAYER->actor.world.pos.x += 0.02 * amount * (ControlStick_Y * sins(yaw) - ControlStick_X * coss(yaw));
+            PLAYER->actor.world.pos.z += 0.02 * amount * (ControlStick_Y * coss(yaw) + ControlStick_X * sins(yaw));
+        }
+
         if(in & BUTTON_X) {
             PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
         }
@@ -277,6 +306,78 @@ void advance_main(void) {
         else if(in & BUTTON_B) { //cancel movement
             PLAYER->actor.world.pos = PLAYER->actor.home.pos;
             Scene_NoClipToggle();
+        }
+    }
+    else if(freeCam && releasedABbuttons) {
+        u32 in = rInputCtx.cur.val;
+        circlePosition cStick = rInputCtx.cStick;
+        f32 posMult = (in & BUTTON_R1) ? 0.4 : 0.08;
+        u16 rotMult = (in & BUTTON_R1) ? 5 : 2;
+
+        if(in & BUTTON_L1 && cStick.dx * cStick.dx + cStick.dy * cStick.dy <= 100) {
+            if(ControlStick_X * ControlStick_X + ControlStick_Y * ControlStick_Y > 100) {
+                freeCamView.rot.x += ControlStick_Y * rotMult * 2;
+
+                if(freeCamView.rot.x > 0x3F00) {
+                    freeCamView.rot.x = 0x3F00;
+                }
+                else if(freeCamView.rot.x < -0x3F00) {
+                    freeCamView.rot.x = -0x3F00;
+                }
+
+                freeCamView.rot.y -= ControlStick_X * rotMult * 2;
+            }
+        }
+        else {
+            if(ControlStick_X * ControlStick_X + ControlStick_Y * ControlStick_Y > 100) {
+                freeCamView.pos.x += posMult * (ControlStick_Y * sins(freeCamView.rot.y) - ControlStick_X * coss(freeCamView.rot.y));
+                freeCamView.pos.z += posMult * (ControlStick_Y * coss(freeCamView.rot.y) + ControlStick_X * sins(freeCamView.rot.y));
+            }
+        }
+
+        if(cStick.dx * cStick.dx + cStick.dy * cStick.dy > 100) {
+            freeCamView.rot.x += cStick.dy * rotMult;
+
+            if(freeCamView.rot.x > 0x3F00) {
+                freeCamView.rot.x = 0x3F00;
+            }
+            else if(freeCamView.rot.x < -0x3F00) {
+                freeCamView.rot.x = -0x3F00;
+            }
+
+            freeCamView.rot.y -= cStick.dx * rotMult * ((gSaveContext.masterQuestFlag) ? -1 : 1);
+        }
+
+        if(in & BUTTON_UP) {
+            freeCamView.pos.y += 50 * posMult;
+        }
+        if(in & BUTTON_DOWN) {
+            freeCamView.pos.y -= 50 * posMult;
+        }
+
+        if(in & BUTTON_B) {
+            Scene_FreeCamToggle();
+        }
+        else {
+            View* view = &gGlobalContext->view;
+
+            view->eye = view->at = freeCamView.pos;
+
+            view->at.x += coss(freeCamView.rot.x) * sins(freeCamView.rot.y);
+            view->at.y += sins(freeCamView.rot.x);
+            view->at.z += coss(freeCamView.rot.x) * coss(freeCamView.rot.y);
+
+            view->up.x = 0;
+            view->up.y = 1;
+            view->up.z = 0;
+
+            view->distortionOrientation.x = 0;
+            view->distortionOrientation.y = 0;
+            view->distortionOrientation.z = 0;
+
+            view->distortionScale.x = 1;
+            view->distortionScale.y = 1;
+            view->distortionScale.z = 1;
         }
     }
     else {

@@ -114,7 +114,7 @@ Note: if you load a scene without using the Warps menu while NoClip is active (f
 
 * Collision: TODO
 
-* Free Camera: TODO
+* Free Camera: this freezes Link in place and lets you move the camera around freely. New 3DS systems and citra can use the C-stick to control the direction while moving. Old 3DS systems must use the circle pad while holding L instead.
 
 * Hide Game Entities:
     - Hide Rooms: Makes walls, floors and ceilings invisible.

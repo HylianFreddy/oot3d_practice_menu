@@ -232,3 +232,13 @@ hook_LoadGame:
     bl Settings_LoadGame
     pop {r0-r12, lr}
     bx lr
+
+.global hook_CameraUpdate
+hook_CameraUpdate:
+    push {r0,lr}
+    bl Scene_FreeCamEnabled
+    cmp r0,#0x0
+    pop {r0,lr}
+    cpyeq r6,r0
+    bxeq lr
+    ldmia sp!,{r4-r11,pc}

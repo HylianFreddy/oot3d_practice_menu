@@ -6,9 +6,12 @@
 #include "input.h"
 
 u8 noClip = 0;
+u8 freeCam = 0;
 u8 releasedABbuttons = 0;
 void dummyActorFunction(Actor* thisx, GlobalContext* globalCtx) {}
 void* storedPlayerUpdateFunction = &dummyActorFunction;
+View storedView;
+PosRot freeCamView;
 
 static Menu CollisionMenu = {
     "Collision",
@@ -16,15 +19,6 @@ static Menu CollisionMenu = {
     .initialCursorPos = 0,
     {
         {"TODO Placeholder", METHOD, .method = NULL}, //TODO: Collision options
-    }
-};
-
-static Menu CameraMenu = {
-    "Free camera",
-    .nbItems = 1,
-    .initialCursorPos = 0,
-    {
-        {"TODO Placeholder", METHOD, .method = NULL}, //TODO: free camera options
     }
 };
 
@@ -58,7 +52,7 @@ Menu SceneMenu = {
         {"Clear flags", METHOD, .method = Scene_ClearFlags},
         {"Room \"selector\" (not really)", METHOD, .method = Scene_RoomNumberMenuShow},
         {"Collision (TODO)", MENU, .menu = &CollisionMenu},
-        {"Free camera (TODO)", MENU, .menu = &CameraMenu},
+        {"Free Camera", METHOD, .method = Scene_FreeCamDescription},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
     }
 };
@@ -113,7 +107,7 @@ void Scene_ClearFlags(void) {
 }
 
 void Scene_NoClipToggle(void) {
-    if (isInGame()) {
+    if (isInGame() && !freeCam) {
         if (!noClip) {
             storedPlayerUpdateFunction = PLAYER->actor.update;
             PLAYER->actor.update = dummyActorFunction;
@@ -139,14 +133,13 @@ void Scene_NoClipDescription(void) {
                                         "collision detection.\n"
                                         "Press A to start, B to cancel.\n\n"
                                         "Commands:\n"
-                                        "DPad   - Move horizontally\n"
-                                        "L+DPad - Move vertically\n"
-                                        "Hold R - Move fast\n"
-                                        "X/Y    - Freeze/Unfreeze actors\n"
-                                        "A      - Quit and confirm position\n"
-                                        "B      - Quit and cancel movement\n\n"
-                                        "For now, movement only follows the cardinal\n"
-                                        "directions, regardless of camera orientation.");
+                                        "Circle Pad - Move horizontally (camera)\n"
+                                        "DPad       - Move horizontally (cardinal)\n"
+                                        "L+DPad     - Move vertically\n"
+                                        "Hold R     - Move fast\n"
+                                        "X/Y        - Freeze/Unfreeze actors\n"
+                                        "A          - Quit and confirm position\n"
+                                        "B          - Quit and cancel movement");
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
@@ -159,6 +152,63 @@ void Scene_NoClipDescription(void) {
         }
         if (pressed & BUTTON_A){
             Scene_NoClipToggle();
+        }
+    }while(menuOpen);
+}
+
+u8 Scene_FreeCamEnabled(void) {
+    return freeCam;
+}
+
+void Scene_FreeCamToggle(void) {
+    if (isInGame() && !noClip) {
+        if (!freeCam) {
+            storedView = gGlobalContext->view;
+            freeCamView.pos = gGlobalContext->view.eye;
+            freeCamView.rot = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
+            storedPlayerUpdateFunction = PLAYER->actor.update;
+            PLAYER->actor.update = dummyActorFunction;
+            PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
+            freeCam = 1;
+        }
+        else {
+            gGlobalContext->view = storedView;
+            PLAYER->actor.update = storedPlayerUpdateFunction;
+            PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
+            freeCam = 0;
+        }
+        menuOpen = 0;
+        releasedABbuttons = 0;
+    }
+}
+
+void Scene_FreeCamDescription(void) {
+
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_DrawString(10, 10, COLOR_TITLE, "Free Camera");
+    Draw_DrawString(30, 30, COLOR_WHITE, "Move the camera freely in 3D space, leaving\n"
+                                        "Link behind.\n"
+                                        "Press A to start, B to cancel.\n\n"
+                                        "Commands:\n"
+                                        "Circle Pad   - Move horizontally\n"
+                                        "L+Circle Pad - Rotate in place\n"
+                                        "C Stick      - Rotate while moving\n"
+                                        "DPad Up/Down - Move vertically\n"
+                                        "Hold R       - Move fast\n"
+                                        "B            - Quit");
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+
+    do
+    {
+        u32 pressed = Input_WaitWithTimeout(1000);
+
+        if (pressed & BUTTON_B){
+            break;
+        }
+        if (pressed & BUTTON_A){
+            Scene_FreeCamToggle();
         }
     }while(menuOpen);
 }

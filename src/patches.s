@@ -94,3 +94,8 @@ OverrideSceneSetup_patch:
 .global .LoadGame_patch
 LoadGame_patch:
     bl hook_LoadGame
+
+.section .patch_CameraUpdate
+.global CameraUpdate_patch
+CameraUpdate_patch:
+    bl hook_CameraUpdate

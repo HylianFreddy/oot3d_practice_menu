@@ -307,7 +307,7 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
             commandList[i].waiting = 0;
         }
 
-        if (noClip) break; // only the "open menu" command should work during noclip mode
+        if (noClip || freeCam) break; // only the "open menu" command should work during noclip mode
     }
 }
 

@@ -8,6 +8,10 @@ SECTIONS
 		*(.patch_loader)
 	}
 
+	.patch_CameraUpdate 0x2D84C8 : {
+	    * (.patch_CameraUpdate)
+	}
+
 	.patch_InstantTextFirstLine 0x2E049C : {
 		*(.patch_InstantTextFirstLine)
 	}

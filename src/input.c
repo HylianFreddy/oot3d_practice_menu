@@ -4,6 +4,7 @@
 #include "hid.h"
 #include "3ds/svc.h"
 #include "utils.h"
+#include "3ds/types.h"
 
 u32 GetCurrentPadState(void) {
     u32 hid_shared_mem = *(u32*)(0x005AEC5C);
@@ -22,6 +23,8 @@ void Input_Update(void) {
     rInputCtx.pressed.val = (rInputCtx.cur.val) & (~rInputCtx.old.val);
     rInputCtx.up.val = (~rInputCtx.cur.val) & (rInputCtx.old.val);
     rInputCtx.old.val = rInputCtx.cur.val;
+    irrstScanInput();
+    irrstCstickRead(&(rInputCtx.cStick));
 }
 
 u32 buttonCheck(u32 key) {
