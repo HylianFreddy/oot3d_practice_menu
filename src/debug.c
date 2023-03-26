@@ -121,8 +121,8 @@ static void DebugActors_ShowMoreInfo(Actor* actor) {
         Draw_DrawFormattedString(30, 30 + 6 * SPACING_Y, COLOR_WHITE, "Floor:           %08X", actor->floorPoly);
         Draw_DrawFormattedString(30, 30 + 7 * SPACING_Y, COLOR_WHITE, "Dist. from Link: xz:%05.2f  y:%05.2f", actor->xyzDistToPlayerSq, actor->xzDistToPlayer);
         Draw_DrawFormattedString(30, 30 + 8 * SPACING_Y, COLOR_WHITE, "Text ID:         %04X", actor->textId & 0xFFFF);
-        Draw_DrawFormattedString(30, 30 + 9 * SPACING_Y, COLOR_WHITE, "Held By:         %08X", actor->parent);
-        Draw_DrawFormattedString(30, 30 + 10 * SPACING_Y, COLOR_WHITE, "Holding:         %08X", actor->child);
+        Draw_DrawFormattedString(30, 30 + 9 * SPACING_Y, COLOR_WHITE, "Parent:          %08X", actor->parent);
+        Draw_DrawFormattedString(30, 30 + 10 * SPACING_Y, COLOR_WHITE, "Child:           %08X", actor->child);
 
         Draw_DrawString(10, SCREEN_BOT_HEIGHT - 40, COLOR_TITLE, "Press Y to open Memory Editor");
         Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_TITLE, "Press START to bring this actor to Link");
