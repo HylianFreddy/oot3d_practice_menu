@@ -66,7 +66,11 @@ AmountMenu TimersMenu = {
 };
 
 void File_FileMenuInit(void) {
-    FileMenu.items[FILE_GOLD_SKULLTULAS].on = (gSaveContext.gsFlags[0] == 0xFF);
+    s32 skulltulasDefeated = 0;
+    for (u32 i = 0; i < 22; i++) {
+        skulltulasDefeated += gSaveContext.gsFlags[i];
+    }
+    FileMenu.items[FILE_GOLD_SKULLTULAS].on = (skulltulasDefeated == 0x45A);
     FileMenu.items[FILE_ITEM_DROPS].on = (gSaveContext.infTable[0x19] & 0x0100) && (gSaveContext.itemGetInf[1] & 0x0008);
     FileMenu.items[FILE_CALL_NAVI].on = (gSaveContext.naviTimer >= 2000);
     FileMenu.items[FILE_EPONA_FREED].on = (gSaveContext.eventChkInf[0x1] & 0x0100) == 0x0100;
@@ -95,8 +99,12 @@ void File_ToggleSkulltulaFlags(s32 selected) {
         FileMenu.items[selected].on = 0;
     }
     else {
+        static u8 areaGsFlags[] = {
+            0x0F, 0x1F, 0x0F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x07, 0x07, 0x03,
+            0x0F, 0x07, 0x0F, 0x0F, 0xFF, 0xFF, 0xFF, 0x1F, 0x0F, 0x03, 0x0F,
+        };
         for (u32 i = 0; i < 22; i++) {
-            gSaveContext.gsFlags[i] = 0xFF;
+            gSaveContext.gsFlags[i] = areaGsFlags[i];
         }
         FileMenu.items[selected].on = 1;
     }
