@@ -1204,3 +1204,11 @@ void MemoryEditor_BoundTableIndexValue(void) {
             break;
     }
 }
+
+u32 MemoryEditor_GetSelectedByteAddress(void) {
+    u32 offset = selectedRow > 1
+        ? ((selectedRow - 2) * 8) + selectedColumn
+        : 0;
+
+    return memoryEditorAddress + offset;
+}

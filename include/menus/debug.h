@@ -21,6 +21,7 @@ void MemoryEditor_TableSettings(void);
 void MemoryEditor_JumpToTableElementFromIndex(void);
 void MemoryEditor_JumpToTableElement(void);
 void MemoryEditor_BoundTableIndexValue(void);
+u32 MemoryEditor_GetSelectedByteAddress(void);
 
 typedef enum {
     FLAGS_SWITCH,
