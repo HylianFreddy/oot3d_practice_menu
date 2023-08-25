@@ -23,7 +23,7 @@ static Menu CollisionMenu = {
 };
 
 AmountMenu RoomNumberMenu = {
-    "Choose a Room Number, then void out :)",
+    "Choose a Room Number, then void out",
     .nbItems = 1,
     .initialCursorPos = 0,
     {
@@ -48,9 +48,9 @@ Menu SceneMenu = {
     {
         {"NoClip / Move Link", METHOD, .method = Scene_NoClipDescription},
         {"Set Entrance Point", METHOD, .method = Scene_SetEntrancePoint},
-        {"Set flags", METHOD, .method = Scene_SetFlags},
-        {"Clear flags", METHOD, .method = Scene_ClearFlags},
-        {"Room \"selector\" (not really)", METHOD, .method = Scene_RoomNumberMenuShow},
+        {"Set Flags", METHOD, .method = Scene_SetFlags},
+        {"Clear Flags", METHOD, .method = Scene_ClearFlags},
+        {"Room Selector (Entrance Point)", METHOD, .method = Scene_RoomNumberMenuShow},
         {"Collision (TODO)", MENU, .menu = &CollisionMenu},
         {"Free Camera", METHOD, .method = Scene_FreeCamDescription},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
