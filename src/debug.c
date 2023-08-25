@@ -16,7 +16,7 @@
 //new actor values
 static s16 newId = 0x0010;
 static s16 newParams = 0x0000;
-static s16 storedPosRotIndex = 0;
+static s16 storedPosRotIndex = -1;
 
 //Memory Editor values
 u32 memoryEditorAddress = (int)&gSaveContext;
@@ -216,7 +216,7 @@ static void DebugActors_EditNewActorValue(s16* value, u32 posX, u32 posY, s32 di
 }
 
 static bool DebugActors_SpawnActor(void) {
-    PosRot selectedPosRot = storedPosRot[storedPosRotIndex];
+    PosRot selectedPosRot = storedPosRotIndex < 0 ? PLAYER->actor.world : storedPosRot[storedPosRotIndex];
     s32 selected = 0;
     u32 xCoords[] = {30 + SPACING_X * 4, 100 + SPACING_X * 8, 200 + SPACING_X * 17};
     s16* values[] = {&newId, &newParams, &storedPosRotIndex};
@@ -228,7 +228,8 @@ static bool DebugActors_SpawnActor(void) {
         Draw_DrawString(10, 10, COLOR_TITLE, "Spawn new Actor");
         Draw_DrawFormattedString(30, 70, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "ID: %04X", (u16)newId);
         Draw_DrawFormattedString(100, 70, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Params: %04X", (u16)newParams);
-        Draw_DrawFormattedString(200, 70, selected == 2 ? COLOR_GREEN : COLOR_WHITE, "Stored Position: %01d", storedPosRotIndex);
+        Draw_DrawFormattedString(200, 70, selected == 2 ? COLOR_GREEN : COLOR_WHITE,
+                                 storedPosRotIndex < 0 ? "Position: Link    " : "Position: Stored %01d", storedPosRotIndex);
 
         Draw_DrawFormattedString(30, 100, COLOR_WHITE, "POS   X: %08.2f", selectedPosRot.pos.x);
         Draw_DrawFormattedString(30 + SPACING_X * 19, 100, COLOR_WHITE, "Y: %08.2f", selectedPosRot.pos.y);
@@ -249,12 +250,17 @@ static bool DebugActors_SpawnActor(void) {
             break;
         }
         if (pressed & BUTTON_A) {
+            if (selected == 2 && storedPosRotIndex < 0) {
+                storedPosRotIndex = 0;
+                Draw_DrawString(200, 70, COLOR_GREEN, "Position: Stored  ");
+            }
             DebugActors_EditNewActorValue(values[selected], xCoords[selected], 70, digitCounts[selected]);
             if (selected == 2) {
                 selectedPosRot = storedPosRot[storedPosRotIndex];
             }
         }
         else if ((pressed & BUTTON_X)) {
+            storedPosRotIndex = -1;
             selectedPosRot = PLAYER->actor.world;
         }
         else if (pressed & BUTTON_Y) {
