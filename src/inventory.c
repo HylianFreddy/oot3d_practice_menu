@@ -15,8 +15,8 @@ Menu InventoryMenu = {
     .initialCursorPos = 0,
     {
         {"Items", METHOD, .method = Inventory_ItemsMenuFunc},
-        {"Right Side Gear", METHOD, .method = Inventory_RightGearMenuFunc},
-        {"Left Side Gear", METHOD, .method = Inventory_LeftGearMenuFunc},
+        {"Gear: Equipment/Upgrades", METHOD, .method = Inventory_RightGearMenuFunc},
+        {"Gear: Quest Items", METHOD, .method = Inventory_LeftGearMenuFunc},
         {"Ocarina Songs", METHOD, .method = Inventory_SongsMenuFunc},
         {"Amounts", METHOD, .method = Inventory_AmountsMenuFunc},
     }
@@ -123,7 +123,7 @@ ToggleMenu InventoryAdultTradeMenu = {
 
 ToggleMenu InventoryRightGearMenu = {
     "Right Side Gear",
-    .nbItems = 28,
+    .nbItems = 34,
     .initialCursorPos = 0,
     {
         {0, "Kokiri Sword", .method = Inventory_RightGearToggle},
@@ -137,6 +137,12 @@ ToggleMenu InventoryRightGearMenu = {
         {0, "Kokiri Tunic", .method = Inventory_RightGearToggle},
         {0, "Goron Tunic", .method = Inventory_RightGearToggle},
         {0, "Zora Tunic", .method = Inventory_RightGearToggle},
+        {0, "Deku Stick Capacity 10", .method = Inventory_RightGearToggle},
+        {0, "Deku Stick Capacity 20", .method = Inventory_RightGearToggle},
+        {0, "Deku Stick Capacity 30", .method = Inventory_RightGearToggle},
+        {0, "Deku Nut Capacity 20", .method = Inventory_RightGearToggle},
+        {0, "Deku Nut Capacity 30", .method = Inventory_RightGearToggle},
+        {0, "Deku Nut Capacity 40", .method = Inventory_RightGearToggle},
         {0, "Bullet Bag 30", .method = Inventory_RightGearToggle},
         {0, "Bullet Bag 40", .method = Inventory_RightGearToggle},
         {0, "Bullet Bag 50", .method = Inventory_RightGearToggle},
@@ -471,6 +477,12 @@ static void Inventory_RightGearMenu_Init(void){
     InventoryRightGearMenu.items[Gear_Menu_Kokiri_Tunic].on = ((gSaveContext.equipment & (1 << 8)) != 0);
     InventoryRightGearMenu.items[Gear_Menu_Goron_Tunic].on = ((gSaveContext.equipment & (1 << 9)) != 0);
     InventoryRightGearMenu.items[Gear_Menu_Zora_Tunic].on = ((gSaveContext.equipment & (1 << 10)) != 0);
+    InventoryRightGearMenu.items[Gear_Menu_Stick_Capacity_10].on = (((gSaveContext.upgrades >> 17) & 7) == 1);
+    InventoryRightGearMenu.items[Gear_Menu_Stick_Capacity_20].on = (((gSaveContext.upgrades >> 17) & 7) == 2);
+    InventoryRightGearMenu.items[Gear_Menu_Stick_Capacity_30].on = (((gSaveContext.upgrades >> 17) & 7) == 3);
+    InventoryRightGearMenu.items[Gear_Menu_Nut_Capacity_20].on = (((gSaveContext.upgrades >> 20) & 7) == 1);
+    InventoryRightGearMenu.items[Gear_Menu_Nut_Capacity_30].on = (((gSaveContext.upgrades >> 20) & 7) == 2);
+    InventoryRightGearMenu.items[Gear_Menu_Nut_Capacity_40].on = (((gSaveContext.upgrades >> 20) & 7) == 3);
     InventoryRightGearMenu.items[Gear_Menu_Bullet_Bag_30].on = (((gSaveContext.upgrades >> 14) & 7) == BULLET_BAG_30);
     InventoryRightGearMenu.items[Gear_Menu_Bullet_Bag_40].on = (((gSaveContext.upgrades >> 14) & 7) == BULLET_BAG_40);
     InventoryRightGearMenu.items[Gear_Menu_Bullet_Bag_50].on = (((gSaveContext.upgrades >> 14) & 7) == BULLET_BAG_50);
@@ -577,6 +589,48 @@ void Inventory_RightGearToggle(s32 selected){
             gSaveContext.equipment ^= (1 << 10);
             InventoryRightGearMenu.items[Gear_Menu_Zora_Tunic].on = ((gSaveContext.equipment & (1 << 10)) != 0);
             break;
+        case(Gear_Menu_Stick_Capacity_10):
+        case(Gear_Menu_Stick_Capacity_20):
+        case(Gear_Menu_Stick_Capacity_30):
+        {
+            // Store temp values
+            u8 currentStickCapacityIndex = (gSaveContext.upgrades >> 17) & 0x7;
+            u8 targetStickCapacityIndex = selected - Gear_Menu_Stick_Capacity_10 + 1;
+            // Clear upgrade
+            gSaveContext.upgrades &= ~(0x7 << 17);
+            if (currentStickCapacityIndex != targetStickCapacityIndex) {
+                // Set new upgrade value and unselect other options
+                gSaveContext.upgrades |= (targetStickCapacityIndex << 17);
+                InventoryRightGearMenu.items[Gear_Menu_Stick_Capacity_10].on = (selected == Gear_Menu_Stick_Capacity_10);
+                InventoryRightGearMenu.items[Gear_Menu_Stick_Capacity_20].on = (selected == Gear_Menu_Stick_Capacity_20);
+                InventoryRightGearMenu.items[Gear_Menu_Stick_Capacity_30].on = (selected == Gear_Menu_Stick_Capacity_30);
+            } else {
+                // Unselect the option
+                InventoryRightGearMenu.items[selected].on = FALSE;
+            }
+            break;
+        }
+        case(Gear_Menu_Nut_Capacity_20):
+        case(Gear_Menu_Nut_Capacity_30):
+        case(Gear_Menu_Nut_Capacity_40):
+        {
+            // Store temp values
+            u8 currentNutCapacityIndex = (gSaveContext.upgrades >> 20) & 0x7;
+            u8 targetNutCapacityIndex = selected - Gear_Menu_Nut_Capacity_20 + 1;
+            // Clear upgrade
+            gSaveContext.upgrades &= ~(0x7 << 20);
+            if (currentNutCapacityIndex != targetNutCapacityIndex) {
+                // Set new upgrade value and unselect other options
+                gSaveContext.upgrades |= (targetNutCapacityIndex << 20);
+                InventoryRightGearMenu.items[Gear_Menu_Nut_Capacity_20].on = (selected == Gear_Menu_Nut_Capacity_20);
+                InventoryRightGearMenu.items[Gear_Menu_Nut_Capacity_30].on = (selected == Gear_Menu_Nut_Capacity_30);
+                InventoryRightGearMenu.items[Gear_Menu_Nut_Capacity_40].on = (selected == Gear_Menu_Nut_Capacity_40);
+            } else {
+                // Unselect the option
+                InventoryRightGearMenu.items[selected].on = FALSE;
+            }
+            break;
+        }
         case(Gear_Menu_Bullet_Bag_30):
             if (((gSaveContext.upgrades >> 14) & 0x7) != BULLET_BAG_30){
                 gSaveContext.upgrades &= ~(0x7 << 14);
