@@ -437,3 +437,114 @@ u32 KeyboardFill(char * buf, u32 len){
 
     return idx;
 }
+
+/**
+ * @brief Allow the user to edit a numeric value displayed at an arbitrary position on the screen
+ */
+void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 customMax, u32 posX, u32 posY, s32 digitCount, u8 isHex) {
+    static void* lastEditedValue = 0;
+    static s32 digitIndex = 0;
+
+    if (valueAddress != lastEditedValue) {
+        lastEditedValue = valueAddress;
+        digitIndex = 0;
+    }
+
+    s64 longValue = (
+        (varType == VARTYPE_S8)  ?  *(s8*)valueAddress :
+        (varType == VARTYPE_U8)  ?  *(u8*)valueAddress :
+        (varType == VARTYPE_S16) ? *(s16*)valueAddress :
+        (varType == VARTYPE_U16) ? *(u16*)valueAddress :
+        (varType == VARTYPE_S32) ? *(s32*)valueAddress :
+        /*default is VARTYPE_U32*/ *(u32*)valueAddress
+    );
+    s32 min = (customMin != 0) ? customMin : varTypeLimits[varType].min;
+    s32 max = (customMax != 0) ? customMax : varTypeLimits[varType].max;
+
+
+    char* formatString = "%s%0*X";
+    char* formatCursor = "%X";
+    if (!isHex) {
+        formatString[5] = formatCursor[1] = (varType == VARTYPE_U32 ? 'u' : 'd');
+    }
+
+    do
+    {
+        Draw_Lock();
+
+        // Draw value
+        const char* prefix = isHex
+            ? longValue < 0
+                ? "-0x"
+                : " 0x"
+            : longValue < 0
+                ? "  "
+                : "   "
+        ;
+
+        Draw_DrawFormattedString(posX, posY, COLOR_GREEN, formatString,
+            prefix,
+            digitCount + ((isHex || longValue >= 0) ? 0 : 1),
+            (isHex && longValue < 0) ? -longValue : longValue
+        );
+
+        // Calculate the positional value of the selected digit
+        s32 digitValue = 1;
+        for (s32 i = 0; i < digitIndex; i++) {
+            digitValue = digitValue * (isHex ? 16 : 10);
+        }
+
+        // Draw cursor
+        Draw_DrawFormattedString(posX + (digitCount - digitIndex + 2) * SPACING_X, posY, COLOR_RED, formatCursor,
+            ((longValue < 0 ? -longValue : longValue) / digitValue) % (isHex ? 16 : 10));
+
+        Draw_Unlock();
+
+        u32 pressed = Input_WaitWithTimeout(1000);
+        s32 increase = 0;
+
+        if (pressed & (BUTTON_B | BUTTON_A)){
+            break;
+        }
+        else if (pressed & BUTTON_UP) {
+            increase = digitValue;
+        }
+        else if (pressed & BUTTON_DOWN) {
+            increase = -digitValue;
+        }
+        else if (pressed & BUTTON_RIGHT){
+            digitIndex--;
+        }
+        else if (pressed & BUTTON_LEFT){
+            digitIndex++;
+        }
+
+        if(digitIndex >= digitCount)
+            digitIndex = 0;
+        else if(digitIndex < 0)
+            digitIndex = digitCount - 1;
+
+        longValue += increase;
+
+        while ((longValue > max) || (longValue < min)) {
+            s32 offset = max - min;
+            if (digitIndex == 0) {
+                offset++;
+            }
+            if (longValue > max) {
+                longValue -= offset;
+            } else {
+                longValue += offset;
+            }
+        }
+
+        if (varType <= VARTYPE_U8) {
+            *(u8*)valueAddress = (u8)longValue;
+        } else if (varType <= VARTYPE_U16) {
+            *(u16*)valueAddress = (u16)longValue;
+        } else {
+            *(u32*)valueAddress = longValue;
+        }
+
+    } while(menuOpen);
+}

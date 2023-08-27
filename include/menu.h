@@ -91,12 +91,50 @@ typedef struct AmountMenu {
     AmountMenuItem items[0x40];
 } AmountMenu;
 
+typedef enum {
+    VARTYPE_S8,
+    VARTYPE_U8,
+    VARTYPE_S16,
+    VARTYPE_U16,
+    VARTYPE_S32,
+    VARTYPE_U32,
+    VARTYPE_MAX,
+} VarType;
+
+static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
+    { // S8
+        .min = -128,
+        .max = 127,
+    },
+    { // U8
+        .min = 0,
+        .max = 255,
+    },
+    { // S16
+        .min = -32768,
+        .max = 32767,
+    },
+    { // U16
+        .min = 0,
+        .max = 65535,
+    },
+    { // S32
+        .min = -2147483648,
+        .max = 2147483647,
+    },
+    { // U32
+        .min = 0,
+        .max = 4294967295,
+    },
+};
+
 #define TOGGLE_MENU_MAX_SHOW 18
 #define AMOUNT_MENU_MAX_SHOW 18
 
 void menuShow();
 void ToggleMenuShow(ToggleMenu *menu);
 void AmountMenuShow(AmountMenu *menu);
+void Menu_EditAmount(void* value, VarType varType, s32 min, s32 max, u32 posX, u32 posY, s32 digitCount, u8 isHex);
 
 u32 KeyboardFill(char* buf, u32 len);
 
