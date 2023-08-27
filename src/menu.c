@@ -446,6 +446,8 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
 
     static void* lastEditedValue = 0;
     static s32 digitIndex = 0;
+    static char* formatString = "%s%0*_";
+    static char* formatCursor = "%_";
 
     if (valueAddress != lastEditedValue) {
         lastEditedValue = valueAddress;
@@ -463,10 +465,10 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
     s64 min = (customMin != 0) ? customMin : varTypeLimits[varType].min;
     s64 max = (customMax != 0) ? customMax : varTypeLimits[varType].max;
 
-
-    char* formatString = "%s%0*X";
-    char* formatCursor = "%X";
-    if (!isHex) {
+    // Update format strings (hex/signed/unsigned)
+    if (isHex) {
+        formatString[5] = formatCursor[1] = 'X';
+    } else {
         formatString[5] = formatCursor[1] = (varType == VARTYPE_U32 ? 'u' : 'd');
     }
 
@@ -480,8 +482,8 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
                 ? "-0x"
                 : " 0x"
             : longValue < 0
-                ? "  "
-                : "   "
+                ? ""
+                : " "
         ;
         Draw_DrawFormattedString(posX, posY, COLOR_GREEN, formatString,
             prefix,
@@ -496,7 +498,7 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
         }
 
         // Draw cursor
-        Draw_DrawFormattedString(posX + (digitCount - digitIndex + 2) * SPACING_X, posY, COLOR_RED, formatCursor,
+        Draw_DrawFormattedString(posX + (digitCount - digitIndex + (isHex ? 2 : 0)) * SPACING_X, posY, COLOR_RED, formatCursor,
             ((longValue < 0 ? -longValue : longValue) / digitValue) % (isHex ? 16 : 10));
 
         Draw_Unlock();
@@ -528,10 +530,7 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
 
         // Limit value
         while ((longValue > max) || (longValue < min)) {
-            s32 offset = max - min;
-            if (digitIndex == 0) {
-                offset++;
-            }
+            s32 offset = 1 + max - min;
             if (longValue > max) {
                 longValue -= offset;
             } else {
