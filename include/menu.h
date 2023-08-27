@@ -38,6 +38,16 @@
 #define CORE_SYSTEM       1
 #define CORE_DEFAULT     -2
 
+typedef enum {
+    VARTYPE_S8,
+    VARTYPE_U8,
+    VARTYPE_S16,
+    VARTYPE_U16,
+    VARTYPE_S32,
+    VARTYPE_U32,
+    VARTYPE_MAX,
+} VarType;
+
 typedef enum MenuItemAction {
     METHOD,
     MENU
@@ -77,8 +87,11 @@ typedef struct ToggleMenu {
 
 typedef struct AmountMenuItem {
     u16 amount; //current amount
-    u16 hex;    //display in hex or decimal
+    VarType varType;
+    u16 min;    //min amount, 0 = no limit
     u16 max;    //max amount, 0 = no limit
+    s32 nDigits;//number of digits to display
+    u16 hex;    //display in hex or decimal
     char *title;
     void (*method)(s32);
 } AmountMenuItem;
@@ -90,16 +103,6 @@ typedef struct AmountMenu {
     s32 initialCursorPos;
     AmountMenuItem items[0x40];
 } AmountMenu;
-
-typedef enum {
-    VARTYPE_S8,
-    VARTYPE_U8,
-    VARTYPE_S16,
-    VARTYPE_U16,
-    VARTYPE_S32,
-    VARTYPE_U32,
-    VARTYPE_MAX,
-} VarType;
 
 static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
     { // S8

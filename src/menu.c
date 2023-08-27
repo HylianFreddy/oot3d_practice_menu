@@ -255,8 +255,12 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
         {
             s32 j = page * AMOUNT_MENU_MAX_SHOW + i;
             Draw_DrawString(70, 30 + i * SPACING_Y, COLOR_WHITE, menu->items[j].title);
-            Draw_DrawFormattedString(10, 30 + i * SPACING_Y, j == selected ? COLOR_GREEN : COLOR_TITLE,
-                menu->items[j].hex ? " 0x%04X" : "  %05d", menu->items[j].amount);
+            Draw_DrawFormattedString(10 + ((menu->items[j].hex ? 4 : 5) - menu->items[j].nDigits) * SPACING_X,
+                                     30 + i * SPACING_Y,
+                                     j == selected ? COLOR_GREEN : COLOR_TITLE,
+                                     menu->items[j].hex ? " 0x%0*X" : "  %0*d",
+                                     menu->items[j].nDigits,
+                                     menu->items[j].amount);
         }
 
         Draw_FlushFramebuffer();
@@ -268,10 +272,14 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
         else if(pressed & BUTTON_A)
         {
             u16 isHex = menu->items[selected].hex;
-            u32 posX = 10 + (isHex ? 0 : SPACING_X);
+            u32 posX = 10 + ((isHex ? 4 : 6) - menu->items[selected].nDigits) * SPACING_X;
             u32 posY = 30 + selected * SPACING_Y;
-            s32 digitCount = isHex ? 4 : 5;
-            Menu_EditAmount(posX, posY, &menu->items[selected].amount, VARTYPE_U16, 0, menu->items[selected].max, digitCount, isHex);
+            Menu_EditAmount(posX, posY, &menu->items[selected].amount,
+                            menu->items[selected].varType,
+                            menu->items[selected].min,
+                            menu->items[selected].max,
+                            menu->items[selected].nDigits,
+                            isHex);
             if(menu->items[selected].method != NULL) {
                 menu->items[selected].method(selected);
             }

@@ -54,7 +54,7 @@ AmountMenu PlaySFXMenu = {
     .nbItems = 1,
     .initialCursorPos = 0,
     {
-        {0, 1,  0, "SFX ID", .method = PlaySFX},
+        {0, VARTYPE_U16, 0, 0, 4, 1, "SFX ID", .method = PlaySFX},
     }
 };
 

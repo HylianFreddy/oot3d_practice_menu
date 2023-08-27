@@ -27,9 +27,9 @@ AmountMenu WarpsOverridesMenu = {
     .nbItems = 3,
     .initialCursorPos = 0,
     {
-        {0, 0,  6, "Game Mode", .method = Warps_OverrideGameMode},
-        {0, 0, 14, "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
-        {0, 0,  3, "ZoneoutType/RespawnFlag - POSITIVE", .method = Warps_SetRespawnFlag},
+        {0, VARTYPE_U16, 0,  6, 5, 0, "Game Mode", .method = Warps_OverrideGameMode},
+        {0, VARTYPE_U16, 0, 14, 5, 0, "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
+        {0, VARTYPE_U16, 0,  3, 5, 0, "ZoneoutType/RespawnFlag - POSITIVE", .method = Warps_SetRespawnFlag},
     }
 };
 

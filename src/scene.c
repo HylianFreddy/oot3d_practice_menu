@@ -27,7 +27,7 @@ AmountMenu RoomNumberMenu = {
     .nbItems = 1,
     .initialCursorPos = 0,
     {
-        {0, 0, 28, "Room Number", .method = Scene_SetRoomNumberinEP},
+        {0, VARTYPE_U16, 0, 28, 5, 0, "Room Number", .method = Scene_SetRoomNumberinEP},
     }
 };
 

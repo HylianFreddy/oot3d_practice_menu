@@ -58,10 +58,10 @@ AmountMenu TimersMenu = {
     .nbItems = 4,
     .initialCursorPos = 0,
     {
-        {0, 0, 15, "Timer 1 State", .method = File_SetTimerStateAndValue },
-        {0, 0,  0, "Timer 1 Value", .method = File_SetTimerStateAndValue },
-        {0, 0, 11, "Timer 2 State", .method = File_SetTimerStateAndValue },
-        {0, 0,  0, "Timer 2 Value", .method = File_SetTimerStateAndValue },
+        {0, VARTYPE_U16, 0, 15, 5, 0, "Timer 1 State", .method = File_SetTimerStateAndValue },
+        {0, VARTYPE_U16, 0,  0, 5, 0, "Timer 1 Value", .method = File_SetTimerStateAndValue },
+        {0, VARTYPE_U16, 0, 11, 5, 0, "Timer 2 State", .method = File_SetTimerStateAndValue },
+        {0, VARTYPE_U16, 0,  0, 5, 0, "Timer 2 Value", .method = File_SetTimerStateAndValue },
     }
 };
 
