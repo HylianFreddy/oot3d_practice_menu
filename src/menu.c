@@ -232,8 +232,6 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
 
 void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
     s32 selected = menu->initialCursorPos, page = selected / AMOUNT_MENU_MAX_SHOW, pagePrev = page;
-    u32 curColor = COLOR_GREEN;
-    u32 chosen = 0;
 
     if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
         selected = page = pagePrev = 0;
@@ -257,7 +255,7 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
         {
             s32 j = page * AMOUNT_MENU_MAX_SHOW + i;
             Draw_DrawString(70, 30 + i * SPACING_Y, COLOR_WHITE, menu->items[j].title);
-            Draw_DrawFormattedString(10, 30 + i * SPACING_Y, j == selected ? curColor : COLOR_TITLE,
+            Draw_DrawFormattedString(10, 30 + i * SPACING_Y, j == selected ? COLOR_GREEN : COLOR_TITLE,
                 menu->items[j].hex ? " 0x%04X" : "  %05d", menu->items[j].amount);
         }
 
@@ -265,55 +263,32 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
         Draw_Unlock();
 
         u32 pressed = Input_WaitWithTimeout(1000);
-        if(pressed & BUTTON_B && !chosen)
+        if(pressed & BUTTON_B)
             break;
-        else if(pressed & BUTTON_A && !chosen)
+        else if(pressed & BUTTON_A)
         {
-            curColor = COLOR_RED;
-            chosen = 1;
-        }
-        else if(pressed & (BUTTON_A | BUTTON_B) & chosen)
-        {
+            u16 isHex = menu->items[selected].hex;
+            u32 posX = 10 + (isHex ? 0 : SPACING_X);
+            u32 posY = 30 + selected * SPACING_Y;
+            s32 digitCount = isHex ? 4 : 5;
+            Menu_EditAmount(&menu->items[selected].amount, VARTYPE_U16, 0, menu->items[selected].max, posX, posY, digitCount, isHex);
             if(menu->items[selected].method != NULL) {
                 menu->items[selected].method(selected);
             }
-            curColor = COLOR_GREEN;
-            chosen = 0;
         }
-        else if(pressed & BUTTON_DOWN && !chosen)
+        else if(pressed & BUTTON_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_DOWN && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount-= (menu->items[selected].hex ? 0x100 : 100);
-            else
-                menu->items[selected].amount--;
-        }
-        else if(pressed & BUTTON_UP && !chosen)
+        else if(pressed & BUTTON_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_UP && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount+= (menu->items[selected].hex ? 0x100 : 100);
-            else
-                menu->items[selected].amount++;
-        }
-        else if(pressed & BUTTON_LEFT && !chosen)
+        else if(pressed & BUTTON_LEFT)
         {
             selected -= AMOUNT_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount+= (menu->items[selected].hex ? 0x1000 : 1000);
-            else
-                menu->items[selected].amount += (menu->items[selected].hex ? 0x10 : 10);
-        }
-        else if(pressed & BUTTON_RIGHT && !chosen)
+        else if(pressed & BUTTON_RIGHT)
         {
             if(selected + AMOUNT_MENU_MAX_SHOW < menu->nbItems)
                 selected += AMOUNT_MENU_MAX_SHOW;
@@ -321,32 +296,10 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
                 selected %= AMOUNT_MENU_MAX_SHOW;
             else selected = menu->nbItems - 1;
         }
-        else if(pressed & BUTTON_LEFT && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount-= (menu->items[selected].hex ? 0x1000 : 1000);
-            else
-                menu->items[selected].amount -= (menu->items[selected].hex ? 0x10 : 10);
-        }
-
-        while(chosen && (menu->items[selected].max != 0) && (menu->items[selected].amount > menu->items[selected].max)) {
-            u16 overDiff = menu->items[selected].amount - menu->items[selected].max;
-            u16 underDiff = 0xFFFF - menu->items[selected].amount;
-            if(overDiff < underDiff) {
-                menu->items[selected].amount = overDiff - 1;
-            }
-            else {
-                menu->items[selected].amount = menu->items[selected].max - underDiff;
-            }
-        }
 
         if(selected < 0)
             selected = menu->nbItems - 1;
         else if(selected >= menu->nbItems) selected = 0;
-
-        if(chosen && menu->items[selected].method != NULL) {
-            menu->items[selected].method(selected);
-        }
 
         menu->initialCursorPos = selected;
 
@@ -509,7 +462,7 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
         if (pressed & (BUTTON_B | BUTTON_A)){
             break;
         }
-        else if (pressed & BUTTON_R1) {
+        else if ((pressed & BUTTON_R1) && (pressed & BUTTON_L1)) {
             longValue = 0;
         }
         else if (pressed & BUTTON_UP) {
