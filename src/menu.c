@@ -509,6 +509,9 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
         if (pressed & (BUTTON_B | BUTTON_A)){
             break;
         }
+        else if (pressed & BUTTON_R1) {
+            longValue = 0;
+        }
         else if (pressed & BUTTON_UP) {
             longValue += digitValue;
         }
@@ -530,7 +533,7 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
 
         // Limit value
         while ((longValue > max) || (longValue < min)) {
-            s32 offset = 1 + max - min;
+            s64 offset = 1 + max - min;
             if (longValue > max) {
                 longValue -= offset;
             } else {
