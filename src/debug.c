@@ -198,7 +198,7 @@ static bool DebugActors_SpawnActor(void) {
                 storedPosRotIndex = 0;
                 Draw_DrawString(200, 70, COLOR_GREEN, "Position: Stored  ");
             }
-            Menu_EditAmount(values[selected], VARTYPE_U16, 0, selected == 2 ? 8 : 0, xCoords[selected], 70, digitCounts[selected], selected != 2);
+            Menu_EditAmount(xCoords[selected], 70, values[selected], VARTYPE_U16, 0, selected == 2 ? 8 : 0, digitCounts[selected], selected != 2);
             if (selected == 2) {
                 selectedPosRot = storedPosRot[storedPosRotIndex];
             }
@@ -762,7 +762,7 @@ void Debug_MemoryEditor(void) {
 void MemoryEditor_EditAddress(void) {
     u32 oldAddress = memoryEditorAddress;
 
-    Menu_EditAmount(&memoryEditorAddress, VARTYPE_U32, 0, 0, 30 - 3 * SPACING_X, 30, 8, TRUE);
+    Menu_EditAmount(30 - 3 * SPACING_X, 30, &memoryEditorAddress, VARTYPE_U32, 0, 0, 8, TRUE);
 
     if (memoryEditorAddress != oldAddress)
         pushHistory(oldAddress);

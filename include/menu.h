@@ -134,7 +134,7 @@ static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
 void menuShow();
 void ToggleMenuShow(ToggleMenu *menu);
 void AmountMenuShow(AmountMenu *menu);
-void Menu_EditAmount(void* value, VarType varType, s32 min, s32 max, u32 posX, u32 posY, s32 digitCount, u8 isHex);
+void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount, u8 isHex);
 
 u32 KeyboardFill(char* buf, u32 len);
 

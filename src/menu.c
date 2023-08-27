@@ -271,7 +271,7 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
             u32 posX = 10 + (isHex ? 0 : SPACING_X);
             u32 posY = 30 + selected * SPACING_Y;
             s32 digitCount = isHex ? 4 : 5;
-            Menu_EditAmount(&menu->items[selected].amount, VARTYPE_U16, 0, menu->items[selected].max, posX, posY, digitCount, isHex);
+            Menu_EditAmount(posX, posY, &menu->items[selected].amount, VARTYPE_U16, 0, menu->items[selected].max, digitCount, isHex);
             if(menu->items[selected].method != NULL) {
                 menu->items[selected].method(selected);
             }
@@ -394,8 +394,8 @@ u32 KeyboardFill(char * buf, u32 len){
 /**
  * @brief Allow the user to edit a numeric value displayed at an arbitrary position on the screen
  */
-void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 customMax,
-                     u32 posX, u32 posY, s32 digitCount, u8 isHex) {
+void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType,
+                     s32 customMin, s32 customMax, s32 digitCount, u8 isHex) {
 
     static void* lastEditedValue = 0;
     static s32 digitIndex = 0;
