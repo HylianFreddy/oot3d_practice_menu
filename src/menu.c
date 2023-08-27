@@ -441,7 +441,9 @@ u32 KeyboardFill(char * buf, u32 len){
 /**
  * @brief Allow the user to edit a numeric value displayed at an arbitrary position on the screen
  */
-void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 customMax, u32 posX, u32 posY, s32 digitCount, u8 isHex) {
+void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 customMax,
+                     u32 posX, u32 posY, s32 digitCount, u8 isHex) {
+
     static void* lastEditedValue = 0;
     static s32 digitIndex = 0;
 
@@ -458,8 +460,8 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
         (varType == VARTYPE_S32) ? *(s32*)valueAddress :
         /*default is VARTYPE_U32*/ *(u32*)valueAddress
     );
-    s32 min = (customMin != 0) ? customMin : varTypeLimits[varType].min;
-    s32 max = (customMax != 0) ? customMax : varTypeLimits[varType].max;
+    s64 min = (customMin != 0) ? customMin : varTypeLimits[varType].min;
+    s64 max = (customMax != 0) ? customMax : varTypeLimits[varType].max;
 
 
     char* formatString = "%s%0*X";
@@ -481,7 +483,6 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
                 ? "  "
                 : "   "
         ;
-
         Draw_DrawFormattedString(posX, posY, COLOR_GREEN, formatString,
             prefix,
             digitCount + ((isHex || longValue >= 0) ? 0 : 1),
@@ -500,17 +501,17 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
 
         Draw_Unlock();
 
+        // Handle input
         u32 pressed = Input_WaitWithTimeout(1000);
-        s32 increase = 0;
 
         if (pressed & (BUTTON_B | BUTTON_A)){
             break;
         }
         else if (pressed & BUTTON_UP) {
-            increase = digitValue;
+            longValue += digitValue;
         }
         else if (pressed & BUTTON_DOWN) {
-            increase = -digitValue;
+            longValue -= digitValue;
         }
         else if (pressed & BUTTON_RIGHT){
             digitIndex--;
@@ -519,13 +520,13 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
             digitIndex++;
         }
 
+        // Limit cursor position
         if(digitIndex >= digitCount)
             digitIndex = 0;
         else if(digitIndex < 0)
             digitIndex = digitCount - 1;
 
-        longValue += increase;
-
+        // Limit value
         while ((longValue > max) || (longValue < min)) {
             s32 offset = max - min;
             if (digitIndex == 0) {
@@ -538,6 +539,7 @@ void Menu_EditAmount(void* valueAddress, VarType varType, s32 customMin, s32 cus
             }
         }
 
+        // Write new value to address
         if (varType <= VARTYPE_U8) {
             *(u8*)valueAddress = (u8)longValue;
         } else if (varType <= VARTYPE_U16) {
