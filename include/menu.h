@@ -100,4 +100,5 @@ void AmountMenuShow(AmountMenu *menu);
 
 u32 KeyboardFill(char* buf, u32 len);
 
+extern bool onMenuLoop();
 extern bool menuOpen;

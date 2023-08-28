@@ -68,9 +68,7 @@ void Scene_SetEntrancePoint(void) {
         gGlobalContext->actorCtx.flags.tempSwch,
         gGlobalContext->actorCtx.flags.tempCollect,
     };
-    alertMessage = ADDITIONAL_FLAG_BUTTON ? "EP set as from EPG" : "EP set!";
-    alertFrames = 10;
-    drawAlert();
+    setAlert(ADDITIONAL_FLAG_BUTTON ? "EP set as from EPG" : "EP set!", 90);
 }
 
 void Scene_RoomNumberMenuInit(void) {
@@ -119,7 +117,7 @@ void Scene_NoClipToggle(void) {
             PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
             noClip = 0;
         }
-        menuOpen = 0;
+        menuOpen = false;
         releasedABbuttons = 0;
     }
 }
@@ -153,7 +151,7 @@ void Scene_NoClipDescription(void) {
         if (pressed & BUTTON_A){
             Scene_NoClipToggle();
         }
-    }while(menuOpen);
+    }while(onMenuLoop());
 }
 
 u8 Scene_FreeCamEnabled(void) {
@@ -177,7 +175,7 @@ void Scene_FreeCamToggle(void) {
             PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
             freeCam = 0;
         }
-        menuOpen = 0;
+        menuOpen = false;
         releasedABbuttons = 0;
     }
 }
@@ -210,7 +208,7 @@ void Scene_FreeCamDescription(void) {
         if (pressed & BUTTON_A){
             Scene_FreeCamToggle();
         }
-    }while(menuOpen);
+    }while(onMenuLoop());
 }
 
 void Scene_HideEntitiesMenuShow() {

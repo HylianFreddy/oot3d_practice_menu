@@ -25,8 +25,9 @@
 advance_ctx_t advance_ctx = {};
 uint8_t practice_menu_init = 0;
 static bool isAsleep = false;
-u32 alertFrames = 0;
-char* alertMessage = "";
+static u32 sAlertFrames = 0;
+static char* sAlertMessage = "";
+bool menuOpen = false;
 
 GlobalContext* gGlobalContext;
 u8 gInit = 0;
@@ -163,14 +164,24 @@ static void drawWatches(void) {
     Draw_FlushFramebuffer();
 }
 
-void drawAlert() {
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0)
-        alertFrames = 0;
+void setAlert(char* alertMessage, u32 alertFrames) {
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0) {
+        sAlertFrames = 0;
+        return;
+    }
 
-    if (alertFrames > 0) {
-        Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, alertMessage);
+    Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, "%*s", strlen(sAlertMessage), "");
+    sAlertMessage = alertMessage;
+    sAlertFrames = alertFrames;
+}
+
+void drawAlert() {
+    if (sAlertFrames > 0) {
+        Draw_DrawStringTop(280, 220, COLOR_WHITE, sAlertMessage);
         Draw_FlushFramebufferTop();
-        alertFrames--;
+        sAlertFrames--;
+    } else if (strlen(sAlertMessage) > 0) {
+        setAlert("", 0);
     }
 }
 
@@ -400,3 +411,9 @@ void Gfx_SleepQueryCallback(void) {
     menuOpen = false;
     isAsleep = true;
 }
+
+bool onMenuLoop() {
+    sAlertFrames -= MIN(30, sAlertFrames);
+    drawAlert();
+    return menuOpen;
+};

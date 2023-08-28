@@ -8,10 +8,9 @@ extern bool is_valid_memory_read(const MemInfo* info);
 extern bool is_valid_memory_write(const MemInfo* info);
 extern bool isInGame();
 extern void drawAlert();
+extern void setAlert(char* alertMessage, u32 alertFrames);
 extern void pauseDisplay();
 
-extern u32 alertFrames;
-extern char* alertMessage;
 extern u8 gInit;
 
 #endif //_COMMON_H_
