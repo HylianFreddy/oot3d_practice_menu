@@ -25,6 +25,7 @@ ToggleMenu ToggleSettingsMenu = {
     {
         {1, "Pause/Commands Display", METHOD, .method = Settings_Toggle},
         {1, "Remember cursor position in all menus", METHOD, .method = Settings_Toggle},
+        {1, "Main ASM hook (disable to test lag,\n    most features will stop working)", METHOD, .method = Settings_Toggle},
     }
 };
 

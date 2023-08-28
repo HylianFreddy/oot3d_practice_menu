@@ -211,6 +211,10 @@ void advance_main(void) {
         practice_menu_init = 1;
     }
 
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel) {
+        return;
+    }
+
     if(gSaveContext.entranceIndex == 0x0629 && gSaveContext.cutsceneIndex == 0xFFF3 && gSaveContext.gameMode != 2){
         titleScreenDisplay();
     }
