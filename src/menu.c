@@ -255,12 +255,14 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
         {
             s32 j = page * AMOUNT_MENU_MAX_SHOW + i;
             Draw_DrawString(70, 30 + i * SPACING_Y, COLOR_WHITE, menu->items[j].title);
-            Draw_DrawFormattedString(10 + ((menu->items[j].hex ? 4 : 5) - menu->items[j].nDigits) * SPACING_X,
+            s16 signedAmount = (s16)(menu->items[j].amount);
+            u8 digitsOffDecimalNegative = ((menu->items[j].varType % 2 == 0) && signedAmount < 0) ? 1 : 0;
+            Draw_DrawFormattedString(10 + ((menu->items[j].hex ? 4 : 5) - menu->items[j].nDigits - digitsOffDecimalNegative) * SPACING_X,
                                      30 + i * SPACING_Y,
                                      j == selected ? COLOR_GREEN : COLOR_TITLE,
                                      menu->items[j].hex ? " 0x%0*X" : "  %0*d",
                                      menu->items[j].nDigits,
-                                     menu->items[j].amount);
+                                     (menu->items[j].varType % 2 == 0) ? signedAmount : menu->items[j].amount);
         }
 
         Draw_FlushFramebuffer();
@@ -415,14 +417,16 @@ void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType,
         digitIndex = 0;
     }
 
-    s64 longValue = (
-        (varType == VARTYPE_S8)  ?  *(s8*)valueAddress :
-        (varType == VARTYPE_U8)  ?  *(u8*)valueAddress :
-        (varType == VARTYPE_S16) ? *(s16*)valueAddress :
-        (varType == VARTYPE_U16) ? *(u16*)valueAddress :
-        (varType == VARTYPE_S32) ? *(s32*)valueAddress :
-        /*default is VARTYPE_U32*/ *(u32*)valueAddress
-    );
+    s64 longValue;
+    switch (varType) {
+        case VARTYPE_S8:  longValue =  *(s8*)valueAddress; break;
+        case VARTYPE_U8:  longValue =  *(u8*)valueAddress; break;
+        case VARTYPE_S16: longValue = *(s16*)valueAddress; break;
+        case VARTYPE_U16: longValue = *(u16*)valueAddress; break;
+        case VARTYPE_S32: longValue = *(s32*)valueAddress; break;
+        default:          longValue = *(u32*)valueAddress; break;
+    }
+
     s64 min = (customMin != 0) ? customMin : varTypeLimits[varType].min;
     s64 max = (customMax != 0) ? customMax : varTypeLimits[varType].max;
 

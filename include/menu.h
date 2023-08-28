@@ -88,10 +88,10 @@ typedef struct ToggleMenu {
 typedef struct AmountMenuItem {
     u16 amount; //current amount
     VarType varType;
-    u16 min;    //min amount, 0 = no limit
-    u16 max;    //max amount, 0 = no limit
+    s32 min;    //min amount, 0 = no limit
+    s32 max;    //max amount, 0 = no limit
     s32 nDigits;//number of digits to display
-    u16 hex;    //display in hex or decimal
+    u8 hex;     //display in hex or decimal
     char *title;
     void (*method)(s32);
 } AmountMenuItem;
