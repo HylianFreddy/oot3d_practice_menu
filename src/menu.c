@@ -120,7 +120,7 @@ void menuShow()
             }
             else
             {
-                menuOpen = 0;
+                menuOpen = false;
                 break;
             }
         }
@@ -141,7 +141,7 @@ void menuShow()
         menuDraw(currentMenu, selectedItem);
         Draw_Unlock();
     }
-    while(menuOpen);
+    while(onMenuLoop());
 
     if(!gInit || gGlobalContext->sceneLoadFlag != 0x14) {
         svcSleepThread(1000 * 1000 * 300LL); //wait 300 milliseconds for users to buffer inputs
@@ -227,7 +227,7 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
 
         pagePrev = page;
         page = selected / TOGGLE_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
@@ -313,7 +313,7 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
 
         pagePrev = page;
         page = selected / AMOUNT_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 u32 KeyboardFill(char * buf, u32 len){
@@ -394,7 +394,7 @@ u32 KeyboardFill(char * buf, u32 len){
 
         if (selected >= 40) selected = 0;
         if (selected < 0) selected = 39;
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     return idx;
 }

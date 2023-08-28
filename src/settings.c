@@ -25,6 +25,7 @@ ToggleMenu ToggleSettingsMenu = {
     {
         {1, "Pause/Commands Display", METHOD, .method = Settings_Toggle},
         {1, "Remember cursor position in all menus", METHOD, .method = Settings_Toggle},
+        {1, "Main ASM hook (disable to test lag,\n    most features will stop working)", METHOD, .method = Settings_Toggle},
     }
 };
 
@@ -34,6 +35,7 @@ void Settings_ShowToggleSettingsMenu(void){
 
 void Settings_Toggle(s32 selected) {
     ToggleSettingsMenu.items[selected].on = !ToggleSettingsMenu.items[selected].on;
+    setAlert("", 0);
 }
 
 void Settings_CycleProfile(void) {
@@ -73,9 +75,7 @@ void Settings_SaveExtSaveData(void) {
     FS_Archive fsa;
 
     if(!R_SUCCEEDED(res = extDataMount(&fsa))) {
-        alertMessage = "Failed to save! ";
-        alertFrames = 1;
-        drawAlert();
+        setAlert("Failed to save! ", 90);
         return;
     }
 
@@ -85,10 +85,9 @@ void Settings_SaveExtSaveData(void) {
 
     extDataUnmount(fsa);
 
-    alertMessage = "Profile X saved ";
-    alertMessage[8] = selectedProfile + '0';
-    alertFrames = 1;
-    drawAlert();
+    char* alert = "Profile X saved";
+    alert[8] = selectedProfile + '0';
+    setAlert(alert, 90);
 }
 
 void Settings_LoadExtSaveData(void) {
@@ -100,9 +99,7 @@ void Settings_LoadExtSaveData(void) {
     Handle fileHandle;
 
     if (R_FAILED(res = extDataMount(&fsa))) {
-        alertMessage = "Failed to load! ";
-        alertFrames = 1;
-        drawAlert();
+        setAlert("Failed to load! ", 90);
         return;
     }
 
@@ -110,9 +107,7 @@ void Settings_LoadExtSaveData(void) {
 
     if (R_FAILED(res = extDataOpen(&fileHandle, fsa, path))) {
         extDataUnmount(fsa);
-        alertMessage = "Failed to load! ";
-        alertFrames = 1;
-        drawAlert();
+        setAlert("Failed to load! ", 90);
         return;
     }
 
@@ -120,9 +115,7 @@ void Settings_LoadExtSaveData(void) {
     if (version != EXTSAVEDATA_VERSION) {
         extDataClose(fileHandle);
         extDataUnmount(fsa);
-        alertMessage = "Failed to load! ";
-        alertFrames = 1;
-        drawAlert();
+        setAlert("Failed to load! ", 90);
         return;
     }
 
@@ -133,10 +126,9 @@ void Settings_LoadExtSaveData(void) {
 
     Settings_ApplyExtSaveData();
 
-    alertMessage = "Profile X loaded";
-    alertMessage[8] = selectedProfile + '0';
-    alertFrames = 1;
-    drawAlert();
+    char* alert = "Profile X loaded";
+    alert[8] = selectedProfile + '0';
+    setAlert(alert, 90);
 }
 
 // This function is called when loading a save file.

@@ -25,8 +25,9 @@
 advance_ctx_t advance_ctx = {};
 uint8_t practice_menu_init = 0;
 static bool isAsleep = false;
-u32 alertFrames = 0;
-char* alertMessage = "";
+static u32 sAlertFrames = 0;
+static char* sAlertMessage = "";
+bool menuOpen = false;
 
 GlobalContext* gGlobalContext;
 u8 gInit = 0;
@@ -163,14 +164,24 @@ static void drawWatches(void) {
     Draw_FlushFramebuffer();
 }
 
-void drawAlert() {
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0)
-        alertFrames = 0;
+void setAlert(char* alertMessage, u32 alertFrames) {
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0) {
+        sAlertFrames = 0;
+        return;
+    }
 
-    if (alertFrames > 0) {
-        Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, alertMessage);
+    Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, "%*s", strlen(sAlertMessage), "");
+    sAlertMessage = alertMessage;
+    sAlertFrames = alertFrames;
+}
+
+void drawAlert() {
+    if (sAlertFrames > 0) {
+        Draw_DrawStringTop(280, 220, COLOR_WHITE, sAlertMessage);
         Draw_FlushFramebufferTop();
-        alertFrames--;
+        sAlertFrames--;
+    } else if (strlen(sAlertMessage) > 0) {
+        setAlert("", 0);
     }
 }
 
@@ -192,8 +203,6 @@ void pauseDisplay(void) {
     Draw_FlushFramebufferTop();
 }
 
-//static s32 c = 0;
-#define SOUND 448
 void advance_main(void) {
     if(practice_menu_init == 0){
         Draw_SetupFramebuffer();
@@ -202,13 +211,9 @@ void advance_main(void) {
         practice_menu_init = 1;
     }
 
-    /*if (rInputCtx.pressed.x) {
-        PlaySound(0x1000000 + NA_SE_EN_MGANON_ROAR + c++);
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel) {
+        return;
     }
-
-    if (rInputCtx.pressed.y) {
-        PlaySound(0x1000000 + NA_SE_EN_MGANON_ROAR + c--);
-    }*/
 
     if(gSaveContext.entranceIndex == 0x0629 && gSaveContext.cutsceneIndex == 0xFFF3 && gSaveContext.gameMode != 2){
         titleScreenDisplay();
@@ -400,3 +405,9 @@ void Gfx_SleepQueryCallback(void) {
     menuOpen = false;
     isAsleep = true;
 }
+
+bool onMenuLoop() {
+    sAlertFrames -= MIN(30, sAlertFrames);
+    drawAlert();
+    return menuOpen;
+};

@@ -12,14 +12,13 @@
 
 u32 pauseUnpause = 0; //tells main to pause/unpause
 u32 frameAdvance = 0; //tells main to frame advance
-bool menuOpen = 0;    //tells main to open menu
 bool shouldDrawWatches = 1;
 
 PosRot storedPosRot[STORED_POS_COUNT];
 static u8 storedPosIndex = 0;
 
 static void Command_OpenMenu(void){
-    menuOpen = 1;
+    menuOpen = true;
 }
 
 static void Command_Break(void){
@@ -48,8 +47,7 @@ static void Command_Break(void){
         if (gGlobalContext->nextEntranceIndex != 0xFFFF && gGlobalContext->sceneLoadFlag == 0x14) {
             gGlobalContext->sceneLoadFlag = 0xEC; //hacky solution to avoid softlocks when warping during fade-in
         }
-        alertMessage = "Break";
-        alertFrames = 20;
+        setAlert("Break", 40);
     }
 }
 
@@ -93,8 +91,7 @@ static void Command_VoidOut(void){
 
 static void Command_ToggleAge(void){
     gGlobalContext->linkAgeOnLoad = 1 - gGlobalContext->linkAgeOnLoad;
-    alertMessage = gGlobalContext->linkAgeOnLoad ? "Child on next load" : "Adult on next load";
-    alertFrames = menuOpen ? 10 : 75;
+    setAlert(gGlobalContext->linkAgeOnLoad ? "Child on next load" : "Adult on next load", 75);
 }
 
 // static void Command_SaveState(void);
@@ -105,9 +102,9 @@ static void Command_StorePos(void){
         storedPosRot[storedPosIndex].pos = PLAYER->actor.world.pos;
         storedPosRot[storedPosIndex].rot = PLAYER->actor.world.rot;
 
-        alertMessage = "Stored position X";
-        alertMessage[16] = storedPosIndex + '0';
-        alertFrames = menuOpen ? 10 : 90;
+        char* alert = "Stored position X";
+        alert[16] = storedPosIndex + '0';
+        setAlert(alert, 90);
     }
 }
 
@@ -119,16 +116,16 @@ static void Command_LoadPos(void){
         PLAYER->actor.focus.rot = storedPosRot[storedPosIndex].rot;
         PLAYER->actor.shape.rot = storedPosRot[storedPosIndex].rot;
 
-        alertMessage = "Loaded position X";
-        alertMessage[16] = storedPosIndex + '0';
-        alertFrames = menuOpen ? 10 : 90;
+        char* alert = "Loaded position X";
+        alert[16] = storedPosIndex + '0';
+        setAlert(alert, 90);
     }
 }
 
 static void AlertPosIndex(void) {
-    alertMessage = "Position X";
-    alertMessage[9] = storedPosIndex + '0';
-    alertFrames = menuOpen ? 10 : 75;
+    char* alert = "Position X";
+    alert[9] = storedPosIndex + '0';
+    setAlert(alert, 75);
 }
 
 static void Command_PreviousPos(void) {
@@ -471,7 +468,7 @@ static void Commands_EditCommand(u32 commandIndex){
             }
         }
 
-    } while(menuOpen);
+    } while(onMenuLoop());
     Draw_ClearFramebuffer();
 }
 
@@ -536,7 +533,6 @@ void Commands_ShowCommandsMenu(void){
         else if(pressed & BUTTON_Y)
         {
             commandList[selected].method();
-            drawAlert();
         }
         else if(pressed & BUTTON_DOWN)
         {
@@ -567,7 +563,7 @@ void Commands_ShowCommandsMenu(void){
 
         pagePrev = page;
         page = selected / COMMAND_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 u16 SaveMenu_IgnoreOpen(void) {

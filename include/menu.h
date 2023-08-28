@@ -141,4 +141,5 @@ void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, 
 
 u32 KeyboardFill(char* buf, u32 len);
 
+extern bool onMenuLoop();
 extern bool menuOpen;

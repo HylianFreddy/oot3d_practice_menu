@@ -189,7 +189,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                 else if(selected >= Entrance_Select_Menu_Etcs){
                     u16 entranceIndex = manualSelection ? chosenEntranceIndex : entrances->items[selected - Entrance_Select_Menu_Etcs].entranceIndex;
                     EntranceWarp(entranceIndex, chosenAge, cutsceneIndex, chosenTime);
-                    menuOpen = 0;
+                    menuOpen = false;
                 }
             }
             else if(pressed & BUTTON_DOWN)
@@ -231,7 +231,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                 Draw_DrawStringTop(60, 220, COLOR_WHITE, "Next Cutscene: None                ");
             }*/
         }
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void WarpsSceneMenuShow(WarpsSceneMenu* menu){
@@ -311,7 +311,7 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
 
         pagePrev = page;
         page = selected / SCENE_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 EntrancesByScene Entrances_Empty = {

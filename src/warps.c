@@ -252,7 +252,7 @@ void WarpsPlacesMenuShow(void){
             selected = WarpsPlacesMenuSize - 1;
         else if(selected >= WarpsPlacesMenuSize) selected = 0;
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void ManuallyEnterEntranceIndex(void){

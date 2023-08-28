@@ -156,7 +156,7 @@ static void DebugActors_ShowMoreInfo(Actor* actor) {
             Draw_Unlock();
         }
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 static bool DebugActors_SpawnActor(void) {
@@ -224,7 +224,7 @@ static bool DebugActors_SpawnActor(void) {
         else if(selected < 0)
             selected = 2;
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     return false;
 }
@@ -368,7 +368,7 @@ void DebugActors_ShowActors(void) {
         pagePrev = page;
         page = selected / ACTOR_LIST_MAX_SHOW;
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void Debug_ShowObjects(void) {
@@ -425,7 +425,7 @@ void Debug_ShowObjects(void) {
         else if(digitIdx < 0)
             digitIdx = 3;
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void Debug_FlagsEditor(void) {
@@ -549,7 +549,7 @@ void Debug_FlagsEditor(void) {
             column = (row == 0 ? 1 : 15);
         }
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     #undef WHITE_OR_BLUE_AT
 }
@@ -756,7 +756,7 @@ void Debug_MemoryEditor(void) {
             }
         }
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void MemoryEditor_EditAddress(void) {
@@ -807,7 +807,7 @@ void MemoryEditor_EditValue(void) {
             value-=0x10;
         }
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     MemInfo address_info = query_memory_permissions((int)address);
     if (is_valid_memory_write(&address_info)) {
@@ -844,7 +844,7 @@ bool MemoryEditor_ConfirmPermissionOverride(void) {
             ret = true;
             break;
         }
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -924,7 +924,7 @@ void MemoryEditor_GoToPreset(void) {
         if (selected < 0)
             selected = addressesCount - 1;
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     checkValidMemory();
 
@@ -1059,7 +1059,7 @@ void MemoryEditor_TableSettings(void) {
 
         MemoryEditor_BoundTableIndexValue();
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     Draw_Lock();
     Draw_ClearFramebuffer();
