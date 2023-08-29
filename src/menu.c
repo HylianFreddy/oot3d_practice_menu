@@ -261,7 +261,7 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
                                      30 + i * SPACING_Y,
                                      j == selected ? COLOR_GREEN : COLOR_TITLE,
                                      menu->items[j].hex ? " 0x%0*X" : "  %0*d",
-                                     menu->items[j].nDigits,
+                                     menu->items[j].nDigits + digitsOffDecimalNegative,
                                      menu->items[j].isSigned ? signedAmount : menu->items[j].amount);
         }
 
