@@ -559,11 +559,16 @@ AmountMenu PlayerStatesMenu = {
     .nbItems = 5,
     .initialCursorPos = 0,
     {
-        {0, VARTYPE_U16, 0,   0, 4, 1, "Lock=2000, DownA=0020, ReturnA=0010,...", .method = NULL},
-        {0, VARTYPE_U16, 0,   0, 4, 1, "LedgeCancel=4000, GID=0400, GJ=0800,...", .method = NULL},
-        {0, VARTYPE_U16, 0,   0, 4, 1, "Invisible=2000, BlankA=0004,...", .method = NULL},
-        {0, VARTYPE_U16, 0,   0, 4, 1, "Underwater=0400,...", .method = NULL},
-        {0, VARTYPE_U16, 0, 255, 3, 0, "Held Item ID (simulate QuickDraw)", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "Lock=2000, DownA=0020, ReturnA=0010,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "LedgeCancel=4000, GID=0400, GJ=0800,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "Invisible=2000, BlankA=0004,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "Underwater=0400,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max = 255, .nDigits = 3, .hex = false,
+            .title = "Held Item ID (simulate QuickDraw)", .method = NULL},
     }
 };
 

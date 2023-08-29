@@ -256,13 +256,13 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
             s32 j = page * AMOUNT_MENU_MAX_SHOW + i;
             Draw_DrawString(70, 30 + i * SPACING_Y, COLOR_WHITE, menu->items[j].title);
             s16 signedAmount = (s16)(menu->items[j].amount);
-            u8 digitsOffDecimalNegative = ((menu->items[j].varType % 2 == 0) && signedAmount < 0) ? 1 : 0;
+            u8 digitsOffDecimalNegative = (menu->items[j].isSigned && signedAmount < 0) ? 1 : 0;
             Draw_DrawFormattedString(10 + ((menu->items[j].hex ? 4 : 5) - menu->items[j].nDigits - digitsOffDecimalNegative) * SPACING_X,
                                      30 + i * SPACING_Y,
                                      j == selected ? COLOR_GREEN : COLOR_TITLE,
                                      menu->items[j].hex ? " 0x%0*X" : "  %0*d",
                                      menu->items[j].nDigits,
-                                     (menu->items[j].varType % 2 == 0) ? signedAmount : menu->items[j].amount);
+                                     menu->items[j].isSigned ? signedAmount : menu->items[j].amount);
         }
 
         Draw_FlushFramebuffer();
@@ -273,11 +273,11 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
             break;
         else if(pressed & BUTTON_A)
         {
-            u16 isHex = menu->items[selected].hex;
+            bool isHex = menu->items[selected].hex;
             u32 posX = 10 + ((isHex ? 4 : 6) - menu->items[selected].nDigits) * SPACING_X;
             u32 posY = 30 + selected * SPACING_Y;
             Menu_EditAmount(posX, posY, &menu->items[selected].amount,
-                            menu->items[selected].varType,
+                            menu->items[selected].isSigned ? VARTYPE_S16 : VARTYPE_U16,
                             menu->items[selected].min,
                             menu->items[selected].max,
                             menu->items[selected].nDigits,
@@ -405,7 +405,7 @@ u32 KeyboardFill(char * buf, u32 len){
  * @brief Allow the user to edit a numeric value displayed at an arbitrary position on the screen
  */
 void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType,
-                     s32 customMin, s32 customMax, s32 digitCount, u8 isHex) {
+                     s32 customMin, s32 customMax, s32 digitCount, bool isHex) {
 
     static void* lastEditedValue = 0;
     static s32 digitIndex = 0;

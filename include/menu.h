@@ -87,11 +87,11 @@ typedef struct ToggleMenu {
 
 typedef struct AmountMenuItem {
     u16 amount; //current amount
-    VarType varType;
+    bool isSigned;
     s32 min;    //min amount, 0 = no limit
     s32 max;    //max amount, 0 = no limit
     s32 nDigits;//number of digits to display
-    u8 hex;     //display in hex or decimal
+    bool hex;   //display in hex or decimal
     char *title;
     void (*method)(s32);
 } AmountMenuItem;
@@ -137,7 +137,7 @@ static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
 void menuShow();
 void ToggleMenuShow(ToggleMenu *menu);
 void AmountMenuShow(AmountMenu *menu);
-void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount, u8 isHex);
+void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount, bool isHex);
 
 u32 KeyboardFill(char* buf, u32 len);
 

@@ -54,7 +54,8 @@ AmountMenu PlaySFXMenu = {
     .nbItems = 1,
     .initialCursorPos = 0,
     {
-        {0, VARTYPE_U16, 0, 0, 4, 1, "SFX ID", .method = PlaySFX},
+        {.amount = 0, .isSigned = false, .min = 0, .max = 0, .nDigits = 4, .hex = true,
+            .title = "SFX ID", .method = PlaySFX},
     }
 };
 
