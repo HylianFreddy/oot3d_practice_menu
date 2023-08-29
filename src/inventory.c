@@ -122,7 +122,7 @@ ToggleMenu InventoryAdultTradeMenu = {
 };
 
 ToggleMenu InventoryRightGearMenu = {
-    "Right Side Gear",
+    "Gear: Equipment/Upgrades",
     .nbItems = 34,
     .initialCursorPos = 0,
     {
@@ -164,7 +164,7 @@ ToggleMenu InventoryRightGearMenu = {
 };
 
 ToggleMenu InventoryLeftGearMenu = {
-    "Left Side Gear",
+    "Gear: Quest Items",
     .nbItems = 13,
     .initialCursorPos = 0,
     {
