@@ -27,9 +27,9 @@ AmountMenu WarpsOverridesMenu = {
     .nbItems = 3,
     .initialCursorPos = 0,
     {
-        {.amount = 0, .isSigned = false, .min =  0, .max =  6, .nDigits = 5, .hex = false,
+        {.amount = 0, .isSigned = false, .min =  0, .max =  6, .nDigits = 1, .hex = false,
             .title = "Game Mode", .method = Warps_OverrideGameMode},
-        {.amount = 0, .isSigned = false, .min =  0, .max = 14, .nDigits = 5, .hex = false,
+        {.amount = 0, .isSigned = false, .min =  0, .max = 14, .nDigits = 2, .hex = false,
             .title = "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
         {.amount = 0, .isSigned = true,  .min = -3, .max =  3, .nDigits = 1, .hex = false,
             .title = "ZoneoutType/RespawnFlag", .method = Warps_SetRespawnFlag},

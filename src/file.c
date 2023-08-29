@@ -58,13 +58,13 @@ AmountMenu TimersMenu = {
     .nbItems = 4,
     .initialCursorPos = 0,
     {
-        {.amount = 0, .isSigned = false, .min = 0, .max = 15, .nDigits = 5, .hex = false,
+        {.amount = 0, .isSigned = false, .min = 0, .max = 15, .nDigits = 2, .hex = false,
             .title = "Timer 1 State", .method = File_SetTimerStateAndValue },
-        {.amount = 0, .isSigned = false, .min = 0, .max =  0, .nDigits = 5, .hex = false,
+        {.amount = 0, .isSigned = true,  .min = 0, .max =  0, .nDigits = 5, .hex = false,
             .title = "Timer 1 Value", .method = File_SetTimerStateAndValue },
-        {.amount = 0, .isSigned = false, .min = 0, .max = 11, .nDigits = 5, .hex = false,
+        {.amount = 0, .isSigned = false, .min = 0, .max = 11, .nDigits = 2, .hex = false,
             .title = "Timer 2 State", .method = File_SetTimerStateAndValue },
-        {.amount = 0, .isSigned = false, .min = 0, .max =  0, .nDigits = 5, .hex = false,
+        {.amount = 0, .isSigned = true,  .min = 0, .max =  0, .nDigits = 5, .hex = false,
             .title = "Timer 2 Value", .method = File_SetTimerStateAndValue },
     }
 };

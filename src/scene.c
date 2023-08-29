@@ -27,7 +27,7 @@ AmountMenu RoomNumberMenu = {
     .nbItems = 1,
     .initialCursorPos = 0,
     {
-        {.amount = 0, .isSigned = false, .min = 0, .max = 28, .nDigits = 5, .hex = false,
+        {.amount = 0, .isSigned = false, .min = 0, .max = 28, .nDigits = 2, .hex = false,
             .title = "Room Number", .method = Scene_SetRoomNumberinEP},
     }
 };
