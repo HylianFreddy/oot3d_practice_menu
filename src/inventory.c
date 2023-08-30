@@ -930,6 +930,8 @@ static void Inventory_LeftGearMenuInit(void){
     InventoryLeftGearMenu.items[Gear_Menu_Shard_of_Agony].on = ((gSaveContext.questItems & (1 << 21)) != 0);
     InventoryLeftGearMenu.items[Gear_Menu_Gerudo_Token].on = ((gSaveContext.questItems & (1 << 22)) != 0);
     InventoryLeftGearMenu.items[Gear_Menu_Gold_Skulltulas].on = ((gSaveContext.questItems & (1 << 23)) != 0);
+
+    //InventoryLeftGearMenu.items[Gear_Menu_Gold_Skulltulas].title = "Gold Skulltulas: %d"
 }
 
 void Inventory_LeftGearMenuFunc(void){
@@ -994,43 +996,9 @@ void Inventory_HeartPiecesAmount(s32 selected){
 
     u16 curHearts = gSaveContext.questItems >> 28;
 
-    Draw_Lock();
-    Draw_ClearFramebuffer();
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
-
-    do
-    {
-        Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Use the D-pad to edit, B to return.");
-        Draw_DrawFormattedString(30, 30, COLOR_WHITE, "%04d", curHearts);
-        Draw_FlushFramebuffer();
-        Draw_Unlock();
-
-        u32 pressed = Input_WaitWithTimeout(1000);
-
-        if (pressed & BUTTON_B){
-            break;
-        }
-        if (pressed & BUTTON_A){
-            break;
-        }
-        else if (pressed & BUTTON_LEFT){
-            curHearts--;
-        }
-        else if (pressed & BUTTON_RIGHT){
-            curHearts++;
-        }
-        else if (pressed & BUTTON_UP){
-            curHearts++;
-        }
-        else if (pressed & BUTTON_DOWN){
-            curHearts--;
-        }
-
-        curHearts %= 16;
-
-    } while(onMenuLoop());
+    u32 posY = 30 + (selected % TOGGLE_MENU_MAX_SHOW) * SPACING_Y;
+    Draw_DrawString(30 + 19 * SPACING_X, posY, COLOR_WHITE, ":                         ");
+    Menu_EditAmount(30 + 21 * SPACING_X, posY, &curHearts, VARTYPE_U16, 0, 15, 2, false, NULL, 0);
 
     gSaveContext.questItems &= 0xFFFFFF;
     gSaveContext.questItems |= (curHearts << 28);
@@ -1039,41 +1007,9 @@ void Inventory_HeartPiecesAmount(s32 selected){
 
 void Inventory_GoldSkulltulaAmount(s32 selected){
 
-    Draw_Lock();
-    Draw_ClearFramebuffer();
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
-
-    do
-    {
-        Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Use the D-pad to edit, B to return.");
-        Draw_DrawFormattedString(30, 30, COLOR_WHITE, "%04d", gSaveContext.gsTokens);
-        Draw_FlushFramebuffer();
-        Draw_Unlock();
-
-        u32 pressed = Input_WaitWithTimeout(1000);
-
-        if (pressed & BUTTON_B){
-            break;
-        }
-        if (pressed & BUTTON_A){
-            break;
-        }
-        else if (pressed & BUTTON_LEFT){
-            gSaveContext.gsTokens -= 10;
-        }
-        else if (pressed & BUTTON_RIGHT){
-            gSaveContext.gsTokens += 10;
-        }
-        else if (pressed & BUTTON_UP){
-            gSaveContext.gsTokens++;
-        }
-        else if (pressed & BUTTON_DOWN){
-            gSaveContext.gsTokens--;
-        }
-
-    } while(onMenuLoop());
+    u32 posY = 30 + (selected % TOGGLE_MENU_MAX_SHOW) * SPACING_Y;
+    Draw_DrawString(30 + 19 * SPACING_X, posY, COLOR_WHITE, ":                         ");
+    Menu_EditAmount(30 + 21 * SPACING_X, posY, &gSaveContext.gsTokens, VARTYPE_S16, 0, 0, 5, false, NULL, 0);
 
     gSaveContext.questItems &= ~(1 << 23);
     gSaveContext.questItems |= ((gSaveContext.gsTokens != 0) << 23);

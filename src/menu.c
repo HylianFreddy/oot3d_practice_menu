@@ -186,11 +186,6 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
             break;
         if(pressed & BUTTON_A)
         {
-            Draw_Lock();
-            Draw_ClearFramebuffer();
-            Draw_FlushFramebuffer();
-            Draw_Unlock();
-
             if(menu->items[selected].method != NULL) {
                 menu->items[selected].method(selected); //the method will handle swapping on/off
             }
