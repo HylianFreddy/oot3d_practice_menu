@@ -209,20 +209,34 @@ AmountMenu InventoryAmountsMenu = {
     .nbItems = 14,
     .initialCursorPos = 0,
     {
-        {0, 0,   255, "Deku Sticks", .method = Inventory_AmountsSelect},
-        {0, 0,   255, "Deku Nuts", .method = Inventory_AmountsSelect},
-        {0, 0,   255, "Bombs", .method = Inventory_AmountsSelect},
-        {0, 0,   255, "Arrows", .method = Inventory_AmountsSelect},
-        {0, 0,   255, "Deku Seeds", .method = Inventory_AmountsSelect},
-        {0, 0,   255, "Bombchus", .method = Inventory_AmountsSelect},
-        {0, 0,   255, "Magic Beans", .method = Inventory_AmountsSelect},
-        {0, 0,     0, "Rupees", .method = Inventory_AmountsSelect},
-        {0, 0,     0, "Giant's Knife hits remaining", .method = Inventory_AmountsSelect},
-        {0, 0,     1, "Double Defense (1 for on, 0 for off)", .method = Inventory_AmountsSelect},
-        {0, 0,     2, "Magic meter size (1 = normal, 2 = double)", .method = Inventory_AmountsSelect},
-        {0, 1,   0x0, "Heart Containers (0x10 per container)", .method = Inventory_AmountsSelect},
-        {0, 1, 0x140, "Current Health (0x10 per container)", .method = Inventory_AmountsSelect},
-        {0, 1,  0x7F, "Current Magic (0x30 for normal, 0x60 for double)", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   255, .nDigits = 3, .hex = false,
+            .title = "Deku Sticks", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   255, .nDigits = 3, .hex = false,
+            .title = "Deku Nuts", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   255, .nDigits = 3, .hex = false,
+            .title = "Bombs", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   255, .nDigits = 3, .hex = false,
+            .title = "Arrows", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   255, .nDigits = 3, .hex = false,
+            .title = "Deku Seeds", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   255, .nDigits = 3, .hex = false,
+            .title = "Bombchus", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   255, .nDigits = 3, .hex = false,
+            .title = "Magic Beans", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = true,  .min = 0, .max =     0, .nDigits = 5, .hex = false,
+            .title = "Rupees", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =     0, .nDigits = 5, .hex = false,
+            .title = "Giant's Knife hits remaining", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =     1, .nDigits = 1, .hex = false,
+            .title = "Double Defense (1 for on, 0 for off)", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =     2, .nDigits = 1, .hex = false,
+            .title = "Magic meter size (1 = normal, 2 = double)", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0x0, .nDigits = 4, .hex = true,
+            .title = "Heart Containers (0x10 per container)", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max = 0x140, .nDigits = 4, .hex = true,
+            .title = "Current Health (0x10 per container)", .method = Inventory_AmountsSelect},
+        {.amount = 0, .isSigned = false, .min = 0, .max =  0x7F, .nDigits = 2, .hex = true,
+            .title = "Current Magic (0x30 for normal, 0x60 for double)", .method = Inventory_AmountsSelect},
     }
 };
 
@@ -916,6 +930,8 @@ static void Inventory_LeftGearMenuInit(void){
     InventoryLeftGearMenu.items[Gear_Menu_Shard_of_Agony].on = ((gSaveContext.questItems & (1 << 21)) != 0);
     InventoryLeftGearMenu.items[Gear_Menu_Gerudo_Token].on = ((gSaveContext.questItems & (1 << 22)) != 0);
     InventoryLeftGearMenu.items[Gear_Menu_Gold_Skulltulas].on = ((gSaveContext.questItems & (1 << 23)) != 0);
+
+    //InventoryLeftGearMenu.items[Gear_Menu_Gold_Skulltulas].title = "Gold Skulltulas: %d"
 }
 
 void Inventory_LeftGearMenuFunc(void){
@@ -980,43 +996,9 @@ void Inventory_HeartPiecesAmount(s32 selected){
 
     u16 curHearts = gSaveContext.questItems >> 28;
 
-    Draw_Lock();
-    Draw_ClearFramebuffer();
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
-
-    do
-    {
-        Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Use the D-pad to edit, B to return.");
-        Draw_DrawFormattedString(30, 30, COLOR_WHITE, "%04d", curHearts);
-        Draw_FlushFramebuffer();
-        Draw_Unlock();
-
-        u32 pressed = Input_WaitWithTimeout(1000);
-
-        if (pressed & BUTTON_B){
-            break;
-        }
-        if (pressed & BUTTON_A){
-            break;
-        }
-        else if (pressed & BUTTON_LEFT){
-            curHearts--;
-        }
-        else if (pressed & BUTTON_RIGHT){
-            curHearts++;
-        }
-        else if (pressed & BUTTON_UP){
-            curHearts++;
-        }
-        else if (pressed & BUTTON_DOWN){
-            curHearts--;
-        }
-
-        curHearts %= 16;
-
-    } while(onMenuLoop());
+    u32 posY = 30 + (selected % TOGGLE_MENU_MAX_SHOW) * SPACING_Y;
+    Draw_DrawString(30 + 19 * SPACING_X, posY, COLOR_WHITE, ":                         ");
+    Menu_EditAmount(30 + 21 * SPACING_X, posY, &curHearts, VARTYPE_U16, 0, 15, 2, false, NULL, 0);
 
     gSaveContext.questItems &= 0xFFFFFF;
     gSaveContext.questItems |= (curHearts << 28);
@@ -1025,41 +1007,9 @@ void Inventory_HeartPiecesAmount(s32 selected){
 
 void Inventory_GoldSkulltulaAmount(s32 selected){
 
-    Draw_Lock();
-    Draw_ClearFramebuffer();
-    Draw_FlushFramebuffer();
-    Draw_Unlock();
-
-    do
-    {
-        Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Use the D-pad to edit, B to return.");
-        Draw_DrawFormattedString(30, 30, COLOR_WHITE, "%04d", gSaveContext.gsTokens);
-        Draw_FlushFramebuffer();
-        Draw_Unlock();
-
-        u32 pressed = Input_WaitWithTimeout(1000);
-
-        if (pressed & BUTTON_B){
-            break;
-        }
-        if (pressed & BUTTON_A){
-            break;
-        }
-        else if (pressed & BUTTON_LEFT){
-            gSaveContext.gsTokens -= 10;
-        }
-        else if (pressed & BUTTON_RIGHT){
-            gSaveContext.gsTokens += 10;
-        }
-        else if (pressed & BUTTON_UP){
-            gSaveContext.gsTokens++;
-        }
-        else if (pressed & BUTTON_DOWN){
-            gSaveContext.gsTokens--;
-        }
-
-    } while(onMenuLoop());
+    u32 posY = 30 + (selected % TOGGLE_MENU_MAX_SHOW) * SPACING_Y;
+    Draw_DrawString(30 + 19 * SPACING_X, posY, COLOR_WHITE, ":                         ");
+    Menu_EditAmount(30 + 21 * SPACING_X, posY, &gSaveContext.gsTokens, VARTYPE_S16, 0, 0, 5, false, NULL, 0);
 
     gSaveContext.questItems &= ~(1 << 23);
     gSaveContext.questItems |= ((gSaveContext.gsTokens != 0) << 23);
@@ -1140,20 +1090,20 @@ void Inventory_SongsToggle(s32 selected){
 }
 
 static void Inventory_AmountsMenuInit(void){
-    InventoryAmountsMenu.items[Amounts_Menu_Deku_Sticks].amount = gSaveContext.ammo[ItemSlots[ITEM_STICK]];
-    InventoryAmountsMenu.items[Amounts_Menu_Deku_Nuts].amount = gSaveContext.ammo[ItemSlots[ITEM_NUT]];
-    InventoryAmountsMenu.items[Amounts_Menu_Bombs].amount = gSaveContext.ammo[ItemSlots[ITEM_BOMB]];
-    InventoryAmountsMenu.items[Amounts_Menu_Arrows].amount = gSaveContext.ammo[ItemSlots[ITEM_BOW]];
-    InventoryAmountsMenu.items[Amounts_Menu_Deku_Seeds].amount = gSaveContext.ammo[ItemSlots[ITEM_SLINGSHOT]];
-    InventoryAmountsMenu.items[Amounts_Menu_Bombchus].amount = gSaveContext.ammo[ItemSlots[ITEM_BOMBCHU]];
-    InventoryAmountsMenu.items[Amounts_Menu_Magic_Beans].amount = gSaveContext.ammo[ItemSlots[ITEM_BEAN]];
-    InventoryAmountsMenu.items[Amounts_Menu_Rupees].amount = gSaveContext.rupees;
+    InventoryAmountsMenu.items[Amounts_Menu_Deku_Sticks].amount = (u8)gSaveContext.ammo[ItemSlots[ITEM_STICK]];
+    InventoryAmountsMenu.items[Amounts_Menu_Deku_Nuts].amount = (u8)gSaveContext.ammo[ItemSlots[ITEM_NUT]];
+    InventoryAmountsMenu.items[Amounts_Menu_Bombs].amount = (u8)gSaveContext.ammo[ItemSlots[ITEM_BOMB]];
+    InventoryAmountsMenu.items[Amounts_Menu_Arrows].amount = (u8)gSaveContext.ammo[ItemSlots[ITEM_BOW]];
+    InventoryAmountsMenu.items[Amounts_Menu_Deku_Seeds].amount = (u8)gSaveContext.ammo[ItemSlots[ITEM_SLINGSHOT]];
+    InventoryAmountsMenu.items[Amounts_Menu_Bombchus].amount = (u8)gSaveContext.ammo[ItemSlots[ITEM_BOMBCHU]];
+    InventoryAmountsMenu.items[Amounts_Menu_Magic_Beans].amount = (u8)gSaveContext.ammo[ItemSlots[ITEM_BEAN]];
+    InventoryAmountsMenu.items[Amounts_Menu_Rupees].amount = (u16)gSaveContext.rupees;
     InventoryAmountsMenu.items[Amounts_Menu_Giants_Knife_hits].amount = gSaveContext.bgsHitsLeft;
     InventoryAmountsMenu.items[Amounts_Menu_Double_Defense].amount = gSaveContext.doubleDefense;
     InventoryAmountsMenu.items[Amounts_Menu_Magic_meter_size].amount = gSaveContext.magicAcquired + gSaveContext.doubleMagic;
     InventoryAmountsMenu.items[Amounts_Menu_Heart_Containers].amount = gSaveContext.healthCapacity;
     InventoryAmountsMenu.items[Amounts_Menu_Current_Health].amount = gSaveContext.health;
-    InventoryAmountsMenu.items[Amounts_Menu_Current_Magic].amount = gSaveContext.magic;
+    InventoryAmountsMenu.items[Amounts_Menu_Current_Magic].amount = (u8)gSaveContext.magic;
 }
 
 void Inventory_AmountsMenuFunc(void){

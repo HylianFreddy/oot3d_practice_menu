@@ -27,9 +27,12 @@ AmountMenu WarpsOverridesMenu = {
     .nbItems = 3,
     .initialCursorPos = 0,
     {
-        {0, 0,  6, "Game Mode", .method = Warps_OverrideGameMode},
-        {0, 0, 14, "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
-        {0, 0,  3, "ZoneoutType/RespawnFlag - POSITIVE", .method = Warps_SetRespawnFlag},
+        {.amount = 0, .isSigned = false, .min =  0, .max =  6, .nDigits = 1, .hex = false,
+            .title = "Game Mode", .method = Warps_OverrideGameMode},
+        {.amount = 0, .isSigned = false, .min =  0, .max = 14, .nDigits = 2, .hex = false,
+            .title = "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
+        {.amount = 0, .isSigned = true,  .min = -3, .max =  3, .nDigits = 1, .hex = false,
+            .title = "ZoneoutType/RespawnFlag", .method = Warps_SetRespawnFlag},
     }
 };
 
@@ -267,14 +270,7 @@ void ClearCutscenePointer(void){
 void Warps_OverridesMenuInit(void){
     WarpsOverridesMenu.items[WARPS_GAME_MODE].amount = gSaveContext.gameMode;
     WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount = gSaveContext.sceneSetupIndex;
-    if (gSaveContext.respawnFlag >= 0) {
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = gSaveContext.respawnFlag;
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - POSITIVE";
-    }
-    else {
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = -(gSaveContext.respawnFlag);
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - NEGATIVE";
-    }
+    WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = gSaveContext.respawnFlag;
 }
 
 void WarpsOverridesMenuShow(void){
@@ -304,12 +300,5 @@ void Warps_OverrideSceneSetup(void){
 }
 
 void Warps_SetRespawnFlag(s32 selected) {
-    if (ADDITIONAL_FLAG_BUTTON) {
-        gSaveContext.respawnFlag = -(WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount);
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - NEGATIVE";
-    }
-    else {
-        gSaveContext.respawnFlag = WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount;
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - POSITIVE";
-    }
+    gSaveContext.respawnFlag = (s16)WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount;
 }

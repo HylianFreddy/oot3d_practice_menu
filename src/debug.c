@@ -159,66 +159,10 @@ static void DebugActors_ShowMoreInfo(Actor* actor) {
     } while(onMenuLoop());
 }
 
-static void DebugActors_EditNewActorValue(s16* value, u32 posX, u32 posY, s32 digitCount) {
-    static s32 digitIndex = 0;
-    static u16 newValue = 0;
-
-    if (newValue != *value || digitCount == 1) {
-        newValue = *value;
-        digitIndex = 0;
-    }
-
-    do
-    {
-        Draw_Lock();
-        // Draw value
-        if (digitCount == 4) {
-            Draw_DrawFormattedString(posX, posY, COLOR_GREEN, "%04X", newValue);
-        }
-        else if (digitCount == 1) {
-            Draw_DrawFormattedString(posX, posY, COLOR_GREEN, "%01X", newValue);
-        }
-        // Draw cursor
-        Draw_DrawFormattedString(posX + (digitCount - digitIndex - 1) * SPACING_X, posY, COLOR_RED, "%X", (newValue >> (digitIndex*4)) & 0xF);
-        Draw_Unlock();
-
-        u32 pressed = Input_WaitWithTimeout(1000);
-
-        if (pressed & (BUTTON_B | BUTTON_A)){
-            break;
-        }
-        else if (pressed & BUTTON_UP){
-            newValue += (1 << digitIndex*4);
-        }
-        else if (pressed & BUTTON_DOWN){
-            newValue -= (1 << digitIndex*4);
-        }
-        else if (pressed & BUTTON_RIGHT){
-            digitIndex--;
-        }
-        else if (pressed & BUTTON_LEFT){
-            digitIndex++;
-        }
-
-        if(digitIndex >= digitCount)
-            digitIndex = 0;
-        else if(digitIndex < 0)
-            digitIndex = digitCount - 1;
-
-        if (newValue > 0x8000 && digitCount == 1) // Stored Pos Index
-            newValue = 8;
-        else if (newValue > 8 && digitCount == 1)
-            newValue = 0;
-
-    } while(onMenuLoop());
-
-    *value = newValue;
-}
-
 static bool DebugActors_SpawnActor(void) {
     PosRot selectedPosRot = storedPosRotIndex < 0 ? PLAYER->actor.world : storedPosRot[storedPosRotIndex];
     s32 selected = 0;
-    u32 xCoords[] = {30 + SPACING_X * 4, 100 + SPACING_X * 8, 200 + SPACING_X * 17};
+    u32 xCoords[] = {30 + SPACING_X * 3, 100 + SPACING_X * 7, 200 + SPACING_X * 16};
     s16* values[] = {&newId, &newParams, &storedPosRotIndex};
     s32 digitCounts[] = {4, 4, 1};
 
@@ -226,8 +170,8 @@ static bool DebugActors_SpawnActor(void) {
     {
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Spawn new Actor");
-        Draw_DrawFormattedString(30, 70, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "ID: %04X", (u16)newId);
-        Draw_DrawFormattedString(100, 70, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Params: %04X", (u16)newParams);
+        Draw_DrawFormattedString(30, 70, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "ID: 0x%04X", (u16)newId);
+        Draw_DrawFormattedString(100, 70, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Params: 0x%04X", (u16)newParams);
         Draw_DrawFormattedString(200, 70, selected == 2 ? COLOR_GREEN : COLOR_WHITE,
                                  storedPosRotIndex < 0 ? "Position: Link    " : "Position: Stored %01d", storedPosRotIndex);
 
@@ -254,7 +198,11 @@ static bool DebugActors_SpawnActor(void) {
                 storedPosRotIndex = 0;
                 Draw_DrawString(200, 70, COLOR_GREEN, "Position: Stored  ");
             }
-            DebugActors_EditNewActorValue(values[selected], xCoords[selected], 70, digitCounts[selected]);
+            Menu_EditAmount(xCoords[selected], 70, values[selected], VARTYPE_U16, 0,
+                            selected == 2 ? 8 : 0,
+                            digitCounts[selected],
+                            selected != 2,
+                            NULL, 0);
             if (selected == 2) {
                 selectedPosRot = storedPosRot[storedPosRotIndex];
             }
@@ -615,11 +563,16 @@ AmountMenu PlayerStatesMenu = {
     .nbItems = 5,
     .initialCursorPos = 0,
     {
-        {0, 1,   0, "Lock=2000, DownA=0020, ReturnA=0010,...", .method = NULL},
-        {0, 1,   0, "LedgeCancel=4000, GID=0400, GJ=0800,...", .method = NULL},
-        {0, 1,   0, "Invisible=2000, BlankA=0004,...", .method = NULL},
-        {0, 1,   0, "Underwater=0400,...", .method = NULL},
-        {0, 0, 255, "Held Item ID (simulate QuickDraw)", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "Lock=2000, DownA=0020, ReturnA=0010,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "LedgeCancel=4000, GID=0400, GJ=0800,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "Invisible=2000, BlankA=0004,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
+            .title = "Underwater=0400,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max = 255, .nDigits = 3, .hex = false,
+            .title = "Held Item ID (simulate QuickDraw)", .method = NULL},
     }
 };
 
@@ -816,40 +769,9 @@ void Debug_MemoryEditor(void) {
 }
 
 void MemoryEditor_EditAddress(void) {
-    static s8 digitIndex = 0;
     u32 oldAddress = memoryEditorAddress;
 
-    do
-    {
-        Draw_Lock();
-        Draw_DrawFormattedString(30, 30, COLOR_GREEN, "%08X", memoryEditorAddress);
-        Draw_DrawFormattedString(30 + (7 - digitIndex) * SPACING_X, 30, COLOR_RED, "%X", (memoryEditorAddress >> (digitIndex*4)) & 0xF);
-        Draw_Unlock();
-
-        u32 pressed = Input_WaitWithTimeout(1000);
-
-        if (pressed & (BUTTON_B | BUTTON_A)){
-            break;
-        }
-        else if (pressed & BUTTON_UP){
-            memoryEditorAddress += (1 << digitIndex*4);
-        }
-        else if (pressed & BUTTON_DOWN){
-            memoryEditorAddress -= (1 << digitIndex*4);
-        }
-        else if (pressed & BUTTON_RIGHT){
-            digitIndex--;
-        }
-        else if (pressed & BUTTON_LEFT){
-            digitIndex++;
-        }
-
-        if(digitIndex > 7)
-            digitIndex = 0;
-        else if(digitIndex < 0)
-            digitIndex = 7;
-
-    } while(onMenuLoop());
+    Menu_EditAmount(30 - 3 * SPACING_X, 30, &memoryEditorAddress, VARTYPE_U32, 0, 0, 8, TRUE, NULL, 0);
 
     if (memoryEditorAddress != oldAddress)
         pushHistory(oldAddress);
