@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "menus/file.h"
 #include "z3D/z3D.h"
+#include "draw.h"
 
 static char* Timer1States[] = {
     "Timer 1 State: inactive      ",
@@ -219,10 +220,25 @@ void File_ShowTimersMenu(s32 selected) {
 
 void File_SetTimerStateAndValue(s32 selected) {
     //set variable in save context
-    *(&gSaveContext.timer1State + selected) = TimersMenu.items[selected].amount;
+    s16* varToSet;
+    switch (selected) {
+        case FILE_TIMER1STATE: varToSet = &gSaveContext.timer1State; break;
+        case FILE_TIMER1VALUE: varToSet = &gSaveContext.timer1Value; break;
+        case FILE_TIMER2STATE: varToSet = &gSaveContext.timer2State; break;
+        case FILE_TIMER2VALUE: varToSet = &gSaveContext.timer2Value; break;
+    }
+    *(varToSet) = TimersMenu.items[selected].amount;
     //reset toggle in menu
     FileMenu.items[FILE_TIMERS].on = (gSaveContext.timer1State != 0) || (gSaveContext.timer2State != 0);
     //set option titles to display state names
     TimersMenu.items[FILE_TIMER1STATE].title = Timer1States[gSaveContext.timer1State];
     TimersMenu.items[FILE_TIMER2STATE].title = Timer2States[gSaveContext.timer2State];
+
+    if (selected == FILE_TIMER1STATE) {
+        Draw_DrawFormattedString(70, 30 + (FILE_TIMER1STATE % AMOUNT_MENU_MAX_SHOW) * SPACING_Y,
+                                COLOR_WHITE, Timer1States[gSaveContext.timer1State]);
+    } else if (selected == FILE_TIMER2STATE) {
+        Draw_DrawFormattedString(70, 30 + (FILE_TIMER2STATE % AMOUNT_MENU_MAX_SHOW) * SPACING_Y,
+                                COLOR_WHITE, Timer2States[gSaveContext.timer2State]);
+    }
 }
