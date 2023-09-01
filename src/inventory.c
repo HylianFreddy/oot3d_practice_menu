@@ -930,8 +930,6 @@ static void Inventory_LeftGearMenuInit(void){
     InventoryLeftGearMenu.items[Gear_Menu_Shard_of_Agony].on = ((gSaveContext.questItems & (1 << 21)) != 0);
     InventoryLeftGearMenu.items[Gear_Menu_Gerudo_Token].on = ((gSaveContext.questItems & (1 << 22)) != 0);
     InventoryLeftGearMenu.items[Gear_Menu_Gold_Skulltulas].on = ((gSaveContext.questItems & (1 << 23)) != 0);
-
-    //InventoryLeftGearMenu.items[Gear_Menu_Gold_Skulltulas].title = "Gold Skulltulas: %d"
 }
 
 void Inventory_LeftGearMenuFunc(void){
