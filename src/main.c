@@ -326,7 +326,7 @@ void advance_main(void) {
     }
     else if(freeCam && releasedABbuttons) {
         u32 in = rInputCtx.cur.val;
-        circlePosition cStick = rInputCtx.cStick;
+        #define cStick rInputCtx.cStick
         f32 posMult = (in & BUTTON_R1) ? 0.4 : 0.08;
         u16 rotMult = (in & BUTTON_R1) ? 5 : 2;
 
