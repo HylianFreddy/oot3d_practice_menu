@@ -35,26 +35,33 @@ static const char* AgeNames[] = {
     "Child",
 };
 
-void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chosenTimeIndex){
+void EntranceWarp(u16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneIndex, u32 chosenTimeIndex, s32 useFadeOut){
+    s32 resolvedCutsceneIndex = (chosenCutsceneIndex == -2) ? 0 : (chosenCutsceneIndex + 0xFFF0);
     if (chosenTimeIndex != 0){
         gSaveContext.dayTime = frozenTime = EntranceTimes[chosenTimeIndex];
     }
-    gGlobalContext->nextEntranceIndex = EntranceIndex;
-    gGlobalContext->fadeOutTransition = 11;
     gGlobalContext->linkAgeOnLoad = chosenAge;
-    if (cutsceneIndex == -1){ //this prevents crashes because warping with CS 0xFFEF ("None") would keep the previous CS number
+
+    gSaveContext.nextCutsceneIndex = resolvedCutsceneIndex;
+    if (chosenCutsceneIndex == -1){ //this prevents crashes because warping with CS 0xFFEF ("None") would keep the previous CS number
         gSaveContext.cutsceneIndex = 0;
     }
-
-    gSaveContext.nextCutsceneIndex = (cutsceneIndex == -2) ? 0 : (cutsceneIndex + 0xFFF0);
-
-    gGlobalContext->sceneLoadFlag = 0x14;
 
     if(noClip) {
         Scene_NoClipToggle();
     }
     if(freeCam) {
         Scene_FreeCamToggle();
+    }
+
+    if (useFadeOut) {
+        gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
+        gGlobalContext->fadeOutTransition = 3;
+        gGlobalContext->sceneLoadFlag = 0x14;
+    } else {
+        gSaveContext.entranceIndex = chosenEntranceIndex;
+        gGlobalContext->state.running = 0;
+        gGlobalContext->state.init = Play_Init;
     }
 }
 
@@ -181,7 +188,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                 }
                 else if(selected >= Entrance_Select_Menu_Etcs){
                     u16 entranceIndex = manualSelection ? chosenEntranceIndex : entrances->items[selected - Entrance_Select_Menu_Etcs].entranceIndex;
-                    EntranceWarp(entranceIndex, chosenAge, cutsceneIndex, chosenTime);
+                    EntranceWarp(entranceIndex, chosenAge, cutsceneIndex, chosenTime, ADDITIONAL_FLAG_BUTTON);
                     menuOpen = false;
                 }
             }

@@ -34,7 +34,7 @@ typedef struct WarpsPlacesMenuEntry {
 } WarpsPlacesMenuEntry;
 
 void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelection);
-void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chosenTimeIndex);
+void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chosenTimeIndex, s32 useFadeOut);
 void WarpsSceneMenuShow(WarpsSceneMenu* menu);
 
 void ManuallyEnterEntranceIndex(void);

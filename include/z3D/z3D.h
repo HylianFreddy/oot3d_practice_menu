@@ -337,8 +337,12 @@ typedef struct GameState {
     /* 0x04 */ void (*main)(struct GameState*);
     /* 0x08 */ void (*destroy)(struct GameState*); // "cleanup"
     /* 0x0C */ void (*init)(struct GameState*);
+    /* 0x10 */ u32 size;
+    /* 0x14 */ char unk_14[0xED];
+    /* 0x101*/ u8 running;
     //TODO
 } GameState;
+_Static_assert(sizeof(GameState) == 0x104, "GameState size");
 
 typedef struct {
     /* 0x000 */ s8   currentRoomNumber;
@@ -370,8 +374,7 @@ typedef struct {
 
 // Global Context (ram start: 0871E840)
 typedef struct GlobalContext {
-    // /* 0x0000 */ GameState state;
-    /* 0x0000 */ char                  unk_0[0x0104];
+    /* 0x0000 */ GameState             state;
     /* 0x0104 */ s16                   sceneNum;
     /* 0x0106 */ char                  unk_106[0x000A];
     /* 0x0110 */ void*                 sceneSegment;
@@ -546,6 +549,16 @@ typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor*
 typedef void (*PlaySound_proc)(u32);
 #define PlaySound_addr 0x35C528
 #define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
+
+typedef void (*Play_Init_proc)(GameState*);
+#ifdef Version_EUR
+    #define Play_Init_addr 0x435314
+#elif Version_JP
+    #define Play_Init_addr 0x4352C8
+#else // Version_USA
+    #define Play_Init_addr 0x4352F0
+#endif
+#define Play_Init ((Play_Init_proc)Play_Init_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);

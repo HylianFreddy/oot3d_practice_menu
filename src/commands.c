@@ -66,15 +66,18 @@ static void Command_RunFast(void){
 }
 
 static void Command_Reset(void){
-    if (isInGame()) EntranceWarp(0xFFFF, gSaveContext.linkAge, -1, 0);
+    if (isInGame()){
+        gGlobalContext->state.running = 0;
+        gGlobalContext->state.init = 0;
+    }
 }
 
 static void Command_ReloadScene(void){
     if (isInGame()) {
         if(gGlobalContext->nextEntranceIndex != -1)
-            EntranceWarp(gGlobalContext->nextEntranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0);
+            EntranceWarp(gGlobalContext->nextEntranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
         else
-            EntranceWarp(gSaveContext.entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0);
+            EntranceWarp(gSaveContext.entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
     }
 }
 
@@ -84,7 +87,7 @@ static void Command_VoidOut(void){
         gSaveContext.respawn[RESPAWN_MODE_DOWN].tempCollectFlags = gGlobalContext->actorCtx.flags.tempCollect;
         gSaveContext.respawnFlag = 1;
         if (gGlobalContext->sceneLoadFlag == 0 || gGlobalContext->sceneLoadFlag == -20) {
-            EntranceWarp(gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0);
+            EntranceWarp(gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
         }
     }
 }
