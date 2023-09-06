@@ -136,22 +136,11 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                 if (ADDITIONAL_FLAG_BUTTON && selected == Entrance_Select_Menu_CsIdx) {
                     gSaveContext.nextCutsceneIndex = (cutsceneIndex == -2) ? 0 : (cutsceneIndex + 0xFFF0);
                 }
-                else if (ADDITIONAL_FLAG_BUTTON && selected == Entrance_Select_Menu_Etcs) {
-                    gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
-                }
             }
-            else if (pressed & (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)) // change selected value
+            else if (pressed & (BUTTON_UP | BUTTON_DOWN)) // change selected value
             {
-                s32 increment = 0;
-                if (pressed & BUTTON_UP) increment = (pressed & BUTTON_X) ? 0x100 : 0x1;
-                if (pressed & BUTTON_DOWN) increment = (pressed & BUTTON_X) ? -0x100 : -0x1;
-                if (pressed & BUTTON_RIGHT) increment = (pressed & BUTTON_X) ? 0x1000 : 0x10;
-                if (pressed & BUTTON_LEFT) increment = (pressed & BUTTON_X) ? -0x1000 : -0x10;
-
-                if (selected == Entrance_Select_Menu_Etcs)
-                    chosenEntranceIndex += increment;
-                else if (selected == Entrance_Select_Menu_CsIdx) {
-                    cutsceneIndex += increment;
+                if (selected == Entrance_Select_Menu_CsIdx) {
+                    cutsceneIndex += (pressed & BUTTON_UP) ? 1 : -1;
                     // keep cutsceneIndex within the correct values
                     if(cutsceneIndex > 15){
                         cutsceneIndex = (ADDITIONAL_FLAG_BUTTON ? -2 : -1);
@@ -161,9 +150,6 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                     }
                 }
             }
-            else if ((pressed & BUTTON_L1) && selected == Entrance_Select_Menu_Etcs) {
-                chosenEntranceIndex = 0;
-            }
         } else { // not chosen
             if(pressed & BUTTON_B) // close entrances menu
             {
@@ -171,7 +157,14 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
             }
             if(pressed & BUTTON_A) // select option
             {
-                if(selected == Entrance_Select_Menu_CsIdx || (manualSelection && selected == Entrance_Select_Menu_Etcs)){
+                if (manualSelection && selected == Entrance_Select_Menu_Etcs) {
+                    Menu_EditAmount(30 + 15 * SPACING_X, 30 + SPACING_Y * Entrance_Select_Menu_Etcs,
+                                    &chosenEntranceIndex, VARTYPE_U16, 0, 0, 4, TRUE, NULL, 0);
+                    if (ADDITIONAL_FLAG_BUTTON) {
+                        gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
+                    }
+                }
+                else if(selected == Entrance_Select_Menu_CsIdx){
                     chosen = 1;
                     curColor = COLOR_RED;
                 }
