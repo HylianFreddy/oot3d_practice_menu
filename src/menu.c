@@ -124,6 +124,9 @@ void menuShow()
                 break;
             }
         }
+        else if (pressed & BUTTON_L1) {
+            selectedItem = 0;
+        }
         else if(pressed & BUTTON_DOWN)
         {
             if(++selectedItem >= currentMenu->nbItems)
@@ -194,6 +197,9 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
             Draw_ClearFramebuffer();
             Draw_FlushFramebuffer();
             Draw_Unlock();
+        }
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
         }
         else if(pressed & BUTTON_DOWN)
         {
@@ -278,6 +284,9 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
                             menu->items[selected].nDigits,
                             isHex,
                             menu->items[selected].method, selected);
+        }
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
         }
         else if(pressed & BUTTON_DOWN)
         {
