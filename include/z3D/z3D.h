@@ -182,7 +182,9 @@ typedef struct {
     /* 0x15AB */ u8           nextTransition;
     /* 0x15AC */ char         unk_15AC[0x006];
     /* 0x15B2 */ s16          healthAccumulator;
+    /* 0x15B4 */ char         unk_15B4[0x10];
 } SaveContext; // size = 0x15C4
+_Static_assert(sizeof(SaveContext) == 0x15C4, "Save Context size");
 
 typedef struct GraphicsContext GraphicsContext; //TODO
 typedef struct Camera {
@@ -559,6 +561,26 @@ typedef void (*Play_Init_proc)(GameState*);
     #define Play_Init_addr 0x4352F0
 #endif
 #define Play_Init ((Play_Init_proc)Play_Init_addr)
+
+typedef void (*FileSelect_LoadGame_proc)(GameState* gameState, s32 fileNum);
+#ifdef Version_EUR
+    #define FileSelect_LoadGame_addr 0x44737C
+#elif Version_JP
+    #define FileSelect_LoadGame_addr 0x447334
+#else // Version_USA
+    #define FileSelect_LoadGame_addr 0x44735C
+#endif
+#define FileSelect_LoadGame ((FileSelect_LoadGame_proc)FileSelect_LoadGame_addr)
+
+typedef void (*Load_Savefiles_Buffer_proc)();
+#ifdef Version_EUR
+    #define Load_Savefiles_Buffer_addr 0x447170
+#elif Version_JP
+    #define Load_Savefiles_Buffer_addr 0x447128
+#else // Version_USA
+    #define Load_Savefiles_Buffer_addr 0x447150
+#endif
+#define Load_Savefiles_Buffer ((Load_Savefiles_Buffer_proc)Load_Savefiles_Buffer_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);

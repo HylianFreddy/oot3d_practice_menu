@@ -32,6 +32,8 @@ bool menuOpen = false;
 GlobalContext* gGlobalContext;
 u8 gInit = 0;
 
+void autoLoadSaveFile();
+
 f32 sins(u16 angle) {
     // Taylor expansion up to x^7. Use symmetries for larger angles.
     if (angle <= 0x4000) {
@@ -62,6 +64,7 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
         setGlobalContext(globalCtx);
         Actor_Init();
         irrstInit();
+        autoLoadSaveFile();
         gInit = 1;
     }
     Input_Update();
@@ -411,3 +414,24 @@ bool onMenuLoop() {
     drawAlert();
     return menuOpen;
 };
+
+void autoLoadSaveFile() {
+    Input_Update();
+    if (rInputCtx.cur.l && rInputCtx.cur.r) {
+        Load_Savefiles_Buffer();
+        FileSelect_LoadGame(&gGlobalContext->state, 0);
+        if (gSaveContext.saveCount > 0) {
+            setAlert("Autoload File 1", 90);
+            gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
+            if (gSaveContext.masterQuestFlag) {
+                // These static variables are used at some point during the load to overwrite the MQ flag.
+                // Setting them like this is kind of broken (saving the game will save onto MQ slot 1),
+                // but the autoloaded file shouldn't be MQ anyway.
+                *(u8*)0x587934 = 0xBE; // Enable quest type buttons on title screen
+                *(u8*)0x587953 = 0xEF; // Pressed the MQ button
+            }
+        } else {
+            setAlert("File 1 is empty", 90);
+        }
+    }
+}
