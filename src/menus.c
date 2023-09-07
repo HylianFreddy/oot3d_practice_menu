@@ -30,6 +30,8 @@
 #include "menu.h"
 #include "draw.h"
 #include "z3D/z3D.h"
+#include "input.h"
+#include "common.h"
 
 #include "menus/warps.h"
 #include "menus/scene.h"
@@ -63,9 +65,25 @@ void showSFXMenu(void) {
     AmountMenuShow(&PlaySFXMenu);
 }
 
+void quitGame(void) {
+    if (!gGlobalContext) {
+        return;
+    }
+    if (!ADDITIONAL_FLAG_BUTTON) {
+        setAlert("Hold R", 90);
+        return;
+    }
+
+    gGlobalContext->state.running = 0;
+    gGlobalContext->state.init = 0;
+    *((u8*)0x5C6605) = 1; // break loop calling Graph_ThreadEntry
+    ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on = 0;
+    menuOpen = false;
+}
+
 Menu gz3DMenu = {
     "Practice Menu",
-    .nbItems = 11,
+    .nbItems = 12,
     .initialCursorPos = 0,
     {
         { "Warps", MENU, .menu = &WarpsMenu },
@@ -78,6 +96,7 @@ Menu gz3DMenu = {
         { "Debug", MENU, .menu = &DebugMenu },
         { "Commands", METHOD, .method = Commands_ShowCommandsMenu },
         { "Settings", MENU, .menu = &SettingsMenu },
-        { "PlaySFX", METHOD, .method = showSFXMenu },
+        { "Play SFX", METHOD, .method = showSFXMenu },
+        { "Quit Game", METHOD, .method = quitGame },
     }
 };
