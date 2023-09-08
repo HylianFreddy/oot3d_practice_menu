@@ -225,9 +225,9 @@ void advance_main(void) {
     if(shouldDrawWatches){
         drawWatches();
     }
-    drawAlert();
     Input_Update();
     Command_UpdateCommands(rInputCtx.cur.val);
+    drawAlert();
 
     if(menuOpen) {
         menuShow();
@@ -254,9 +254,9 @@ void advance_main(void) {
 
     while(!isAsleep &&(advance_ctx.advance_state == PAUSED || advance_ctx.advance_state == LATCHED)) {
         pauseDisplay();
-        drawAlert();
         Input_Update();
         Command_UpdateCommands(rInputCtx.cur.val);
+        drawAlert();
         if(menuOpen) {
             menuShow();
             Draw_Lock();
