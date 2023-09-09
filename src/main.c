@@ -64,10 +64,10 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
         setGlobalContext(globalCtx);
         Actor_Init();
         irrstInit();
-        autoLoadSaveFile();
         gInit = 1;
     }
     Input_Update();
+    autoLoadSaveFile();
 }
 
 void after_GlobalContext_Update(GlobalContext* globalCtx) {}
@@ -411,8 +411,9 @@ bool onMenuLoop() {
 };
 
 void autoLoadSaveFile() {
-    Input_Update();
-    if (rInputCtx.cur.l && rInputCtx.cur.r) {
+    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 &&
+        rInputCtx.cur.l && rInputCtx.cur.r) {
+
         Load_Savefiles_Buffer();
         FileSelect_LoadGame(&gGlobalContext->state, 0);
         if (gSaveContext.saveCount > 0) {
