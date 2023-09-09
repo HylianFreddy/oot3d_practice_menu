@@ -72,6 +72,10 @@ SECTIONS
 		*(.patch_after_GlobalContext_Update)
 	}
 
+	.patch_Actor_UpdateAll 0x461348 : {
+		*(.patch_Actor_UpdateAll)
+	}
+
 	.patch_ItemUsability 0x476D3C : {
 		*(.patch_ItemUsability)
 	}

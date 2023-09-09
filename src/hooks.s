@@ -259,3 +259,13 @@ hook_CameraUpdate:
     cpyeq r6,r0
     bxeq lr
     ldmia sp!,{r4-r11,pc}
+
+.global hook_Actor_UpdateAll
+hook_Actor_UpdateAll:
+    push {r0-r12,lr}
+    bl Scene_HaltActorsEnabled
+    cmp r0,#0x0
+    pop {r0-r12,lr}
+    moveq r9,#0x0
+    popne {r0,r1,r4-r11,lr}
+    bx lr

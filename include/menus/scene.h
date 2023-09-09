@@ -7,9 +7,10 @@ extern Menu SceneMenu;
 
 extern u8 noClip;
 extern u8 freeCam;
-extern u8 releasedABbuttons; //in case the NoClip command uses A or B
+extern u8 releasedNoClipButtons;
 extern void* storedPlayerUpdateFunction;
 extern PosRot freeCamView;
+extern u8 haltActors;
 
 extern void Scene_RoomNumberMenuShow(void);
 extern void Scene_HideEntitiesMenuShow(void);

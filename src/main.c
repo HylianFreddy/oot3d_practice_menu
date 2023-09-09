@@ -279,16 +279,14 @@ void advance_main(void) {
     }
     isAsleep = false;
 
-    if(noClip && releasedABbuttons) {
+    if(noClip && releasedNoClipButtons) {
         u32 in = rInputCtx.cur.val;
-        f32 amount = (in & BUTTON_R1) ? NOCLIP_FAST_SPEED : NOCLIP_SLOW_SPEED;
+        f32 amount = (in & BUTTON_X) ? NOCLIP_FAST_SPEED : NOCLIP_SLOW_SPEED;
         if(in & BUTTON_L1) {
-            if(in & (BUTTON_DOWN)) {
-                PLAYER->actor.world.pos.y -= amount;
-            }
-            if(in & (BUTTON_UP)) {
-                PLAYER->actor.world.pos.y += amount;
-            }
+            PLAYER->actor.world.pos.y += amount;
+        }
+        else if(in & BUTTON_R1) {
+            PLAYER->actor.world.pos.y -= amount;
         }
         else {
             if(in & (BUTTON_DOWN)) {
@@ -311,11 +309,8 @@ void advance_main(void) {
             PLAYER->actor.world.pos.z += 0.02 * amount * (ControlStick_Y * coss(yaw) + ControlStick_X * sins(yaw));
         }
 
-        if(in & BUTTON_X) {
-            PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
-        }
-        else if(in & BUTTON_Y) {
-            PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
+        if(rInputCtx.pressed.val & BUTTON_Y) {
+            haltActors = !haltActors;
         }
 
         if(in & BUTTON_A) { //confirm new position
@@ -327,11 +322,11 @@ void advance_main(void) {
             Scene_NoClipToggle();
         }
     }
-    else if(freeCam && releasedABbuttons) {
+    else if(freeCam && releasedNoClipButtons) {
         u32 in = rInputCtx.cur.val;
         #define cStick rInputCtx.cStick
-        f32 posMult = (in & BUTTON_R1) ? 0.4 : 0.08;
-        u16 rotMult = (in & BUTTON_R1) ? 5 : 2;
+        f32 posMult = (in & BUTTON_X) ? 0.4 : 0.08;
+        u16 rotMult = (in & BUTTON_X) ? 5 : 2;
 
         if(in & BUTTON_L1 && cStick.dx * cStick.dx + cStick.dy * cStick.dy <= 100) {
             if(ControlStick_X * ControlStick_X + ControlStick_Y * ControlStick_Y > 100) {
@@ -400,7 +395,7 @@ void advance_main(void) {
         }
     }
     else {
-        releasedABbuttons = !(rInputCtx.cur.val & (BUTTON_A | BUTTON_B));
+        releasedNoClipButtons = (rInputCtx.cur.val == 0);
     }
 }
 

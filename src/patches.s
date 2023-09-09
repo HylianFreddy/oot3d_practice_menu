@@ -102,3 +102,6 @@ LoadGame_patch:
 .global CameraUpdate_patch
 CameraUpdate_patch:
     bl hook_CameraUpdate
+
+.section .patch_Actor_UpdateAll
+    bl hook_Actor_UpdateAll

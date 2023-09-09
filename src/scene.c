@@ -7,7 +7,8 @@
 
 u8 noClip = 0;
 u8 freeCam = 0;
-u8 releasedABbuttons = 0;
+u8 releasedNoClipButtons = 0;
+u8 haltActors = 0;
 void dummyActorFunction(Actor* thisx, GlobalContext* globalCtx) {}
 void* storedPlayerUpdateFunction = &dummyActorFunction;
 View storedView;
@@ -110,16 +111,16 @@ void Scene_NoClipToggle(void) {
         if (!noClip) {
             storedPlayerUpdateFunction = PLAYER->actor.update;
             PLAYER->actor.update = dummyActorFunction;
-            PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
+            haltActors = 1;
             noClip = 1;
         }
         else {
             PLAYER->actor.update = storedPlayerUpdateFunction;
-            PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
+            haltActors = 0;
             noClip = 0;
         }
         menuOpen = false;
-        releasedABbuttons = 0;
+        releasedNoClipButtons = 0;
     }
 }
 
@@ -134,9 +135,9 @@ void Scene_NoClipDescription(void) {
                                         "Commands:\n"
                                         "Circle Pad - Move horizontally (camera)\n"
                                         "DPad       - Move horizontally (cardinal)\n"
-                                        "L+DPad     - Move vertically\n"
-                                        "Hold R     - Move fast\n"
-                                        "X/Y        - Freeze/Unfreeze actors\n"
+                                        "L/R        - Move vertically\n"
+                                        "Hold X     - Move fast\n"
+                                        "Y          - Freeze/Unfreeze actors\n"
                                         "A          - Quit and confirm position\n"
                                         "B          - Quit and cancel movement");
     Draw_FlushFramebuffer();
@@ -167,17 +168,17 @@ void Scene_FreeCamToggle(void) {
             freeCamView.rot = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
             storedPlayerUpdateFunction = PLAYER->actor.update;
             PLAYER->actor.update = dummyActorFunction;
-            PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
+            haltActors = 1;
             freeCam = 1;
         }
         else {
             gGlobalContext->view = storedView;
             PLAYER->actor.update = storedPlayerUpdateFunction;
-            PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
+            haltActors = 0;
             freeCam = 0;
         }
         menuOpen = false;
-        releasedABbuttons = 0;
+        releasedNoClipButtons = 0;
     }
 }
 
@@ -194,7 +195,7 @@ void Scene_FreeCamDescription(void) {
                                         "L+Circle Pad - Rotate in place\n"
                                         "C Stick      - Rotate while moving\n"
                                         "DPad Up/Down - Move vertically\n"
-                                        "Hold R       - Move fast\n"
+                                        "Hold X       - Move fast\n"
                                         "B            - Quit");
     Draw_FlushFramebuffer();
     Draw_Unlock();
@@ -219,4 +220,8 @@ void Scene_HideEntitiesMenuShow() {
 void Scene_HideRoomsToggle(s32 selected) {
     gStaticContext.renderGeometryDisable = !gStaticContext.renderGeometryDisable;
     HideEntitiesMenu.items[0].on = !HideEntitiesMenu.items[0].on;
+}
+
+s32 Scene_HaltActorsEnabled() {
+    return haltActors;
 }
