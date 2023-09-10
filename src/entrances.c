@@ -35,7 +35,7 @@ static const char* AgeNames[] = {
     "Child",
 };
 
-void EntranceWarp(u16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneIndex, u32 chosenTimeIndex, s32 useFadeOut){
+void EntranceWarp(s16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneIndex, u32 chosenTimeIndex, s32 useFadeOut){
     s32 resolvedCutsceneIndex = (chosenCutsceneIndex == -2) ? 0 : (chosenCutsceneIndex + 0xFFF0);
     if (chosenTimeIndex != 0){
         gSaveContext.dayTime = frozenTime = EntranceTimes[chosenTimeIndex];
@@ -187,7 +187,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                     }
                 }
                 else if(selected >= Entrance_Select_Menu_Etcs){
-                    u16 entranceIndex = manualSelection ? chosenEntranceIndex : entrances->items[selected - Entrance_Select_Menu_Etcs].entranceIndex;
+                    s16 entranceIndex = manualSelection ? chosenEntranceIndex : entrances->items[selected - Entrance_Select_Menu_Etcs].entranceIndex;
                     EntranceWarp(entranceIndex, chosenAge, cutsceneIndex, chosenTime, ADDITIONAL_FLAG_BUTTON);
                     menuOpen = false;
                 }
