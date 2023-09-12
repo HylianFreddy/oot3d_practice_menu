@@ -57,7 +57,7 @@ typedef enum {
 } ButtonStatus;
 
 // Save Context (ram start: 0x00587958)
-typedef struct {
+typedef struct SaveContext {
     /* 0x0000 */ s32          entranceIndex;
     /* 0x0004 */ s32          linkAge; // 0: Adult; 1: Child
     /* 0x0008 */ s32          cutsceneIndex;
@@ -342,7 +342,6 @@ typedef struct GameState {
     /* 0x10 */ u32 size;
     /* 0x14 */ char unk_14[0xED];
     /* 0x101*/ u8 running;
-    //TODO
 } GameState;
 _Static_assert(sizeof(GameState) == 0x104, "GameState size");
 
@@ -397,7 +396,7 @@ typedef struct GlobalContext {
     /* 0x2A90 */ u8                    msgMode; //seems to be used primarily for the ocarina
     /* 0x2A91 */ char                  unk_2A91[0xEB];
     /* 0x2B7C */ u16                   lastPlayedSong;
-    /* 0x2B7E */ s16                   unk_2B7E; // msgCtx.unk_E3EE in OoT
+    /* 0x2B7E */ u16                   ocarinaMode;
     /* 0x2B80 */ char                  unk_2B80[0x06B0];
     /* 0x3230 */ u32                   lightSettingsList_addr;
     /* 0x3234 */ char                  unk_3234[0x0824];
@@ -428,7 +427,7 @@ typedef struct StaticContext {
     /* 0x0FD0 */ u16  renderGeometryDisable;
     /* 0x0FD2 */ char unk_FD2[0x0602];
 } StaticContext; //size 0x15D4
-// _Static_assert(sizeof(StaticContext) == 0x15D4, "Static Context size");
+_Static_assert(sizeof(StaticContext) == 0x15D4, "Static Context size");
 
 typedef struct {
     /* 0x00 */ s8  scene;

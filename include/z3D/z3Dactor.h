@@ -194,6 +194,7 @@ typedef struct Actor {
     /* 0x1A0 */ f32           unk_1A0;
    /* From here on, the structure and size varies for each actor */
 } Actor; // size = 0x1A4
+_Static_assert(sizeof(Actor) == 0x1A4, "Actor size");
 
 typedef struct {
     /* 0x00 */ Actor* actor;
@@ -207,7 +208,7 @@ typedef struct {
     /* 0x54 */ char unk_54[0x18];
 } ActorMesh; // size = 0x6C
 
-typedef struct {
+typedef struct Player {
     /* 0x0000 */ Actor actor;
     /* 0x01A4 */ char unk_148[0x0005];
     /* 0x01A9 */ s8 heldItemActionParam;
@@ -262,7 +263,9 @@ typedef struct {
                                         // (positive = visible, counts towards zero each frame)
     /* 0x2489 */ char unk_2489[0x27B];
     /* 0x2704 */ struct SkeletonAnimationModel_unk_0C* bodyTexAnim;
+    /* 0x2708 */ char unk_2708[0x344];
 } Player; //total size (from init vars): 2A4C
+_Static_assert(sizeof(Player) == 0x2A4C, "Player size");
 
 typedef enum {
     /* 0x00 */ ACTORTYPE_SWITCH,
