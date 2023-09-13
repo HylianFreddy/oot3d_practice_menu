@@ -560,7 +560,7 @@ void Debug_FlagsEditor(void) {
 
 AmountMenu PlayerStatesMenu = {
     "Player States",
-    .nbItems = 5,
+    .nbItems = 6,
     .initialCursorPos = 0,
     {
         {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
@@ -571,6 +571,8 @@ AmountMenu PlayerStatesMenu = {
             .title = "Invisible=2000, BlankA=0004,...", .method = NULL},
         {.amount = 0, .isSigned = false, .min = 0, .max =   0, .nDigits = 4, .hex = true,
             .title = "Underwater=0400,...", .method = NULL},
+        {.amount = 0, .isSigned = false, .min = 0, .max = 255, .nDigits = 2, .hex = true,
+            .title = "stateFlags3", .method = NULL},
         {.amount = 0, .isSigned = false, .min = 0, .max = 255, .nDigits = 3, .hex = false,
             .title = "Held Item ID (simulate QuickDraw)", .method = NULL},
     }
@@ -581,6 +583,7 @@ void PlayerStatesMenuInit(void) {
     PlayerStatesMenu.items[PLAYERSTATES_PART2].amount = PLAYER->stateFlags1 & 0xFFFF;
     PlayerStatesMenu.items[PLAYERSTATES_PART3].amount = (PLAYER->stateFlags2 >> 0x10) & 0xFFFF;
     PlayerStatesMenu.items[PLAYERSTATES_PART4].amount = PLAYER->stateFlags2 & 0xFFFF;
+    PlayerStatesMenu.items[PLAYERSTATES_PART5].amount = PLAYER->stateFlags3;
     PlayerStatesMenu.items[PLAYERSTATES_HELD_ITEM].amount = PLAYER->heldItemId;
 }
 
@@ -590,6 +593,7 @@ void Debug_PlayerStatesMenuShow(void) {
         AmountMenuShow(&PlayerStatesMenu);
         PLAYER->stateFlags1 = (PlayerStatesMenu.items[PLAYERSTATES_PART1].amount << 0x10) | PlayerStatesMenu.items[PLAYERSTATES_PART2].amount;
         PLAYER->stateFlags2 = (PlayerStatesMenu.items[PLAYERSTATES_PART3].amount << 0x10) | PlayerStatesMenu.items[PLAYERSTATES_PART4].amount;
+        PLAYER->stateFlags3 = PlayerStatesMenu.items[PLAYERSTATES_PART5].amount;
         PLAYER->heldItemId = PlayerStatesMenu.items[PLAYERSTATES_HELD_ITEM].amount;
         Draw_Lock();
         Draw_ClearFramebuffer();
