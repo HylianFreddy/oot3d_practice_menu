@@ -192,6 +192,9 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                     menuOpen = false;
                 }
             }
+            else if (pressed & BUTTON_L1) {
+                selected = 0;
+            }
             else if(pressed & BUTTON_DOWN)
             {
                 selected++;
@@ -283,6 +286,9 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
             Draw_ClearFramebuffer();
             Draw_FlushFramebuffer();
             Draw_Unlock();
+        }
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
         }
         else if(pressed & BUTTON_DOWN)
         {

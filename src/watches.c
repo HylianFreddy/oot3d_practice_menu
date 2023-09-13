@@ -242,6 +242,9 @@ void WatchesMenuFunc(void){
                 toSwap = selected;
             }
         }
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
+        }
         else if(pressed & BUTTON_UP){
             selected--;
         }

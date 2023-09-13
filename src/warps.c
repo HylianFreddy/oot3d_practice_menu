@@ -242,6 +242,9 @@ void WarpsPlacesMenuShow(void){
             Draw_FlushFramebuffer();
             Draw_Unlock();
         }
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
+        }
         else if(pressed & BUTTON_DOWN)
         {
             selected++;
