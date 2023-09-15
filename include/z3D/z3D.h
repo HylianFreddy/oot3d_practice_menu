@@ -475,6 +475,7 @@ extern const char DungeonNames[][25];
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
 #define ControlStick_X (*(f32*)0x5655C0)
 #define ControlStick_Y (*(f32*)0x5655C4)
+#define gActorHeapAddress (*(void**)0x5A2E3C)
 
 typedef enum {
     DUNGEON_DEKU_TREE = 0,

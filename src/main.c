@@ -64,6 +64,9 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
         setGlobalContext(globalCtx);
         Actor_Init();
         irrstInit();
+        if (ToggleSettingsMenu.items[TOGGLESETTINGS_UPDATE_WATCHES].on) {
+            Settings_UpdateWatchAddresses();
+        }
         gInit = 1;
     }
     Input_Update();
