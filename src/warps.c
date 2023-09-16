@@ -266,7 +266,10 @@ void ManuallyEnterEntranceIndex(void){
 }
 
 void ClearCutscenePointer(void){
-    static u32 nullCS[] = { 0, 0 };
+    // Cutscene script starts 8 bytes after the address written at `csCtx.segment`
+    // (everything inside the scene segment seems to behave like this for some reason)
+    // So the 3rd and 4th zeroes here will be the number of cutscene commands and cutscene frames.
+    static u32 nullCS[] = { 0, 0, 0, 0 };
     gGlobalContext->csCtx.segment = &nullCS;
 }
 
