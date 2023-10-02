@@ -46,11 +46,13 @@ typedef struct SkeletonAnimationModel {
     /* 0x04 */ char            unk_04[0x08];
     /* 0x0C */ SkeletonAnimationModel_unk_0C* unk_0C;
     /* 0x10 */ SkeletonAnimationModel_unk_10* unk_10;
-    /* 0x14 */ char            unk_14[0x68];
+    /* 0x14 */ void*           unk_draw_struct_14;
+    /* 0x18 */ char            unk_18[0x64];
     /* 0x7C */ nn_math_MTX34   mtx;
     /* 0xAC */ s8              unk_AC;
     /* 0xAD */ char            unk_AD[0x03];
 } SkeletonAnimationModel; // size = 0xB0
+_Static_assert(sizeof(SkeletonAnimationModel) == 0xB0, "SkeletonAnimationModel size");
 
 typedef struct SkelAnime {
     /* 0x00 */ char unk_00[0x04];
@@ -170,7 +172,9 @@ typedef struct Actor {
     /* 0x115 */ u8      targetPriority; // Lower values have higher priority. Resets to 0 when player stops targeting
     /* 0x116 */ u16     textId; // Text ID to pass to link/display when interacting with the actor
     /* 0x118 */ u16     freezeTimer; // Actor does not update when set. Timer decrements automatically
-    /* 0x120 */ char    unk_118[0x7];
+    /* 0x11A */ s16     colorFilterTimer;
+    /* 0x11C */ u32     colorFilterParams;
+    /* 0x120 */ char    unk_120;
     /* 0x121 */ u8      isDrawn; // Set to true if the actor is currently being drawn. Always stays false for lens actors
     /* 0x122 */ u8      unk_122; // Set within a routine that deals with collision
     /* 0x123 */ u8      naviEnemyId; // Sets what 0600 dialog to display when talking to navi. Default 0xFF
