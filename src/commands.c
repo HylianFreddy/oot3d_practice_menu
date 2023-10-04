@@ -418,7 +418,7 @@ static void Commands_EditCommand(u32 commandIndex){
             else if (pressed & BUTTON_B){
                 break;
             }
-            else if (pressed & (BUTTON_DOWN | BUTTON_UP)){
+            else if (pressed & (PAD_DOWN | PAD_UP)){
                 selected = (selected + 1) % 2;
             }
         }
@@ -434,6 +434,11 @@ static void Commands_EditCommand(u32 commandIndex){
                     editing = (secs > 1);
                     curColor = (editing ? COLOR_RED : COLOR_WHITE);
                     continue;
+                }
+
+                // ignore circle pad inputs
+                if (pressed & CPAD_ANY) {
+                    break;
                 }
 
                 // buttons have to be pressed one at a time, ignore multiple button inputs
@@ -537,18 +542,18 @@ void Commands_ShowCommandsMenu(void){
         {
             commandList[selected].method();
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected -= COMMAND_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             if(selected + COMMAND_MENU_MAX_SHOW < NUMBER_OF_COMMANDS)
                 selected += COMMAND_MENU_MAX_SHOW;
             else if((NUMBER_OF_COMMANDS - 1) / COMMAND_MENU_MAX_SHOW == page)

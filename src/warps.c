@@ -245,11 +245,11 @@ void WarpsPlacesMenuShow(void){
         else if (pressed & BUTTON_L1) {
             selected = 0;
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }

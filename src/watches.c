@@ -78,13 +78,13 @@ static void WatchesEditWatch(s32 selected){
         if(chosen){
             if (pressed & (BUTTON_B | BUTTON_A))
                 chosen = 0;
-            else if(pressed & BUTTON_LEFT)
+            else if(pressed & PAD_LEFT)
                 bytes[selectedByte] -= 0x10;
-            else if(pressed & BUTTON_RIGHT)
+            else if(pressed & PAD_RIGHT)
                 bytes[selectedByte] += 0x10;
-            else if(pressed & BUTTON_UP)
+            else if(pressed & PAD_UP)
                 bytes[selectedByte]++;
-            else if(pressed & BUTTON_DOWN)
+            else if(pressed & PAD_DOWN)
                 bytes[selectedByte]--;
         }
         else {
@@ -112,13 +112,13 @@ static void WatchesEditWatch(s32 selected){
                 bytes[2] = 0xFF & (addr >>  8);
                 bytes[3] = 0xFF & (addr);
             }
-            else if(pressed & BUTTON_UP)
+            else if(pressed & PAD_UP)
                 selectedItem--;
-            else if(pressed & BUTTON_DOWN)
+            else if(pressed & PAD_DOWN)
                 selectedItem++;
-            else if(selectedItem == 2 && pressed & BUTTON_LEFT)
+            else if(selectedItem == 2 && pressed & PAD_LEFT)
                 selectedByte--;
-            else if(selectedItem == 2 && pressed & BUTTON_RIGHT)
+            else if(selectedItem == 2 && pressed & PAD_RIGHT)
                 selectedByte++;
         }
 
@@ -245,10 +245,10 @@ void WatchesMenuFunc(void){
         else if (pressed & BUTTON_L1) {
             selected = 0;
         }
-        else if(pressed & BUTTON_UP){
+        else if(pressed & PAD_UP){
             selected--;
         }
-        else if(pressed & BUTTON_DOWN){
+        else if(pressed & PAD_DOWN){
             selected++;
         }
 

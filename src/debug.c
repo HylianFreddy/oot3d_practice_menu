@@ -216,10 +216,10 @@ static bool DebugActors_SpawnActor(void) {
             Actor_Spawn(&(gGlobalContext->actorCtx), gGlobalContext, newId, p.pos.x, p.pos.y, p.pos.z, p.rot.x, p.rot.y, p.rot.z, newParams);
             return true;
         }
-        else if (pressed & BUTTON_RIGHT) {
+        else if (pressed & PAD_RIGHT) {
             selected++;
         }
-        else if (pressed & BUTTON_LEFT) {
+        else if (pressed & PAD_LEFT) {
             selected--;
         }
 
@@ -315,19 +315,19 @@ void DebugActors_ShowActors(void) {
             Draw_FlushFramebuffer();
             Draw_Unlock();
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT)
+        else if(pressed & PAD_LEFT)
         {
             selected -= ACTOR_LIST_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT)
+        else if(pressed & PAD_RIGHT)
         {
             selected += ACTOR_LIST_MAX_SHOW;
         }
@@ -411,16 +411,16 @@ void Debug_ShowObjects(void) {
             Draw_FlushFramebuffer();
             Draw_Unlock();
         }
-        else if(pressed & BUTTON_UP) {
+        else if(pressed & PAD_UP) {
             objectId += (1 << digitIdx*4);
         }
-        else if(pressed & BUTTON_DOWN) {
+        else if(pressed & PAD_DOWN) {
             objectId -= (1 << digitIdx*4);
         }
-        else if(pressed & BUTTON_RIGHT) {
+        else if(pressed & PAD_RIGHT) {
             digitIdx--;
         }
-        else if(pressed & BUTTON_LEFT) {
+        else if(pressed & PAD_LEFT) {
             digitIdx++;
         }
 
@@ -502,18 +502,18 @@ void Debug_FlagsEditor(void) {
             groupToSelect = group - 1;
         }
         else{
-            if (pressed & BUTTON_UP){
+            if (pressed & PAD_UP){
                 row--;
                 if (row == 0 && column > 1) column = 1;
             }
-            if (pressed & BUTTON_DOWN){
+            if (pressed & PAD_DOWN){
                 row++;
                 if (row > RowAmounts[group] && column > 1) column = 1;
             }
-            if (pressed & BUTTON_RIGHT){
+            if (pressed & PAD_RIGHT){
                 column++;
             }
-            if (pressed & BUTTON_LEFT){
+            if (pressed & PAD_LEFT){
                 column--;
             }
         }
@@ -730,19 +730,19 @@ void Debug_MemoryEditor(void) {
             MemoryEditor_TableSettings();
         }
         else {
-            if (pressed & BUTTON_UP){
+            if (pressed & PAD_UP){
                 selectedRow--;
                 if (selectedRow == 0) selectedColumn = 0;
                 if (selectedRow == 1) selectedColumn = 1;
             }
-            if (pressed & BUTTON_DOWN){
+            if (pressed & PAD_DOWN){
                 selectedRow++;
                 if (selectedRow == 2) selectedColumn = 0;
             }
-            if (pressed & BUTTON_RIGHT){
+            if (pressed & PAD_RIGHT){
                 selectedColumn++;
             }
-            if (pressed & BUTTON_LEFT){
+            if (pressed & PAD_LEFT){
                 selectedColumn--;
             }
             if (pressed & BUTTON_L1) {
@@ -807,16 +807,16 @@ void MemoryEditor_EditValue(void) {
         if (pressed & (BUTTON_B | BUTTON_A)){
             break;
         }
-        else if (pressed & BUTTON_UP){
+        else if (pressed & PAD_UP){
             value++;
         }
-        else if (pressed & BUTTON_DOWN){
+        else if (pressed & PAD_DOWN){
             value--;
         }
-        else if (pressed & BUTTON_RIGHT){
+        else if (pressed & PAD_RIGHT){
             value+=0x10;
         }
-        else if (pressed & BUTTON_LEFT){
+        else if (pressed & PAD_LEFT){
             value-=0x10;
         }
 
@@ -923,10 +923,10 @@ void MemoryEditor_GoToPreset(void) {
             break;
         }
         else {
-            if (pressed & BUTTON_UP){
+            if (pressed & PAD_UP){
                 selected--;
             }
-            if (pressed & BUTTON_DOWN){
+            if (pressed & PAD_DOWN){
                 selected++;
             }
         }
@@ -1027,40 +1027,40 @@ void MemoryEditor_TableSettings(void) {
             break;
         }
         else if (chosen && selected == 0) {
-            if (pressed & BUTTON_UP){
+            if (pressed & PAD_UP){
                 tableElementSize += pressed & BUTTON_X ? 0x100 : 0x1;
             }
-            if (pressed & BUTTON_DOWN){
+            if (pressed & PAD_DOWN){
                 tableElementSize -= pressed & BUTTON_X ? 0x100 : 0x1;
             }
-            if (pressed & BUTTON_RIGHT){
+            if (pressed & PAD_RIGHT){
                 tableElementSize += pressed & BUTTON_X ? 0x1000 : 0x10;
             }
-            if (pressed & BUTTON_LEFT){
+            if (pressed & PAD_LEFT){
                 tableElementSize -= pressed & BUTTON_X ? 0x1000 : 0x10;
             }
         }
         else if (chosen && selected == 2) {
-            if (pressed & BUTTON_UP){
+            if (pressed & PAD_UP){
                 tableIndex += pressed & BUTTON_X ? 0x100 : 0x1;
             }
-            if (pressed & BUTTON_DOWN){
+            if (pressed & PAD_DOWN){
                 tableIndex -= pressed & BUTTON_X ? 0x100 : 0x1;
             }
-            if (pressed & BUTTON_RIGHT){
+            if (pressed & PAD_RIGHT){
                 tableIndex += pressed & BUTTON_X ? 0x1000 : 0x10;
             }
-            if (pressed & BUTTON_LEFT){
+            if (pressed & PAD_LEFT){
                 tableIndex -= pressed & BUTTON_X ? 0x1000 : 0x10;
             }
         }
         else {
-            if (pressed & BUTTON_DOWN){
+            if (pressed & PAD_DOWN){
                 selected++;
                 if (selected > 2)
                     selected = 0;
             }
-            if (pressed & BUTTON_UP){
+            if (pressed & PAD_UP){
                 selected--;
                 if (selected < 0)
                     selected = 2;

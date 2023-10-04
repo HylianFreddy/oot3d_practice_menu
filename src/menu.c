@@ -127,12 +127,12 @@ void menuShow()
         else if (pressed & BUTTON_L1) {
             selectedItem = 0;
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             if(++selectedItem >= currentMenu->nbItems)
                 selectedItem = 0;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             if(selectedItem-- <= 0)
                 selectedItem = currentMenu->nbItems - 1;
@@ -201,18 +201,18 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
         else if (pressed & BUTTON_L1) {
             selected = 0;
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected -= TOGGLE_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             if(selected + TOGGLE_MENU_MAX_SHOW < menu->nbItems)
                 selected += TOGGLE_MENU_MAX_SHOW;
             else if((menu->nbItems - 1) / TOGGLE_MENU_MAX_SHOW == page)
@@ -288,19 +288,19 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
         else if (pressed & BUTTON_L1) {
             selected = 0;
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT)
+        else if(pressed & PAD_LEFT)
         {
             selected -= AMOUNT_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT)
+        else if(pressed & PAD_RIGHT)
         {
             if(selected + AMOUNT_MENU_MAX_SHOW < menu->nbItems)
                 selected += AMOUNT_MENU_MAX_SHOW;
@@ -380,16 +380,16 @@ u32 KeyboardFill(char * buf, u32 len){
         else if(pressed & (BUTTON_R1 | BUTTON_L1)){
             keys = (keys == Lower) ? Upper : Lower;
         }
-        else if(pressed & BUTTON_DOWN){
+        else if(pressed & PAD_DOWN){
             selected += 10;
         }
-        else if(pressed & BUTTON_UP){
+        else if(pressed & PAD_UP){
             selected -= 10;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             selected++;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected--;
         }
         else if(pressed & BUTTON_START){
@@ -482,16 +482,16 @@ void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType, s3
         else if ((pressed & BUTTON_R1) && (pressed & BUTTON_L1)) {
             longValue = 0;
         }
-        else if (pressed & BUTTON_UP) {
+        else if (pressed & PAD_UP) {
             longValue += digitValue;
         }
-        else if (pressed & BUTTON_DOWN) {
+        else if (pressed & PAD_DOWN) {
             longValue -= digitValue;
         }
-        else if (pressed & BUTTON_RIGHT){
+        else if (pressed & PAD_RIGHT){
             digitIndex--;
         }
-        else if (pressed & BUTTON_LEFT){
+        else if (pressed & PAD_LEFT){
             digitIndex++;
         }
 

@@ -144,10 +144,10 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                     gSaveContext.nextCutsceneIndex = (cutsceneIndex == -2) ? 0 : (cutsceneIndex + 0xFFF0);
                 }
             }
-            else if (pressed & (BUTTON_UP | BUTTON_DOWN)) // change selected value
+            else if (pressed & (PAD_UP | PAD_DOWN)) // change selected value
             {
                 if (selected == Entrance_Select_Menu_CsIdx) {
-                    cutsceneIndex += (pressed & BUTTON_UP) ? 1 : -1;
+                    cutsceneIndex += (pressed & PAD_UP) ? 1 : -1;
                     // keep cutsceneIndex within the correct values
                     if(cutsceneIndex > 15){
                         cutsceneIndex = (ADDITIONAL_FLAG_BUTTON ? -2 : -1);
@@ -195,11 +195,11 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
             else if (pressed & BUTTON_L1) {
                 selected = 0;
             }
-            else if(pressed & BUTTON_DOWN)
+            else if(pressed & PAD_DOWN)
             {
                 selected++;
             }
-            else if(pressed & BUTTON_UP)
+            else if(pressed & PAD_UP)
             {
                 selected--;
             }
@@ -290,18 +290,18 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
         else if (pressed & BUTTON_L1) {
             selected = 0;
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected -= SCENE_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             if(selected + SCENE_MENU_MAX_SHOW < menu->nbItems)
                 selected += SCENE_MENU_MAX_SHOW;
             else if((menu->nbItems - 1) / SCENE_MENU_MAX_SHOW == page)
