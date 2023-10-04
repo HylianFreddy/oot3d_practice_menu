@@ -62,6 +62,11 @@ void EntranceWarp(s16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneInde
         gSaveContext.entranceIndex = chosenEntranceIndex;
         gGlobalContext->state.running = 0;
         gGlobalContext->state.init = Play_Init;
+        // Stop BGM, except when voiding out
+        if (gSaveContext.respawnFlag != 1) {
+            gSaveContext.seqIndex = 0xFF;
+            gSaveContext.nightSeqIndex = 0xFF;
+        }
     }
 }
 

@@ -158,7 +158,8 @@ typedef struct SaveContext {
     /* 0x14F0 */ RespawnData  respawn[3]; // "restart_data"
     /* 0x1544 */ char         unk_1544[0x000E];
     /* 0x1552 */ s16          nayrusLoveTimer;
-    /* 0x1554 */ char         unk_1554[0x0008];
+    /* 0x1554 */ char         unk_1554[0x0004];
+    /* 0x1558 */ u32          seqIndex;
     /* 0x155C */ s16          rupeeAccumulator;
     /* 0x155E */ s16          timer1State;
     /* 0x1560 */ s16          timer1Value;
