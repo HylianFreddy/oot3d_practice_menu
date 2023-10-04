@@ -20,7 +20,6 @@ void MemoryEditor_FollowPointer(void);
 void MemoryEditor_TableSettings(void);
 void MemoryEditor_JumpToTableElementFromIndex(void);
 void MemoryEditor_JumpToTableElement(void);
-void MemoryEditor_BoundTableIndexValue(void);
 u32 MemoryEditor_GetSelectedByteAddress(void);
 
 typedef enum {
@@ -50,16 +49,9 @@ typedef enum {
     PLAYERSTATES_HELD_ITEM,
 } PlayerStatesOptions;
 
-typedef enum {
-    TABLEINDEX_U8,
-    TABLEINDEX_S8,
-    TABLEINDEX_U16,
-    TABLEINDEX_S16,
-} TableIndexType;
-
 static const char* const TableIndexTypeNames[] = {
-    "U8 ",
     "S8 ",
-    "U16",
+    "U8 ",
     "S16",
+    "U16",
 };

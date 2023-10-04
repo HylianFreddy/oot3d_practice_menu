@@ -25,7 +25,7 @@ static s32 selectedColumn = 0;
 static u8  isValidMemory = 0;
 static u32 storedTableStart = 0;
 static u16 tableElementSize = 0;
-static u8  tableIndexType = TABLEINDEX_U8;
+static VarType tableIndexType = VARTYPE_S8;
 static s32 tableIndex = 0;
 static char tableIndexSign;
 static u16 tableIndexAbs;
@@ -964,10 +964,33 @@ void MemoryEditor_FollowPointer(void) {
     Draw_Unlock();
 }
 
+void UpdateTableIndexValueSign(void) {
+    switch (tableIndexType) {
+        case VARTYPE_U8:
+            tableIndex &= 0xFF;
+            break;
+        case VARTYPE_S8:
+            if ((u8)(tableIndex & 0xFF) >= 0x80) {
+                tableIndex |= 0xFFFFFF00;
+            } else {
+                tableIndex &= 0xFF;
+            }
+            break;
+        case VARTYPE_S16:
+            if ((u16)(tableIndex & 0xFFFF) >= 0x8000) {
+                tableIndex |= 0xFFFF0000;
+            } else {
+                tableIndex &= 0xFFFF;
+            }
+            break;
+        case VARTYPE_U16:
+        default:
+            tableIndex &= 0xFFFF;
+    }
+}
+
 void MemoryEditor_TableSettings(void) {
     static s32 selected = 0;
-    u8 chosen = 0;
-    u32 curColor = COLOR_GREEN;
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -976,7 +999,6 @@ void MemoryEditor_TableSettings(void) {
 
     do
     {
-        curColor = chosen ? COLOR_RED : COLOR_GREEN;
         tableIndexSign = tableIndex < 0 ? '-' : ' ';
         tableIndexAbs = tableIndex < 0 ? -tableIndex : tableIndex;
 
@@ -991,9 +1013,9 @@ void MemoryEditor_TableSettings(void) {
                                              "R+Y from this menu: Jump to chosen Index");
         // Table Settings
         Draw_DrawFormattedString(30, 120, COLOR_GRAY, "Stored Table Start : %08X", storedTableStart);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y, selected == 0 ? curColor : COLOR_WHITE, "Table Element Size : %04X", tableElementSize);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? curColor : COLOR_WHITE, "Table Index Type : %s", TableIndexTypeNames[tableIndexType]);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? curColor : COLOR_WHITE, "Table Index : %c%04X", tableIndexSign, tableIndexAbs);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "Table Element Size : 0x%04X", tableElementSize);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Table Index Type : %s", TableIndexTypeNames[tableIndexType]);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? COLOR_GREEN : COLOR_WHITE, "Table Index : %c0x%04X", tableIndexSign, tableIndexAbs);
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -1001,58 +1023,26 @@ void MemoryEditor_TableSettings(void) {
         u32 pressed = Input_WaitWithTimeout(1000);
 
         if (pressed & BUTTON_B) {
-            if (chosen)
-                chosen = 0;
-            else
-                break;
+            break;
         }
         else if (pressed & BUTTON_A) {
-            if (selected == 1) {
-                tableIndexType++;
+            switch (selected) {
+                case 0:
+                    Menu_EditAmount(30 + SPACING_X * 20, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true, NULL, 0);
+                    break;
+                case 1:
+                    tableIndexType = (tableIndexType + 1) % 4;
+                    UpdateTableIndexValueSign();
+                    break;
+                case 2:
+                    Menu_EditAmount(30 + SPACING_X * 14, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true, NULL, 0);
+                    UpdateTableIndexValueSign();
+                    break;
             }
-            else
-                chosen = 1 - chosen;
-
-            if (selected == 2)
-                tableIndexType = TABLEINDEX_U16;
-        }
-        else if ((pressed & BUTTON_L1) && chosen) {
-            if (selected == 0)
-                tableElementSize = 0;
-            else if (selected == 2)
-                tableIndex = 0;
         }
         else if (pressed & BUTTON_Y && ADDITIONAL_FLAG_BUTTON) {
             MemoryEditor_JumpToTableElementFromIndex();
             break;
-        }
-        else if (chosen && selected == 0) {
-            if (pressed & PAD_UP){
-                tableElementSize += pressed & BUTTON_X ? 0x100 : 0x1;
-            }
-            if (pressed & PAD_DOWN){
-                tableElementSize -= pressed & BUTTON_X ? 0x100 : 0x1;
-            }
-            if (pressed & PAD_RIGHT){
-                tableElementSize += pressed & BUTTON_X ? 0x1000 : 0x10;
-            }
-            if (pressed & PAD_LEFT){
-                tableElementSize -= pressed & BUTTON_X ? 0x1000 : 0x10;
-            }
-        }
-        else if (chosen && selected == 2) {
-            if (pressed & PAD_UP){
-                tableIndex += pressed & BUTTON_X ? 0x100 : 0x1;
-            }
-            if (pressed & PAD_DOWN){
-                tableIndex -= pressed & BUTTON_X ? 0x100 : 0x1;
-            }
-            if (pressed & PAD_RIGHT){
-                tableIndex += pressed & BUTTON_X ? 0x1000 : 0x10;
-            }
-            if (pressed & PAD_LEFT){
-                tableIndex -= pressed & BUTTON_X ? 0x1000 : 0x10;
-            }
         }
         else {
             if (pressed & PAD_DOWN){
@@ -1066,11 +1056,6 @@ void MemoryEditor_TableSettings(void) {
                     selected = 2;
             }
         }
-
-        if (tableIndexType > 3)
-            tableIndexType = 0;
-
-        MemoryEditor_BoundTableIndexValue();
 
     } while(onMenuLoop());
 
@@ -1094,47 +1079,23 @@ void MemoryEditor_JumpToTableElementFromIndex(void) {
 void MemoryEditor_JumpToTableElement(void) {
     void* byteAddress = (void*)(memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
     switch (tableIndexType) {
-        case TABLEINDEX_U8:
+        case VARTYPE_U8:
             tableIndex = (*(u8*)byteAddress);
             break;
-        case TABLEINDEX_S8:
+        case VARTYPE_S8:
             tableIndex = (*(s8*)byteAddress);
             break;
-        case TABLEINDEX_U16:
+        case VARTYPE_U16:
             tableIndex = (*(u16*)(byteAddress - (u32)byteAddress % 2));
             break;
-        case TABLEINDEX_S16:
+        case VARTYPE_S16:
             tableIndex = (*(s16*)(byteAddress - (u32)byteAddress % 2));
             break;
+        default:
+            return;
     }
 
     MemoryEditor_JumpToTableElementFromIndex();
-}
-
-void MemoryEditor_BoundTableIndexValue(void) {
-
-    if (tableIndex > 0xFFFF)
-        tableIndex -= 0x10000;
-    else if (tableIndex < 0)
-        tableIndex += 0x10000;
-
-    switch (tableIndexType) {
-        case TABLEINDEX_U8:
-            tableIndex &= 0xFF;
-            break;
-        case TABLEINDEX_S8:
-            tableIndex &= 0xFF;
-            if (tableIndex >= 0x80)
-                tableIndex -= 0x100;
-            break;
-        case TABLEINDEX_U16:
-            tableIndex &= 0xFFFF;
-            break;
-        case TABLEINDEX_S16:
-            if (tableIndex >= 0x8000)
-                tableIndex -= 0x10000;
-            break;
-    }
 }
 
 u32 MemoryEditor_GetSelectedByteAddress(void) {
