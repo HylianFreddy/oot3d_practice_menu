@@ -140,9 +140,9 @@ void applyCheats() {
     if(cheats[CHEATS_SKIP_SONGS_PLAYBACK] && isInGame()) {
         // msgModes 18 to 23 are used to manage the song replays. Skipping to mode 23 ends the replay.
         // msgMode 18 starts the playback music. It can't be skipped for scarecrow's song (song "12") because it spawns Pierre.
-        if ((gGlobalContext->msgMode == 18 && gGlobalContext->lastPlayedSong != 12) ||
-                gGlobalContext->msgMode == 19) {
-            gGlobalContext->msgMode = 23;
+        if ((gGlobalContext->msgCtx.msgMode == 18 && gGlobalContext->msgCtx.lastPlayedSong != 12) ||
+                gGlobalContext->msgCtx.msgMode == 19) {
+            gGlobalContext->msgCtx.msgMode = 23;
         }
     }
     if(cheats[CHEATS_FIX_BLACK_SCREEN_GLITCH] && isInGame() && gSaveContext.cutsceneIndex == 0 && gSaveContext.gameMode == 1) {

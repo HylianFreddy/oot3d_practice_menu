@@ -192,8 +192,14 @@ typedef struct Camera {
     /*0x0000*/ char  unk_000[0x17C];
     /*0x017C*/ Vec3s inputDir;
     /*0x0182*/ Vec3s camDir;
-    /*0x0188*/ char  unk_188[0x34];
+    /*0x0188*/ s16   status;
+    /*0x018E*/ s16   setting;
+    /*0x0190*/ char  unk_190[0x1A];
+    /*0x01AA*/ s16   animState;
+    /*0x01AC*/ s16   timer;
+    /*0x01AE*/ char  unk_1AE[0x12];
 } Camera; // size = 0x1BC
+_Static_assert(sizeof(Camera) == 0x1BC, "Camera size");
 
 typedef struct {
     /* 0x00 */ void* colHeader; //TODO: CollisionHeader* struct
@@ -255,6 +261,14 @@ typedef struct {
     }                   flags;
     /* 0x01C0 */ TitleCardContext titleCtx;
 } ActorContext; // TODO: size = 0x1D8
+
+typedef enum {
+    /* 0 */ CS_STATE_IDLE,
+    /* 1 */ CS_STATE_START,
+    /* 2 */ CS_STATE_RUN,
+    /* 3 */ CS_STATE_STOP,
+    /* 4 */ CS_STATE_RUN_UNSTOPPABLE
+} CutsceneState;
 
 typedef struct CutsceneContext {
     /* 0x00 */ char  unk_00[0x4];
@@ -374,6 +388,17 @@ typedef struct {
     /* 0x1D8 */ char unk_0360[0x0004];
 } View; // size 0x1DC
 
+typedef struct MessageContext {
+    /* 0x000 */ char                  unk_000[0x1F0];
+    /* 0x1F0 */ u8                    msgMode;
+    /* 0x1F1 */ char                  unk_1F1[0xEB];
+    /* 0x2DC */ u16                   lastPlayedSong;
+    /* 0x2DE */ u16                   ocarinaMode;
+    /* 0x2E0 */ char                  unk_2DF[0x20];
+    /* 0x300 */ u8                    lastOcarinaButtonIndex;
+} MessageContext;
+_Static_assert(sizeof(MessageContext) == 0x302, "MessageContext size");
+
 // Global Context (ram start: 0871E840)
 typedef struct GlobalContext {
     /* 0x0000 */ GameState             state;
@@ -393,12 +418,9 @@ typedef struct GlobalContext {
     /* 0x208C */ ActorContext          actorCtx;
     /* 0x2264 */ char                  unk_2264[0x0034];
     /* 0x2298 */ CutsceneContext       csCtx; // "demo_play"
-    /* 0x2304 */ char                  unk_2304[0x078C];
-    /* 0x2A90 */ u8                    msgMode; //seems to be used primarily for the ocarina
-    /* 0x2A91 */ char                  unk_2A91[0xEB];
-    /* 0x2B7C */ u16                   lastPlayedSong;
-    /* 0x2B7E */ u16                   ocarinaMode;
-    /* 0x2B80 */ char                  unk_2B80[0x06B0];
+    /* 0x2304 */ char                  unk_2304[0x059C];
+    /* 0x28A0 */ MessageContext        msgCtx;
+    /* 0x2BA2 */ char                  unk_2BA2[0x068E];
     /* 0x3230 */ u32                   lightSettingsList_addr;
     /* 0x3234 */ char                  unk_3234[0x0824];
     /* 0x3A58 */ ObjectContext         objectCtx;
@@ -548,6 +570,14 @@ typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
 typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor* actor);
 #define DisplayTextbox_addr 0x367C7C
 #define DisplayTextbox ((DisplayTextbox_proc)DisplayTextbox_addr)
+
+typedef void (*CloseTextbox_proc)(GlobalContext* globalCtx);
+#ifdef Version_JP
+    #define CloseTextbox_addr 0x3720F8
+#else //USA & EUR
+    #define CloseTextbox_addr 0x3725E0
+#endif
+#define Message_CloseTextbox ((CloseTextbox_proc)CloseTextbox_addr)
 
 typedef void (*PlaySound_proc)(u32);
 #define PlaySound_addr 0x35C528

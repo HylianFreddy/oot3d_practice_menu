@@ -244,7 +244,12 @@ typedef struct Player {
     /* 0x12AD */ char unk_12AD[0x0001];
     /* 0x12AE */ u16 getItemDirection;
     /* 0x12B0 */ Actor* interactRangeActor;
-    /* 0x12B4 */ char unk_12B4[0x0454];
+    /* 0x12B4 */ s8 mountSide;
+    /* 0x12B5 */ char unk_12B5[0x0003];
+    /* 0x12B8 */ Actor* rideActor;
+    /* 0x12BC */ u8 csAction;
+    /* 0x12BD */ u8 prevCsAction;
+    /* 0x12BE */ char unk_12BE[0x044A];
     /* 0x1708 */ void* stateFuncPtr;
     /* 0x170C */ char unk_170C[0x0004];
     /* 0x1710 */ u32 stateFlags1;

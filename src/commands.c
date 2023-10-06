@@ -23,30 +23,23 @@ static void Command_OpenMenu(void){
 
 static void Command_Break(void){
     if (isInGame()) {
-        /* TODO
-        if (z64_game.event_flag != -1)
-            z64_game.event_flag = 0x0000;
-        */
-
-        gGlobalContext->csCtx.state = 0x03;
-
-        /*if (gGlobalContext->msgMode != 0x00) {
-            gGlobalContext->msgMode = 0x36; // doesn't work to close text boxes
-            //z64_game.message_state_2 = 0x00;
-            //z64_game.message_state_3 = 0x02;
+        if (gGlobalContext->csCtx.state != CS_STATE_IDLE) {
+            gGlobalContext->csCtx.state = CS_STATE_STOP;
         }
-        if (aggressive) {
-            z64_game.camera_mode = 0x0001;
-            z64_game.camera_flag_1 = 0x0000;
-            if (z64_link.action != 0x00)
-                z64_link.action = 0x07;
-        }*/
+        if (gGlobalContext->subCameras[0].timer != -1) {
+            gGlobalContext->subCameras[0].timer = 0;
+        }
 
+        // "aggressive" break
+        Message_CloseTextbox(gGlobalContext);
+        gGlobalContext->mainCamera.setting   = 1;
+        gGlobalContext->mainCamera.animState = 0;
         PLAYER->stateFlags1 = 0x0;
         PLAYER->stateFlags2 = 0x0;
-        if (gGlobalContext->nextEntranceIndex != 0xFFFF && gGlobalContext->sceneLoadFlag == 0x14) {
-            gGlobalContext->sceneLoadFlag = 0xEC; //hacky solution to avoid softlocks when warping during fade-in
+        if (PLAYER->csAction != 0) {
+            PLAYER->csAction = 7;
         }
+
         setAlert("Break", 40);
     }
 }
