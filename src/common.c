@@ -17,10 +17,14 @@ bool is_valid_memory_write(const MemInfo* info) {
 }
 
 bool isInGame() {
-    if (!gInit || gSaveContext.gameMode == 2) {
-        return false;
-    }
-    // this is to make sure the player actor exists
-    const MemInfo address_info = query_memory_permissions((int)&(PLAYER->meleeWeaponState));
-    return is_valid_memory_read(&address_info);
+    return gInit && gSaveContext.gameMode != 2 && gGlobalContext->state.running && PLAYER;
+}
+
+void CitraPrint(const char* message, ...) {
+    va_list args;
+    va_start(args, message);
+    char buf[128];
+    int length = vsnprintf(buf, 128, message, args);
+    svcOutputDebugString(buf, length);
+    va_end(args);
 }
