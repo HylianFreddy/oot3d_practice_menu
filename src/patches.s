@@ -91,7 +91,7 @@ OverrideSceneSetup_patch:
     bl hook_OverrideSceneSetup
 
 .section .patch_LoadGame
-.global .LoadGame_patch
+.global LoadGame_patch
 LoadGame_patch:
     bl hook_LoadGame
 
@@ -105,3 +105,6 @@ CameraUpdate_patch:
 
 .section .patch_Actor_UpdateAll
     bl hook_Actor_UpdateAll
+
+.section .patch_DrawScreen
+    bl hook_DrawScreen

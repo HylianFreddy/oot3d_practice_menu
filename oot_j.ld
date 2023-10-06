@@ -48,6 +48,10 @@ SECTIONS
 		*(.patch_SleepQueryCallback)
 	}
 
+	.patch_DrawScreen 0x416398 : {
+		*(.patch_DrawScreen)
+	}
+
 	.patch_ItemUsability_Shield 0x42E2C8 : {
 		*(.patch_ItemUsability_Shield)
 	}

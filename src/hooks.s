@@ -269,3 +269,12 @@ hook_Actor_UpdateAll:
     moveq r9,#0x0
     popne {r0,r1,r4-r11,lr}
     bx lr
+
+.global hook_DrawScreen
+hook_DrawScreen:
+    push {r0-r12, lr}
+    bl checkFastForward
+    cmp r0,#0x0
+    pop {r0-r12, lr}
+    beq 0x418B88 @ handles drawing screen
+    bx lr

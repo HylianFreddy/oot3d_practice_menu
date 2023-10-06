@@ -434,3 +434,12 @@ void autoLoadSaveFile() {
         }
     }
 }
+
+// Called for every update cycle in Graph_ThreadEntry
+// Returning true will skip drawing the frame on screen, making the game speed-up significantly
+// (exactly how much depends on the CPU speed).
+// While holding ZL, a frame will only be drawn every 20 update cycles.
+s32 checkFastForward(void) {
+    static u32 updateCycleCounter = 0;
+    return rInputCtx.cur.zl && (++updateCycleCounter % 20 != 0);
+}
