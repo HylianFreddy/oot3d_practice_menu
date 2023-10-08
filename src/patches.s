@@ -108,3 +108,6 @@ CameraUpdate_patch:
 
 .section .patch_DrawScreen
     bl hook_DrawScreen
+
+.section .patch_ActorDrawContext
+    bl Actor_rDrawContext

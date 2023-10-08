@@ -1,6 +1,7 @@
 #include "z3D/z3D.h"
 #include "actors/player.h"
 #include "actors/songs_visual_effects.h"
+#include "menus/scene.h"
 #include <string.h>
 
 void Actor_Init() {
@@ -24,4 +25,26 @@ void Actor_Init() {
     gActorOverlayTable[0x198].initInfo->update = OceffWipe2_rUpdate;
     gActorOverlayTable[0x199].initInfo->update = OceffWipe3_rUpdate;
     gActorOverlayTable[0x1CB].initInfo->update = OceffWipe4_rUpdate;
+}
+
+void Actor_rDrawContext(GlobalContext *globalCtx,ActorContext *actorCtx) {
+    // Collision display is normally handled in Actor_DrawContext, but in order to draw its models even
+    // when "Hide Actors" is enabled, we disable it and then call CollisionCheck_DrawCollision manually
+    u16 tempCollDisplay = gStaticContext.collisionDisplay;
+    gStaticContext.collisionDisplay = 0;
+
+    s32 tempSaModelsCount1 = gMainClass->sub180.saModelsCount1;
+    s32 tempSaModelsCount2 = gMainClass->sub180.saModelsCount2;
+
+    Actor_DrawContext(globalCtx, actorCtx);
+
+    if (HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on) {
+        gMainClass->sub180.saModelsCount1 = tempSaModelsCount1; // 3D models
+        gMainClass->sub180.saModelsCount2 = tempSaModelsCount2; // 2D billboards
+    }
+
+    if (tempCollDisplay) {
+        gStaticContext.collisionDisplay = tempCollDisplay;
+        CollisionCheck_DrawCollision(globalCtx,&globalCtx->colChkCtx);
+    }
 }

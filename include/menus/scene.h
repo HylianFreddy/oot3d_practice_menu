@@ -3,7 +3,13 @@
 #include "menu.h"
 #include "z3D/z3Dactor.h"
 
+enum HideEntitiesEnum {
+    HIDEENTITIES_ROOMS,
+    HIDEENTITIES_ACTORS,
+};
+
 extern Menu SceneMenu;
+extern ToggleMenu HideEntitiesMenu;
 
 extern u8 noClip;
 extern u8 freeCam;
@@ -24,3 +30,4 @@ extern void Scene_NoClipDescription(void);
 extern void Scene_FreeCamToggle(void);
 extern void Scene_FreeCamDescription(void);
 extern void Scene_HideRoomsToggle(s32 selected);
+extern void Scene_HideActorsToggle(s32 selected);

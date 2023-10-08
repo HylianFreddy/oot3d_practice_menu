@@ -39,7 +39,7 @@ ToggleMenu HideEntitiesMenu = {
     .initialCursorPos = 0,
     {
         {0, "Hide Rooms", .method = Scene_HideRoomsToggle},
-        {0, "Hide Actors (TODO)", .method = NULL},
+        {0, "Hide Actors", .method = Scene_HideActorsToggle},
     }
 };
 
@@ -218,8 +218,12 @@ void Scene_HideEntitiesMenuShow() {
 }
 
 void Scene_HideRoomsToggle(s32 selected) {
-    gStaticContext.renderGeometryDisable = !gStaticContext.renderGeometryDisable;
-    HideEntitiesMenu.items[0].on = !HideEntitiesMenu.items[0].on;
+    gStaticContext.renderGeometryDisable ^= 1;
+    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on ^= 1;
+}
+
+void Scene_HideActorsToggle(s32 selected) {
+    HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on ^= 1;
 }
 
 s32 Scene_HaltActorsEnabled() {

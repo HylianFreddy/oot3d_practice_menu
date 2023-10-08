@@ -24,6 +24,10 @@ SECTIONS
 		*(.patch_InstantTextRemoveOff)
 	}
 
+	.patch_ActorDrawContext 0x2E27F4: {
+	    * (.patch_ActorDrawContext)
+	}
+
 	.patch_Gfx_Update 0x30FD6C : {
 		*(.patch_Gfx_Update)
 	}

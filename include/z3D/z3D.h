@@ -479,6 +479,22 @@ typedef struct {
     /* 0x03 */ u8 flags3;
 } RestrictionFlags;
 
+typedef struct SubMainClass_180 {
+    /* 0x000 */ char unk_00[0x8];
+    /* 0x008 */ s32 saModelsCount1;
+    /* 0x00C */ s32 saModelsCount2;
+    /* 0x010 */ char unk_10[0x10];
+    /* 0x020 */ struct {SkeletonAnimationModel* saModel; char unk[4];}* saModelsList1;
+    /* 0x024 */ struct {SkeletonAnimationModel* saModel; char unk[4];}* saModelsList2;
+    /* ... size unknown*/
+} SubMainClass_180;
+
+typedef struct MainClass {
+    /* 0x000 */ char unk_00[0x180];
+    /* 0x180 */ SubMainClass_180 sub180;
+    /* ... size unknown*/
+} MainClass;
+
 extern GlobalContext* gGlobalContext;
 extern const u32 ItemSlots[];
 extern const char DungeonNames[][25];
@@ -499,6 +515,7 @@ extern const char DungeonNames[][25];
 #define ControlStick_X (*(f32*)0x5655C0)
 #define ControlStick_Y (*(f32*)0x5655C4)
 #define gActorHeapAddress (*(void**)0x5A2E3C)
+#define gMainClass ((MainClass*)0x5BE5B8)
 
 typedef enum {
     DUNGEON_DEKU_TREE = 0,
@@ -612,6 +629,26 @@ typedef void (*Load_Savefiles_Buffer_proc)();
     #define Load_Savefiles_Buffer_addr 0x447150
 #endif
 #define Load_Savefiles_Buffer ((Load_Savefiles_Buffer_proc)Load_Savefiles_Buffer_addr)
+
+typedef void (*Actor_DrawContext_proc)(GlobalContext*, ActorContext*);
+#ifdef Version_EUR
+    #define Actor_DrawContext_addr 0x461904
+#elif Version_JP
+    #define Actor_DrawContext_addr 0x4618BC
+#else // Version_USA
+    #define Actor_DrawContext_addr 0x4618E4
+#endif
+#define Actor_DrawContext ((Actor_DrawContext_proc)Actor_DrawContext_addr)
+
+typedef void (*CollisionCheck_DrawCollision_proc)(GlobalContext*, CollisionCheckContext*);
+#ifdef Version_EUR
+    #define CollisionCheck_DrawCollision_addr 0x47CAEC
+#elif Version_JP
+    #define CollisionCheck_DrawCollision_addr 0x47CAA4
+#else // Version_USA
+    #define CollisionCheck_DrawCollision_addr 0x47CACC
+#endif
+#define CollisionCheck_DrawCollision ((CollisionCheck_DrawCollision_proc)CollisionCheck_DrawCollision_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
