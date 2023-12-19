@@ -6,6 +6,7 @@
 // #include "z3Dequipment.h"
 #include "z3Dcutscene.h"
 #include "z3Ditem.h"
+#include "color.h"
 
 // #include "hid.h"
 
@@ -63,7 +64,7 @@ typedef struct SaveContext {
     /* 0x0008 */ s32          cutsceneIndex;
     /* 0x000C */ u16          dayTime; // "zelda_time"
     /* 0x000E */ u8           masterQuestFlag;
-    /* 0x000F */ char         unk_F[0x0001];
+    /* 0x000F */ u8           motionControlSetting;
     /* 0x0010 */ s32          nightFlag;
     /* 0x0014 */ s32          unk_14;
     /* 0x0018 */ s32          unk_18;
@@ -399,6 +400,17 @@ typedef struct MessageContext {
 } MessageContext;
 _Static_assert(sizeof(MessageContext) == 0x302, "MessageContext size");
 
+typedef struct {
+    /* 0x000 */ u8 type;
+    /* 0x001 */ u8 isDone;
+    /* 0x002 */ u8 direction;
+    /* 0x003 */ u8 _padding003;
+    /* 0x004 */ Color_RGBA8_u32 color;
+    /* 0x008 */ u16 timer;
+    /* 0x00A */ u16 _padding00A;
+} TransitionFade;
+_Static_assert(sizeof(TransitionFade) == 0xC, "TransitionFade size");
+
 // Global Context (ram start: 0871E840)
 typedef struct GlobalContext {
     /* 0x0000 */ GameState             state;
@@ -426,20 +438,24 @@ typedef struct GlobalContext {
     /* 0x3A58 */ ObjectContext         objectCtx;
     /* 0x43DC */ char                  unk_43DC[0x0854];
     /* 0x4C30 */ RoomContext           roomCtx;
-    /* 0x5B88 */ char                  unk_5B88[0x0078];
+    /* 0x5B88 */ char                  unk_5B88[0x0074];
+    /* 0x5BFC */ u32                   gameplayFrames;
     /* 0x5C00 */ u8                    linkAgeOnLoad;
     /* 0x5C01 */ char                  unk_5C01[0x001B];
     /* 0x5C1C */ s16*                  setupExitList;
     /* 0x5C20 */ char                  unk_5C20[0x000D];
-    /* 0x5C2D */ s8                    sceneLoadFlag; // "fade_direction"
+    /* 0x5C2D */ s8                    transitionTrigger; // "fade_direction"
     /* 0x5C2E */ char                  unk_5C2E[0x0004];
     /* 0x5C32 */ s16                   nextEntranceIndex;
     /* 0x5C34 */ char                  unk_5C34[0x0042];
-    /* 0x5C76 */ u8                    fadeOutTransition;
+    /* 0x5C76 */ u8                    transitionType; // fadeOutTransition
     /* 0x5C78 */ CollisionCheckContext colChkCtx;
-    //TODO
-} GlobalContext; // size = 0x5F14 TODO
-_Static_assert(sizeof(GlobalContext) == 0x5F14, "Global Context size");
+    /* 0x5F14 */ char                  unk_5F14[0x1FFE];
+    /* 0x7F12 */ u16                   unkFadeVar;
+    /* 0x7F14 */ TransitionFade        transitionFade;
+    /* 0x7F20 */ char                  unk_7F20[0x118];
+} GlobalContext;
+_Static_assert(sizeof(GlobalContext) == 0x8038, "Global Context size");
 
 typedef struct StaticContext {
     /* 0x0000 */ char unk_0[0x0E60];
@@ -484,8 +500,8 @@ typedef struct SubMainClass_180 {
     /* 0x008 */ s32 saModelsCount1;
     /* 0x00C */ s32 saModelsCount2;
     /* 0x010 */ char unk_10[0x10];
-    /* 0x020 */ struct {SkeletonAnimationModel* saModel; char unk[4];}* saModelsList1;
-    /* 0x024 */ struct {SkeletonAnimationModel* saModel; char unk[4];}* saModelsList2;
+    /* 0x020 */ struct {SkeletonAnimationModel* saModel; u32 unk;}* saModelsList1;
+    /* 0x024 */ struct {SkeletonAnimationModel* saModel; u32 unk;}* saModelsList2;
     /* ... size unknown*/
 } SubMainClass_180;
 

@@ -41,12 +41,20 @@ typedef struct SkeletonAnimationModel_unk_0C {
     /* 0x11 */ char unk_11[0x87];
 } SkeletonAnimationModel_unk_0C; // size = 0x98
 
+typedef struct SkeletonAnimationModel_unk_14 {
+    void * vtable_4EBD98;
+    void * cmbManager;
+    void * unk_08;
+    void * unk_0C;
+    void * unkAutoClass1;
+} SkeletonAnimationModel_unk_14;
+
 typedef struct SkeletonAnimationModel {
     /* 0x00 */ SkeletonAnimationModel_VTable* vtbl;
     /* 0x04 */ char            unk_04[0x08];
     /* 0x0C */ SkeletonAnimationModel_unk_0C* unk_0C;
     /* 0x10 */ SkeletonAnimationModel_unk_10* unk_10;
-    /* 0x14 */ void*           unk_draw_struct_14;
+    /* 0x14 */ SkeletonAnimationModel_unk_14* unk_14;
     /* 0x18 */ char            unk_18[0x64];
     /* 0x7C */ nn_math_MTX34   mtx;
     /* 0xAC */ s8              unk_AC;
@@ -55,7 +63,7 @@ typedef struct SkeletonAnimationModel {
 _Static_assert(sizeof(SkeletonAnimationModel) == 0xB0, "SkeletonAnimationModel size");
 
 typedef struct SkelAnime {
-    /* 0x00 */ char unk_00[0x04];
+    /* 0x00 */ char** cmbMan;
     /* 0x04 */ struct ZARInfo* zarInfo;
     /* 0x08 */ char unk_08[0x20];
     /* 0x28 */ SkeletonAnimationModel* unk_28;
@@ -240,7 +248,7 @@ typedef struct Player {
     /* 0x02D8 */ char unk_2D8[0x0F4C];
     /* 0x1224 */ Actor* heldActor;
     /* 0x1228 */ char unk_1228[0x84];
-    /* 0x12AC */ u8 getItemId;
+    /* 0x12AC */ s8 getItemId;
     /* 0x12AD */ char unk_12AD[0x0001];
     /* 0x12AE */ u16 getItemDirection;
     /* 0x12B0 */ Actor* interactRangeActor;
@@ -250,7 +258,7 @@ typedef struct Player {
     /* 0x12BC */ u8 csAction;
     /* 0x12BD */ u8 prevCsAction;
     /* 0x12BE */ char unk_12BE[0x044A];
-    /* 0x1708 */ void* stateFuncPtr;
+    /* 0x1708 */ void* actionFunc;
     /* 0x170C */ char unk_170C[0x0004];
     /* 0x1710 */ u32 stateFlags1;
     /* 0x1714 */ u32 stateFlags2;
@@ -266,8 +274,15 @@ typedef struct Player {
     /* 0x2220 */ char unk_2220[0x0007];
     /* 0x2227 */ s8 meleeWeaponState;
     /* 0x2228 */ char unk_2228[0x20];
-    /* 0x2248 */ s16 stickFlameTimer; // value manipulated by action swap
-    /* 0x224A */ char unk_224A[0x23E];
+    union {
+        /* 0x2248 */ s16 fpsItemType; // value manipulated by action swap
+        /* 0x2248 */ s16 stickFlameTimer;
+        /* 0x2248 */ s16 fishingState;
+    };
+    /* 0x224A */ char unk_224A[0x0004];
+    /* 0x224E */ s16 giDrawIdPlusOne; // used to change mesh for rupee models
+    /* 0x2250 */ char unk_2250[0x0234];
+    /* 0x2484 */ void* miniCsFunc;
     /* 0x2488 */ s8 invincibilityTimer; // prevents damage when nonzero
                                         // (positive = visible, counts towards zero each frame)
     /* 0x2489 */ char unk_2489[0x27B];

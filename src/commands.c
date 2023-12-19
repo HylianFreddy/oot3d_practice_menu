@@ -79,7 +79,7 @@ static void Command_VoidOut(void){
         gSaveContext.respawn[RESPAWN_MODE_DOWN].tempSwchFlags = gGlobalContext->actorCtx.flags.tempSwch;
         gSaveContext.respawn[RESPAWN_MODE_DOWN].tempCollectFlags = gGlobalContext->actorCtx.flags.tempCollect;
         gSaveContext.respawnFlag = 1;
-        if (gGlobalContext->sceneLoadFlag == 0 || gGlobalContext->sceneLoadFlag == -20) {
+        if (gGlobalContext->transitionTrigger == 0 || gGlobalContext->transitionTrigger == -20) {
             EntranceWarp(gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
         }
     }

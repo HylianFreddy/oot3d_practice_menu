@@ -56,8 +56,8 @@ void EntranceWarp(s16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneInde
 
     if (useFadeOut) {
         gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
-        gGlobalContext->fadeOutTransition = 3;
-        gGlobalContext->sceneLoadFlag = 0x14;
+        gGlobalContext->transitionType = 3;
+        gGlobalContext->transitionTrigger = 0x14;
     } else {
         gSaveContext.entranceIndex = chosenEntranceIndex;
         gGlobalContext->state.running = 0;

@@ -146,7 +146,7 @@ void menuShow()
     }
     while(onMenuLoop());
 
-    if(gInit && gGlobalContext->sceneLoadFlag != 0x14 && gGlobalContext->state.running != 0) {
+    if(gInit && gGlobalContext->transitionTrigger != 0x14 && gGlobalContext->state.running != 0) {
         svcSleepThread(1000 * 1000 * 300LL); //wait 300 milliseconds for users to buffer inputs
     }
 }
