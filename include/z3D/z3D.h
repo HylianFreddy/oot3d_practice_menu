@@ -404,10 +404,8 @@ typedef struct {
     /* 0x000 */ u8 type;
     /* 0x001 */ u8 isDone;
     /* 0x002 */ u8 direction;
-    /* 0x003 */ u8 _padding003;
     /* 0x004 */ Color_RGBA8_u32 color;
     /* 0x008 */ u16 timer;
-    /* 0x00A */ u16 _padding00A;
 } TransitionFade;
 _Static_assert(sizeof(TransitionFade) == 0xC, "TransitionFade size");
 
@@ -451,8 +449,8 @@ typedef struct GlobalContext {
     /* 0x5C76 */ u8                    transitionType; // fadeOutTransition
     /* 0x5C78 */ CollisionCheckContext colChkCtx;
     /* 0x5F14 */ char                  unk_5F14[0x1FFE];
-    /* 0x7F12 */ u16                   unkFadeVar;
-    /* 0x7F14 */ TransitionFade        transitionFade;
+    /* 0x7F12 */ u8                    transitionMode;
+    /* 0x7F14 */ TransitionFade        transitionFadeFlash;
     /* 0x7F20 */ char                  unk_7F20[0x118];
 } GlobalContext;
 _Static_assert(sizeof(GlobalContext) == 0x8038, "Global Context size");
