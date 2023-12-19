@@ -873,23 +873,27 @@ void MemoryEditor_GoToPreset(void) {
         "Save Context",
         "Static Context / GameInfo",
         "Global Context / PlayState",
+        "Inventory Items",
         "Current Scene Segment",
         "Gear Usability Table",
         "Item Usability Table",
         "Actor Overlay Table",
         "Entrance Table",
         "Scene Table",
+        "Draw Item Table",
     };
     const void* const addresses[] = {
         &gSaveContext,
         &gStaticContext,
         gGlobalContext,
+        &gSaveContext.items,
         gGlobalContext->sceneSegment,
         gGearUsabilityTable,
         gItemUsabilityTable,
         gActorOverlayTable,
         gEntranceTable,
         gSceneTable,
+        gDrawItemTable,
     };
     const s32 addressesCount = sizeof(addresses)/sizeof(addresses[0]);
 
