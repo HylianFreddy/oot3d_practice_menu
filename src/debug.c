@@ -922,6 +922,9 @@ void MemoryEditor_GoToPreset(void) {
             memoryEditorAddress = (u32)(addresses[selected]);
             break;
         }
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
+        }
         else {
             if (pressed & PAD_UP){
                 selected--;
@@ -1043,6 +1046,9 @@ void MemoryEditor_TableSettings(void) {
         else if (pressed & BUTTON_Y && ADDITIONAL_FLAG_BUTTON) {
             MemoryEditor_JumpToTableElementFromIndex();
             break;
+        }
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
         }
         else {
             if (pressed & PAD_DOWN){

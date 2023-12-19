@@ -112,6 +112,9 @@ static void WatchesEditWatch(s32 selected){
                 bytes[2] = 0xFF & (addr >>  8);
                 bytes[3] = 0xFF & (addr);
             }
+            else if (pressed & BUTTON_L1) {
+                selectedItem = 0;
+            }
             else if(pressed & PAD_UP)
                 selectedItem--;
             else if(pressed & PAD_DOWN)
