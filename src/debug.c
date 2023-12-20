@@ -919,6 +919,7 @@ void MemoryEditor_GoToPreset(void) {
         "Entrance Table",
         "Scene Table",
         "Draw Item Table",
+        "gMainClass->sub180",
     };
     const void* const addresses[] = {
         &gSaveContext,
@@ -932,6 +933,7 @@ void MemoryEditor_GoToPreset(void) {
         gEntranceTable,
         gSceneTable,
         gDrawItemTable,
+        &gMainClass->sub180,
     };
     const s32 addressesCount = sizeof(addresses)/sizeof(addresses[0]);
 

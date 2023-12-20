@@ -13,7 +13,7 @@
 
 u32 pauseUnpause = 0; //tells main to pause/unpause
 u32 frameAdvance = 0; //tells main to frame advance
-bool shouldDrawWatches = 1;
+bool shouldDrawWatches = 0;
 
 PosRot storedPosRot[STORED_POS_COUNT];
 static u8 storedPosIndex = 0;

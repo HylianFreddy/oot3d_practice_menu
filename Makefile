@@ -84,7 +84,7 @@ ifeq ($(REGION), $(EUR))
 	CFLAGS += -g -DVersion_EUR
 endif
 
-citra ?= 0
+citra ?= 1
 ifneq ($(citra), 0)
 	CFLAGS += -g -DCITRA
 endif

@@ -39,6 +39,6 @@ with open(elf, 'rb') as e:
             ips += patch
 ips += b'EOF'
 
-with open("code.ips", 'wb') as patchFile:
+with open("C:/Users/feder/AppData/Roaming/Citra/load/mods/0004000000033500/code.ips", 'wb') as patchFile:
     patchFile.write(ips)
-    print("created basecode.ips\n")
+    print("\ncreated basecode.ips in Citra mods folder (USA)\n")
