@@ -170,7 +170,7 @@ u32 Cheats_IsTurboText() {
 void Cheats_UsableItems() {
     // Leave restriction for states that disable buttons.
     if (!cheats[CHEATS_USABLE_ITEMS] || (!forcedUsableItems &&
-        (gSaveContext.unk_1586[4] & 0x1 ||  // Ingo's Minigame state
+        (gSaveContext.eventInf[0] & 0x1 ||  // Ingo's Minigame state
         PLAYER->stateFlags1 & 0x08A02000 || // Swimming, riding horse, Down A, hanging from a ledge
         PLAYER->stateFlags2 & 0x00040000))  // Blank A
         // Shielding, spinning and getting skull tokens still disable buttons automatically
