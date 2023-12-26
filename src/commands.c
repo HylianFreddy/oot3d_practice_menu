@@ -60,8 +60,8 @@ static void Command_RunFast(void){
 
 static void Command_Reset(void){
     if (isInGame()){
-        gGlobalContext->state.running = 0;
-        gGlobalContext->state.init = 0;
+        gSaveContext.respawnFlag = 0;
+        EntranceWarp(0xFFFF, 0, -1, 0, FALSE);
     }
 }
 
