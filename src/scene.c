@@ -214,6 +214,7 @@ void Scene_FreeCamDescription(void) {
 }
 
 void Scene_HideEntitiesMenuShow() {
+    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on = gStaticContext.renderGeometryDisable;
     ToggleMenuShow(&HideEntitiesMenu);
 }
 
