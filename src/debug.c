@@ -20,6 +20,7 @@ static s16 storedPosRotIndex = -1;
 
 //Memory Editor values
 u32 memoryEditorAddress = (int)&gSaveContext;
+static MemEditorSideInfo sideInfo = SIDEINFO_NOTHING;
 static s32 selectedRow = 0;
 static s32 selectedColumn = 0;
 static u8  isValidMemory = 0;
@@ -68,6 +69,19 @@ static const char* const FlagGroupNames[] = {
     "inf_table (part 1/2)",
     "inf_table (part 2/2)",
     "event_inf", // 0xE
+};
+
+static const char* const TableIndexTypeNames[] = {
+    "S8 ",
+    "U8 ",
+    "S16",
+    "U16",
+};
+
+static const char* const SideInfoOptions[] = {
+    "Nothing   ",
+    "Characters",
+    "Table Data",
 };
 
 Menu DebugMenu = {
@@ -655,7 +669,7 @@ void Debug_MemoryEditor(void) {
         Draw_DrawString(90, 30, WHITE_OR_BLUE_AT(0,1), "Go To Preset");
         // Info
         Draw_DrawString(180, 15, COLOR_GRAY, "Start : Info & Settings");
-        if (tableElementSize != 0) {
+        if (sideInfo == SIDEINFO_TABLE_DATA) {
             tableIndexSign = tableIndex < 0 ? '-' : ' ';
             tableIndexAbs = tableIndex < 0 ? -tableIndex : tableIndex;
             Draw_DrawFormattedString(240, 30 + SPACING_Y * 2, COLOR_GRAY, "Table Start\n  %08X\nElement Size\n  %04X\nIndex Type\n  %s\nIndex\n %c%04X",
@@ -664,7 +678,11 @@ void Debug_MemoryEditor(void) {
         // Byte index markers
         for (s32 j = 0; j < 8; j++) {
             s32 digit = (j + memoryEditorAddress + ((selectedRow > 1 && selectedRow % 2 == 0) ? 0 : 8)) % 16;
-            Draw_DrawFormattedString(90 + j * SPACING_X * 3, 30 + SPACING_Y, (selectedRow > 1 && selectedColumn == j) ? COLOR_TITLE : COLOR_GRAY, "%X", digit);
+            u32 color = (selectedRow > 1 && selectedColumn == j) ? COLOR_TITLE : COLOR_GRAY;
+            Draw_DrawFormattedString(90 + j * SPACING_X * 3, 30 + SPACING_Y, color, "%X", digit);
+            if (sideInfo == SIDEINFO_CHARACTERS) {
+                Draw_DrawFormattedString(250 + j * SPACING_X, 30 + SPACING_Y, color, "%X", digit);
+            }
         }
         // Memory addresses and values
         for (s32 i = 0; i < 16; i++) {
@@ -672,9 +690,16 @@ void Debug_MemoryEditor(void) {
             Draw_DrawFormattedString(30, yPos, selectedRow == (i+2) ? COLOR_TITLE : COLOR_GRAY, "%08X", memoryEditorAddress + i * 8);
             if (isValidMemory) {
                 for (s32 j = 0; j < 8; j++) {
-                    u8 dst;
-                    memcpy(&dst, (void*)(memoryEditorAddress + i * 8 + j), sizeof(dst));
-                    Draw_DrawFormattedString(90 + j * SPACING_X * 3, yPos, WHITE_OR_GREEN_AT(i+2,j), "%02X", dst);
+                    u8 val = *(((u8*)memoryEditorAddress) + i * 8 + j);
+                    u32 color = WHITE_OR_GREEN_AT(i+2,j);
+                    Draw_DrawFormattedString(90 + j * SPACING_X * 3, yPos, color, "%02X", val);
+                    if (sideInfo == SIDEINFO_CHARACTERS) {
+                        if (val < 0x20 || val > 0x7E) { // ignore "unprintable" ASCII characters
+                            color = COLOR_GRAY;
+                            val = '?';
+                        }
+                        Draw_DrawFormattedString(250 + j * SPACING_X, yPos, color, "%c", val);
+                    }
                 }
             }
             else {
@@ -1024,6 +1049,8 @@ void MemoryEditor_TableSettings(void) {
         Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Table Index Type : %s", TableIndexTypeNames[tableIndexType]);
         Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? COLOR_GREEN : COLOR_WHITE, "Table Index : %c0x%04X", tableIndexSign, tableIndexAbs);
 
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 6, selected == 3 ? COLOR_GREEN : COLOR_WHITE, "Side Info: %s", SideInfoOptions[sideInfo]);
+
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
@@ -1036,6 +1063,9 @@ void MemoryEditor_TableSettings(void) {
             switch (selected) {
                 case 0:
                     Menu_EditAmount(30 + SPACING_X * 20, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true, NULL, 0);
+                    if (tableElementSize != 0) {
+                        sideInfo = SIDEINFO_TABLE_DATA;
+                    }
                     break;
                 case 1:
                     tableIndexType = (tableIndexType + 1) % 4;
@@ -1044,6 +1074,9 @@ void MemoryEditor_TableSettings(void) {
                 case 2:
                     Menu_EditAmount(30 + SPACING_X * 14, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true, NULL, 0);
                     UpdateTableIndexValueSign();
+                    break;
+                case 3:
+                    sideInfo = (sideInfo + 1) % 3;
                     break;
             }
         }
@@ -1057,13 +1090,13 @@ void MemoryEditor_TableSettings(void) {
         else {
             if (pressed & PAD_DOWN){
                 selected++;
-                if (selected > 2)
+                if (selected > 3)
                     selected = 0;
             }
             if (pressed & PAD_UP){
                 selected--;
                 if (selected < 0)
-                    selected = 2;
+                    selected = 3;
             }
         }
 

@@ -49,9 +49,8 @@ typedef enum {
     PLAYERSTATES_HELD_ITEM,
 } PlayerStatesOptions;
 
-static const char* const TableIndexTypeNames[] = {
-    "S8 ",
-    "U8 ",
-    "S16",
-    "U16",
-};
+typedef enum MemEditorSideInfo {
+    SIDEINFO_NOTHING,
+    SIDEINFO_CHARACTERS,
+    SIDEINFO_TABLE_DATA,
+} MemEditorSideInfo;
