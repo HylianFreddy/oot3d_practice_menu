@@ -14,7 +14,6 @@ extern ToggleMenu HideEntitiesMenu;
 extern u8 noClip;
 extern u8 freeCam;
 extern u8 releasedNoClipButtons;
-extern void* storedPlayerUpdateFunction;
 extern PosRot freeCamView;
 extern u8 haltActors;
 

@@ -9,8 +9,6 @@ u8 noClip = 0;
 u8 freeCam = 0;
 u8 releasedNoClipButtons = 0;
 u8 haltActors = 0;
-void dummyActorFunction(Actor* thisx, GlobalContext* globalCtx) {}
-void* storedPlayerUpdateFunction = &dummyActorFunction;
 View storedView;
 PosRot freeCamView;
 
@@ -109,13 +107,10 @@ void Scene_ClearFlags(void) {
 void Scene_NoClipToggle(void) {
     if (isInGame() && !freeCam) {
         if (!noClip) {
-            storedPlayerUpdateFunction = PLAYER->actor.update;
-            PLAYER->actor.update = dummyActorFunction;
             haltActors = 1;
             noClip = 1;
         }
         else {
-            PLAYER->actor.update = storedPlayerUpdateFunction;
             haltActors = 0;
             noClip = 0;
         }
@@ -166,14 +161,11 @@ void Scene_FreeCamToggle(void) {
             storedView = gGlobalContext->view;
             freeCamView.pos = gGlobalContext->view.eye;
             freeCamView.rot = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
-            storedPlayerUpdateFunction = PLAYER->actor.update;
-            PLAYER->actor.update = dummyActorFunction;
             haltActors = 1;
             freeCam = 1;
         }
         else {
             gGlobalContext->view = storedView;
-            PLAYER->actor.update = storedPlayerUpdateFunction;
             haltActors = 0;
             freeCam = 0;
         }
