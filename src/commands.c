@@ -266,41 +266,48 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
         commandList[COMMAND_OPEN_MENU].strict = 0;
     }
 
-    for (int i = 0; i < NUMBER_OF_COMMANDS; i++){
-        if (commandList[i].comboLen == 0) continue;
-        if ((commandList[i].strict && curInputs == commandList[i].inputs[commandList[i].curIdx]) ||
-            (!commandList[i].strict && (curInputs & commandList[i].inputs[commandList[i].curIdx]) == commandList[i].inputs[commandList[i].curIdx])){ //case where we hit the new button
+    for (int i = 0; i < NUMBER_OF_COMMANDS; i++) {
+        Command* cmd = &commandList[i];
 
-            commandList[i].curIdx++;
-            if(commandList[i].curIdx == commandList[i].comboLen){ //time to execute the command
-                if (commandList[i].type == COMMAND_HOLD_TYPE){
-                    commandList[i].method();
-                    commandList[i].curIdx = commandList[i].comboLen - 1;
+        if (cmd->comboLen == 0)
+            continue;
+
+        u32 nextInputs     = cmd->inputs[cmd->curIdx];
+        u32 previousInputs = (cmd->curIdx > 0) ? cmd->inputs[cmd->curIdx - 1] : 0;
+
+        if ((cmd->strict && curInputs == nextInputs) ||
+            (!cmd->strict && (curInputs & nextInputs) == nextInputs)) { // case where we hit the new button
+
+            if (cmd->curIdx == cmd->comboLen - 1) { // time to execute the command
+                switch (cmd->type) {
+                    case COMMAND_HOLD_TYPE:
+                        cmd->method();
+                        break;
+                    case COMMAND_PRESS_ONCE_TYPE:
+                        cmd->curIdx = 0;
+                        // fallthrough
+                    case COMMAND_PRESS_TYPE:
+                        if (cmd->waiting == 0) {
+                            cmd->method();
+                            cmd->waiting = 1;
+                        }
+                        break;
                 }
-                else if(commandList[i].type == COMMAND_PRESS_ONCE_TYPE){
-                    commandList[i].method();
-                    commandList[i].curIdx = 0;
-                }
-                else if(commandList[i].type == COMMAND_PRESS_TYPE){
-                    if(commandList[i].waiting == 0){
-                        commandList[i].method();
-                        commandList[i].waiting = 1;
-                    }
-                    commandList[i].curIdx = commandList[i].comboLen - 1;
-                }
+            } else {
+                cmd->curIdx++;
             }
-        }
-        else if(commandList[i].curIdx > 0 && ((commandList[i].strict && curInputs == commandList[i].inputs[commandList[i].curIdx - 1]) ||
-                (!commandList[i].strict && (curInputs & commandList[i].inputs[commandList[i].curIdx - 1]) == commandList[i].inputs[commandList[i].curIdx - 1]))){ //case where inputs still held
+        } else if (cmd->curIdx > 0 &&
+                   ((cmd->strict && curInputs == previousInputs) ||
+                    (!cmd->strict && (curInputs & previousInputs) == previousInputs))) { // case where inputs still held
 
-            commandList[i].waiting = 0;
-        }
-        else { //case where command resets
-            commandList[i].curIdx = 0;
-            commandList[i].waiting = 0;
+            cmd->waiting = 0;
+        } else { // case where command resets
+            cmd->curIdx  = 0;
+            cmd->waiting = 0;
         }
 
-        if (noClip || freeCam) break; // only the "open menu" command should work during noclip mode
+        if (noClip || freeCam)
+            break; // only the "open menu" command should work during noclip mode
     }
 }
 
