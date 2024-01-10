@@ -3,6 +3,7 @@
 
 #include "3ds/svc.h"
 #include "lib/printf.h"
+#include "z3d/z3Dvec.h"
 #include <stdarg.h>
 
 extern MemInfo query_memory_permissions(u32 address);
@@ -13,6 +14,8 @@ extern void drawAlert();
 extern void setAlert(char* alertMessage, u32 alertFrames);
 extern void pauseDisplay();
 void CitraPrint(const char* message, ...);
+f32 sins(u16 angle);
+f32 coss(u16 angle);
 
 extern u8 gInit;
 

@@ -10,6 +10,7 @@
 #include "z3D/z3D.h"
 #include "utils.h"
 #include <stdio.h>
+#include "camera.h"
 
 #define ENTRANCE_MENU_MAX_SHOW 15
 #define SCENE_MENU_MAX_SHOW 18
@@ -50,8 +51,8 @@ void EntranceWarp(s16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneInde
     if(noClip) {
         Scene_NoClipToggle();
     }
-    if(freeCam) {
-        Scene_FreeCamToggle();
+    if(freeCam.enabled) {
+        FreeCam_Toggle();
     }
 
     if (useFadeOut) {

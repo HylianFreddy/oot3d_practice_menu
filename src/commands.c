@@ -9,6 +9,7 @@
 #include "z3D/z3D.h"
 #include "draw.h"
 #include "advance.h"
+#include "camera.h"
 
 u32 pauseUnpause = 0; //tells main to pause/unpause
 u32 frameAdvance = 0; //tells main to frame advance
@@ -158,6 +159,15 @@ static void Command_ToggleWatches(void){
     shouldDrawWatches = !shouldDrawWatches;
 }
 
+static void Command_FreeCam(void){
+    if (!freeCam.enabled) {
+        FreeCam_Toggle();
+    } else if (freeCam.locked) {
+        FreeCam_ToggleLock();
+    }
+    releasedNoClipButtons = 0;
+}
+
 Command commandList[NUMBER_OF_COMMANDS] = {
     {"Open Menu", 0, 0, { 0 }, Command_OpenMenu, COMMAND_PRESS_ONCE_TYPE, 0, 0},
     {"Levitate", 0, 0, { 0 }, Command_Levitate, COMMAND_HOLD_TYPE, 0, 0},
@@ -177,9 +187,16 @@ Command commandList[NUMBER_OF_COMMANDS] = {
     {"Toggle Watches", 0, 0, { 0 }, Command_ToggleWatches, COMMAND_PRESS_TYPE, 0, 0},
     {"Break Free", 0, 0, { 0 }, Command_Break, COMMAND_HOLD_TYPE, 0, 0},
     {"NoClip", 0, 0, { 0 }, Scene_NoClipToggle, COMMAND_PRESS_ONCE_TYPE, 0, 0},
+    {"Free Camera", 0, 0, { 0 }, Command_FreeCam, COMMAND_PRESS_ONCE_TYPE, 0, 0},
 };
 
 static void Commands_ListInitDefaults(void){
+    // reset all commands for when default settings are restored
+    for(u32 i = 0; i < NUMBER_OF_COMMANDS; ++i) {
+        commandList[i].comboLen = 0;
+        commandList[i].strict = 0;
+    }
+
     // storing all previous buttons for every index is needed to make the strict commands work
     commandList[COMMAND_OPEN_MENU].comboLen = 3;
     commandList[COMMAND_OPEN_MENU].inputs[0] = BUTTON_L1;
@@ -240,15 +257,6 @@ static void Commands_ListInitDefaults(void){
     commandList[COMMAND_BREAK].inputs[2] = BUTTON_X | BUTTON_B | BUTTON_A;
     commandList[COMMAND_BREAK].inputs[3] = BUTTON_Y | BUTTON_X | BUTTON_B | BUTTON_A;
     commandList[COMMAND_BREAK].strict = 0;
-
-    // reset the other commands for when default settings are restored
-    for(u32 i = 0; i < NUMBER_OF_COMMANDS; ++i){
-        if ((i > COMMAND_RUN_FAST) && i != COMMAND_VOID_OUT &&
-            (i < COMMAND_STORE_POS || i > COMMAND_FRAME_ADVANCE) && i != COMMAND_BREAK){
-            commandList[i].comboLen = 0;
-            commandList[i].strict = 0;
-        }
-    }
 }
 
 u32 commandInit = 0;
@@ -306,7 +314,7 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
             cmd->waiting = 0;
         }
 
-        if (noClip || freeCam)
+        if (noClip || FreeCam_Moving)
             break; // only the "open menu" command should work during noclip mode
     }
 }

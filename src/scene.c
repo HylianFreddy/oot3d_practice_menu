@@ -4,13 +4,11 @@
 #include "z3D/z3D.h"
 #include "common.h"
 #include "input.h"
+#include "camera.h"
 
 u8 noClip = 0;
-u8 freeCam = 0;
 u8 releasedNoClipButtons = 0;
 u8 haltActors = 0;
-View storedView;
-PosRot freeCamView;
 
 static Menu CollisionMenu = {
     "Collision",
@@ -28,6 +26,27 @@ AmountMenu RoomNumberMenu = {
     {
         {.amount = 0, .isSigned = false, .min = 0, .max = 28, .nDigits = 2, .hex = false,
             .title = "Room Number", .method = Scene_SetRoomNumberinEP},
+    }
+};
+
+static Menu FreeCamMenu = {
+    "Free Camera",
+    .nbItems = 2,
+    .initialCursorPos = 0,
+    {
+        {"Info", METHOD, .method = Scene_FreeCamDescription},
+        {"Settings", METHOD, .method = Scene_FreeCamSettingsMenuShow},
+    }
+};
+
+ToggleMenu FreeCamSettingsMenu = {
+    "Free Camera Settings",
+    .nbItems = 3,
+    .initialCursorPos = 0,
+    {
+        {0, "Enabled", .method = Scene_ToggleFreeCamSetting},
+        {0, "Locked Camera", .method = Scene_ToggleFreeCamSetting},
+        {0, "Behavior: OFF=Manual / ON=Radial", .method = Scene_ToggleFreeCamSetting},
     }
 };
 
@@ -52,7 +71,7 @@ Menu SceneMenu = {
         {"Clear Flags", METHOD, .method = Scene_ClearFlags},
         {"Room Selector (Entrance Point)", METHOD, .method = Scene_RoomNumberMenuShow},
         {"Collision (TODO)", MENU, .menu = &CollisionMenu},
-        {"Free Camera", METHOD, .method = Scene_FreeCamDescription},
+        {"Free Camera", MENU, .menu = &FreeCamMenu},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
     }
 };
@@ -105,7 +124,7 @@ void Scene_ClearFlags(void) {
 }
 
 void Scene_NoClipToggle(void) {
-    if (isInGame() && !freeCam) {
+    if (isInGame() && !FreeCam_Moving) {
         if (!noClip) {
             haltActors = 1;
             noClip = 1;
@@ -151,27 +170,11 @@ void Scene_NoClipDescription(void) {
     }while(onMenuLoop());
 }
 
-u8 Scene_FreeCamEnabled(void) {
-    return freeCam;
-}
-
-void Scene_FreeCamToggle(void) {
-    if (isInGame() && !noClip) {
-        if (!freeCam) {
-            storedView = gGlobalContext->view;
-            freeCamView.pos = gGlobalContext->view.eye;
-            freeCamView.rot = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
-            haltActors = 1;
-            freeCam = 1;
-        }
-        else {
-            gGlobalContext->view = storedView;
-            haltActors = 0;
-            freeCam = 0;
-        }
-        menuOpen = false;
-        releasedNoClipButtons = 0;
-    }
+void Scene_FreeCamSettingsMenuShow(void) {
+    FreeCamSettingsMenu.items[FREECAMSETTING_STATUS].on = freeCam.enabled;
+    FreeCamSettingsMenu.items[FREECAMSETTING_LOCKED].on = freeCam.locked;
+    FreeCamSettingsMenu.items[FREECAMSETTING_BEHAVIOR].on = freeCam.behavior;
+    ToggleMenuShow(&FreeCamSettingsMenu);
 }
 
 void Scene_FreeCamDescription(void) {
@@ -183,12 +186,13 @@ void Scene_FreeCamDescription(void) {
                                         "Link behind.\n"
                                         "Press A to start, B to cancel.\n\n"
                                         "Commands:\n"
-                                        "Circle Pad   - Move horizontally\n"
+                                        "Circle Pad   - Move forward/sideways\n"
                                         "L+Circle Pad - Rotate in place\n"
                                         "C Stick      - Rotate while moving\n"
                                         "DPad Up/Down - Move vertically\n"
                                         "Hold X       - Move fast\n"
-                                        "B            - Quit");
+                                        "A            - Quit and lock camera in place\n"
+                                        "B            - Quit and disable Free Camera");
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
@@ -200,9 +204,26 @@ void Scene_FreeCamDescription(void) {
             break;
         }
         if (pressed & BUTTON_A){
-            Scene_FreeCamToggle();
+            FreeCam_Toggle();
+            menuOpen = false;
         }
     }while(onMenuLoop());
+}
+
+void Scene_ToggleFreeCamSetting(s32 selected) {
+    switch (selected) {
+        case FREECAMSETTING_STATUS:
+            FreeCam_Toggle();
+            FreeCamSettingsMenu.items[selected].on = freeCam.enabled;
+            break;
+        case FREECAMSETTING_LOCKED:
+            FreeCam_ToggleLock();
+            FreeCamSettingsMenu.items[selected].on = freeCam.locked;
+            break;
+        case FREECAMSETTING_BEHAVIOR:
+            FreeCamSettingsMenu.items[selected].on = freeCam.behavior ^= 1;
+            break;
+    }
 }
 
 void Scene_HideEntitiesMenuShow() {

@@ -33,6 +33,7 @@ typedef enum {
     COMMAND_TOGGLE_WATCHES,
     COMMAND_BREAK,
     COMMAND_NOCLIP,
+    COMMAND_FREECAM,
     NUMBER_OF_COMMANDS,
 } commandNames;
 

@@ -28,3 +28,24 @@ void CitraPrint(const char* message, ...) {
     svcOutputDebugString(buf, length);
     va_end(args);
 }
+
+f32 sins(u16 angle) {
+    // Taylor expansion up to x^7. Use symmetries for larger angles.
+    if (angle <= 0x4000) {
+        f32 theta = angle * 0.0000958737992429, theta2 = theta * theta, result = theta;
+        theta *= theta2 * 0.166666666667;
+        result -= theta;
+        theta *= theta2 * 0.05;
+        result += theta;
+        theta *= theta2 * 0.0238095238095;
+        result -= theta;
+        return result;
+    } else if (angle <= 0x8000) {
+        return sins(0x8000 - angle);
+    }
+    return -sins(angle - 0x8000);
+}
+
+f32 coss(u16 angle) {
+    return sins(angle + 0x4000);
+}
