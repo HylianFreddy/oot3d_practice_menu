@@ -15,6 +15,7 @@ typedef struct FreeCam {
     s16 dist;
     u8 hasStoredView;
     View storedViewData;
+    u8 rememberPos;
 } FreeCam;
 
 enum FreeCamBehavior {

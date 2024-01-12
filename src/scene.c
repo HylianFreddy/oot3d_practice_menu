@@ -41,13 +41,14 @@ static Menu FreeCamMenu = {
 
 ToggleMenu FreeCamSettingsMenu = {
     "Free Camera Settings",
-    .nbItems = 4,
+    .nbItems = 5,
     .initialCursorPos = 0,
     {
         {0, "Enable", .method = Scene_ToggleFreeCamSetting},
         {0, "Lock", .method = Scene_ToggleFreeCamSetting},
         {0, "Mode: OFF=Camera / ON=View", .method = Scene_ToggleFreeCamSetting},
         {0, "Behavior: OFF=Manual / ON=Radial", .method = Scene_ToggleFreeCamSetting},
+        {0, "Remember Position", .method = Scene_ToggleFreeCamSetting},
     }
 };
 
@@ -176,6 +177,7 @@ void Scene_FreeCamSettingsMenuShow(void) {
     FreeCamSettingsMenu.items[FREECAMSETTING_LOCK].on = freeCam.locked;
     FreeCamSettingsMenu.items[FREECAMSETTING_MODE].on = freeCam.mode;
     FreeCamSettingsMenu.items[FREECAMSETTING_BEHAVIOR].on = freeCam.behavior;
+    FreeCamSettingsMenu.items[FREECAMSETTING_REMEMBER_POS].on = freeCam.rememberPos;
     ToggleMenuShow(&FreeCamSettingsMenu);
 }
 
@@ -227,6 +229,9 @@ void Scene_ToggleFreeCamSetting(s32 selected) {
             break;
         case FREECAMSETTING_BEHAVIOR:
             FreeCamSettingsMenu.items[selected].on = freeCam.behavior ^= 1;
+            break;
+        case FREECAMSETTING_REMEMBER_POS:
+            FreeCamSettingsMenu.items[selected].on = freeCam.rememberPos ^= 1;
             break;
     }
 }

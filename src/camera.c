@@ -56,13 +56,21 @@ void FreeCam_Toggle(void) {
         return;
     }
 
+    // Clear title card
+    gGlobalContext->actorCtx.titleCtx.delayTimer    = 0;
+    gGlobalContext->actorCtx.titleCtx.durationTimer = 0;
+    gGlobalContext->actorCtx.titleCtx.alpha         = 0;
+    gGlobalContext->actorCtx.titleCtx.intensity     = 0;
+
     if (!freeCam.enabled) {
         freeCam.enabled = 1;
-        freeCam.eye     = gGlobalContext->view.eye;
-        freeCam.at      = gGlobalContext->view.at;
-        freeCam.rot     = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
-        freeCam.dist    = (s16)distXYZ(freeCam.eye, freeCam.at);
         haltActors      = !freeCam.locked;
+        if (!freeCam.rememberPos) {
+            freeCam.eye  = gGlobalContext->view.eye;
+            freeCam.at   = gGlobalContext->view.at;
+            freeCam.rot  = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
+            freeCam.dist = (s16)distXYZ(freeCam.eye, freeCam.at);
+        }
     } else {
         haltActors      = 0;
         freeCam.enabled = 0;
@@ -86,7 +94,7 @@ static void FreeCam_Manual(void) {
     u8 usingCStick        = cStick.dx * cStick.dx + cStick.dy * cStick.dy > 100;
     u8 usingCirclePad     = ControlStick_X * ControlStick_X + ControlStick_Y * ControlStick_Y > 100;
 
-    if (!freeCam.locked) {
+    if (!freeCam.locked && !waitingButtonRelease) {
         if (in & BUTTON_L1 && !usingCStick && usingCirclePad) {
             rot->x += ControlStick_Y * rotMult * 2;
             rot->y -= ControlStick_X * rotMult * 2;
@@ -121,7 +129,7 @@ static void FreeCam_Radial(void) {
     s8 speedRot  = 16;
     s8 speedDist = (in & BUTTON_X) ? 30 : 8;
 
-    if (!freeCam.locked) {
+    if (!freeCam.locked && !waitingButtonRelease) {
         freeCam.rot.y += ControlStick_X * speedRot * ((gSaveContext.masterQuestFlag) ? -1 : 1);
         freeCam.rot.x = Clamp(freeCam.rot.x - ControlStick_Y * speedRot);
 
@@ -130,8 +138,11 @@ static void FreeCam_Radial(void) {
         }
         if (in & BUTTON_UP) {
             freeCam.dist -= speedDist;
-            freeCam.dist = MAX(freeCam.dist, 10);
         }
+    }
+
+    if (freeCam.dist < 10) {
+        freeCam.dist = 10;
     }
 
     freeCam.at = PLAYER->actor.world.pos;
@@ -144,17 +155,13 @@ static void FreeCam_Radial(void) {
 
 // Handle FreeCam controls
 static void FreeCam_Move(void) {
-    if (waitingButtonRelease) {
-        return;
-    }
-
     if (freeCam.behavior == CAMBHV_MANUAL) {
         FreeCam_Manual();
     } else {
         FreeCam_Radial();
     }
 
-    if (!freeCam.locked) {
+    if (!freeCam.locked && !waitingButtonRelease) {
         u32 in = rInputCtx.cur.val;
         if (in & BUTTON_B) {
             FreeCam_Toggle();
