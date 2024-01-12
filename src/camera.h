@@ -7,19 +7,25 @@
 typedef struct FreeCam {
     u8 enabled;
     u8 locked;
+    u8 mode;
     u8 behavior;
-    // u8 viewMode;
-    View storedView;
     Vec3f eye;
     Vec3f at;
     Vec3s rot;
     s16 dist;
+    u8 hasStoredView;
+    View storedViewData;
 } FreeCam;
 
 enum FreeCamBehavior {
     CAMBHV_MANUAL,
     // CAMBHV_BIRDSEYE,
     CAMBHV_RADIAL,
+};
+
+enum FreeCamMode {
+    CAMMODE_CAMERA,
+    CAMMODE_VIEW,
 };
 
 extern FreeCam freeCam;

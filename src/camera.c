@@ -31,8 +31,19 @@ s16 Clamp(s16 val) {
     return val;
 }
 
-u8 FreeCam_IsEnabled(void) {
-    return freeCam.enabled;
+u8 Camera_OnCameraUpdate(void) {
+    // Restore view data so the game can update the camera without detecting changes.
+    if (freeCam.enabled && freeCam.mode == CAMMODE_VIEW && freeCam.hasStoredView) {
+        View* view                  = &gGlobalContext->view;
+        view->eye                   = freeCam.storedViewData.eye;
+        view->at                    = freeCam.storedViewData.at;
+        view->up                    = freeCam.storedViewData.up;
+        view->distortionOrientation = freeCam.storedViewData.distortionOrientation;
+        view->distortionScale       = freeCam.storedViewData.distortionScale;
+        freeCam.hasStoredView       = FALSE;
+    }
+    // If  FreeCam is being controlled or it's in camera mode, the game won't update the camera.
+    return freeCam.enabled && (!freeCam.locked || freeCam.mode == CAMMODE_CAMERA);
 }
 
 void FreeCam_Toggle(void) {
@@ -46,17 +57,15 @@ void FreeCam_Toggle(void) {
     }
 
     if (!freeCam.enabled) {
-        freeCam.enabled    = 1;
-        freeCam.storedView = gGlobalContext->view;
-        freeCam.eye        = gGlobalContext->view.eye;
-        freeCam.at         = gGlobalContext->view.at;
-        freeCam.rot        = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
-        freeCam.dist       = (s16)distXYZ(freeCam.eye, freeCam.at);
-        haltActors         = !freeCam.locked;
+        freeCam.enabled = 1;
+        freeCam.eye     = gGlobalContext->view.eye;
+        freeCam.at      = gGlobalContext->view.at;
+        freeCam.rot     = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
+        freeCam.dist    = (s16)distXYZ(freeCam.eye, freeCam.at);
+        haltActors      = !freeCam.locked;
     } else {
-        gGlobalContext->view = freeCam.storedView;
-        haltActors           = 0;
-        freeCam.enabled      = 0;
+        haltActors      = 0;
+        freeCam.enabled = 0;
     }
 }
 
@@ -133,23 +142,48 @@ static void FreeCam_Radial(void) {
     freeCam.eye.z = freeCam.at.z - freeCam.dist * coss(freeCam.rot.x) * coss(freeCam.rot.y);
 }
 
+// Handle FreeCam controls
 static void FreeCam_Move(void) {
+    if (waitingButtonRelease) {
+        return;
+    }
+
     if (freeCam.behavior == CAMBHV_MANUAL) {
         FreeCam_Manual();
     } else {
         FreeCam_Radial();
     }
+
+    if (!freeCam.locked) {
+        u32 in = rInputCtx.cur.val;
+        if (in & BUTTON_B) {
+            FreeCam_Toggle();
+        } else if (in & BUTTON_A) {
+            FreeCam_ToggleLock();
+        }
+    }
 }
 
-void FreeCam_Update(void) {
-    if (!isInGame()) {
-        return;
+// Overwrite game data for camera/view with FreeCam data
+static void FreeCam_WriteData(void) {
+    View* view     = &gGlobalContext->view;
+    Camera* camera = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera];
+
+    if (freeCam.mode == CAMMODE_VIEW) {
+        // For View mode, these fields are saved before being overwritten,
+        // so they can be restored every time the game wants to update the camera.
+        freeCam.storedViewData.eye                   = view->eye;
+        freeCam.storedViewData.at                    = view->at;
+        freeCam.storedViewData.up                    = view->up;
+        freeCam.storedViewData.distortionOrientation = view->distortionOrientation;
+        freeCam.storedViewData.distortionScale       = view->distortionScale;
+        freeCam.hasStoredView                        = TRUE;
+    } else { // CAMMODE_CAMERA
+        camera->inputDir = freeCam.rot;
+        camera->camDir   = freeCam.rot;
+        camera->eye      = freeCam.eye;
+        camera->at       = freeCam.at;
     }
-
-    FreeCam_Move();
-
-    View* view           = &gGlobalContext->view;
-    Camera* activeCamera = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera];
 
     view->eye = freeCam.eye;
     view->at  = freeCam.at;
@@ -165,16 +199,13 @@ void FreeCam_Update(void) {
     view->distortionScale.x = 1;
     view->distortionScale.y = 1;
     view->distortionScale.z = 1;
+}
 
-    activeCamera->inputDir = freeCam.rot;
-    activeCamera->camDir   = freeCam.rot;
-
-    if (!freeCam.locked) {
-        u32 in = rInputCtx.cur.val;
-        if (in & BUTTON_B) {
-            FreeCam_Toggle();
-        } else if (in & BUTTON_A) {
-            FreeCam_ToggleLock();
-        }
+void FreeCam_Update(void) {
+    if (!freeCam.enabled || !isInGame()) {
+        return;
     }
+
+    FreeCam_Move();
+    FreeCam_WriteData();
 }

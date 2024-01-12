@@ -41,11 +41,12 @@ static Menu FreeCamMenu = {
 
 ToggleMenu FreeCamSettingsMenu = {
     "Free Camera Settings",
-    .nbItems = 3,
+    .nbItems = 4,
     .initialCursorPos = 0,
     {
-        {0, "Enabled", .method = Scene_ToggleFreeCamSetting},
-        {0, "Locked Camera", .method = Scene_ToggleFreeCamSetting},
+        {0, "Enable", .method = Scene_ToggleFreeCamSetting},
+        {0, "Lock", .method = Scene_ToggleFreeCamSetting},
+        {0, "Mode: OFF=Camera / ON=View", .method = Scene_ToggleFreeCamSetting},
         {0, "Behavior: OFF=Manual / ON=Radial", .method = Scene_ToggleFreeCamSetting},
     }
 };
@@ -171,8 +172,9 @@ void Scene_NoClipDescription(void) {
 }
 
 void Scene_FreeCamSettingsMenuShow(void) {
-    FreeCamSettingsMenu.items[FREECAMSETTING_STATUS].on = freeCam.enabled;
-    FreeCamSettingsMenu.items[FREECAMSETTING_LOCKED].on = freeCam.locked;
+    FreeCamSettingsMenu.items[FREECAMSETTING_ENABLE].on = freeCam.enabled;
+    FreeCamSettingsMenu.items[FREECAMSETTING_LOCK].on = freeCam.locked;
+    FreeCamSettingsMenu.items[FREECAMSETTING_MODE].on = freeCam.mode;
     FreeCamSettingsMenu.items[FREECAMSETTING_BEHAVIOR].on = freeCam.behavior;
     ToggleMenuShow(&FreeCamSettingsMenu);
 }
@@ -212,13 +214,16 @@ void Scene_FreeCamDescription(void) {
 
 void Scene_ToggleFreeCamSetting(s32 selected) {
     switch (selected) {
-        case FREECAMSETTING_STATUS:
+        case FREECAMSETTING_ENABLE:
             FreeCam_Toggle();
             FreeCamSettingsMenu.items[selected].on = freeCam.enabled;
             break;
-        case FREECAMSETTING_LOCKED:
+        case FREECAMSETTING_LOCK:
             FreeCam_ToggleLock();
             FreeCamSettingsMenu.items[selected].on = freeCam.locked;
+            break;
+        case FREECAMSETTING_MODE:
+            FreeCamSettingsMenu.items[selected].on = freeCam.mode ^= 1;
             break;
         case FREECAMSETTING_BEHAVIOR:
             FreeCamSettingsMenu.items[selected].on = freeCam.behavior ^= 1;

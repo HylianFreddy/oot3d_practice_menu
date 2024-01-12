@@ -58,12 +58,8 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
     if (waitingButtonRelease) {
         waitingButtonRelease = (rInputCtx.cur.val != 0);
     }
-    else if(noClip) {
-        NoClip_Update();
-    }
-    else if(freeCam.enabled) {
-        FreeCam_Update();
-    }
+    NoClip_Update();
+    FreeCam_Update();
 }
 
 // Called once for every update on any GameState.
@@ -285,7 +281,7 @@ void advance_main(void) {
 }
 
 void NoClip_Update(void) {
-    if (!isInGame()) {
+    if (!noClip || waitingButtonRelease || !isInGame()) {
         return;
     }
 

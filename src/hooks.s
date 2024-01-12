@@ -252,10 +252,10 @@ hook_SaveMenuIgnoreOpen:
 
 .global hook_CameraUpdate
 hook_CameraUpdate:
-    push {r0,lr}
-    bl FreeCam_IsEnabled
+    push {r0-r12,lr}
+    bl Camera_OnCameraUpdate
     cmp r0,#0x0
-    pop {r0,lr}
+    pop {r0-r12,lr}
     cpyeq r6,r0
     bxeq lr
     ldmia sp!,{r4-r11,pc}
