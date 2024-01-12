@@ -165,7 +165,7 @@ static void Command_FreeCam(void){
     } else if (freeCam.locked) {
         FreeCam_ToggleLock();
     }
-    releasedNoClipButtons = 0;
+    waitingButtonRelease = 1;
 }
 
 Command commandList[NUMBER_OF_COMMANDS] = {
@@ -274,6 +274,8 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
         commandList[COMMAND_OPEN_MENU].strict = 0;
     }
 
+    u8 executedPressCommand = 0;
+
     for (int i = 0; i < NUMBER_OF_COMMANDS; i++) {
         Command* cmd = &commandList[i];
 
@@ -295,9 +297,11 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
                         cmd->curIdx = 0;
                         // fallthrough
                     case COMMAND_PRESS_TYPE:
-                        if (cmd->waiting == 0) {
+                        // execute at most one "press" or "press_once" command per update cycle
+                        if (cmd->waiting == 0 && !executedPressCommand) {
                             cmd->method();
                             cmd->waiting = 1;
+                            executedPressCommand = 1;
                         }
                         break;
                 }

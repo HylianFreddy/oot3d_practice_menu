@@ -70,8 +70,8 @@ void FreeCam_ToggleLock(void) {
 static void FreeCam_Manual(void) {
     u32 in                = rInputCtx.cur.val;
     circlePosition cStick = rInputCtx.cStick;
-    f32 posMult           = (in & BUTTON_X) ? 0.4 : 0.08;
-    u16 rotMult           = (in & BUTTON_X) ? 5 : 2;
+    f32 posMult           = (in & BUTTON_X) ? 0.8 : 0.16;
+    u16 rotMult           = (in & BUTTON_X) ? 10 : 4;
     Vec3f* eye            = &freeCam.eye;
     Vec3s* rot            = &freeCam.rot;
     u8 usingCStick        = cStick.dx * cStick.dx + cStick.dy * cStick.dy > 100;
@@ -109,8 +109,8 @@ static void FreeCam_Manual(void) {
 
 static void FreeCam_Radial(void) {
     u32 in       = rInputCtx.cur.val;
-    s8 speedRot  = 8;
-    s8 speedDist = (in & BUTTON_X) ? 20 : 4;
+    s8 speedRot  = 16;
+    s8 speedDist = (in & BUTTON_X) ? 30 : 8;
 
     if (!freeCam.locked) {
         freeCam.rot.y += ControlStick_X * speedRot * ((gSaveContext.masterQuestFlag) ? -1 : 1);
@@ -126,7 +126,7 @@ static void FreeCam_Radial(void) {
     }
 
     freeCam.at = PLAYER->actor.world.pos;
-    freeCam.at.y += ((gSaveContext.linkAge) ? 38 : 50);
+    freeCam.at.y += ((gSaveContext.linkAge) ? 38 : 55);
 
     freeCam.eye.x = freeCam.at.x - freeCam.dist * coss(freeCam.rot.x) * sins(freeCam.rot.y);
     freeCam.eye.y = freeCam.at.y - freeCam.dist * sins(freeCam.rot.x);

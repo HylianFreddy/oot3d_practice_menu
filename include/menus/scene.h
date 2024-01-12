@@ -18,7 +18,7 @@ extern Menu SceneMenu;
 extern ToggleMenu HideEntitiesMenu;
 
 extern u8 noClip;
-extern u8 releasedNoClipButtons;
+extern u8 waitingButtonRelease;
 extern u8 haltActors;
 
 extern void Scene_RoomNumberMenuShow(void);

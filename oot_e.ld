@@ -52,6 +52,10 @@ SECTIONS
 		*(.patch_SleepQueryCallback)
 	}
 
+	.patch_before_GameState_Update 0x416388 : {
+		*(.patch_before_GameState_Update)
+	}
+
 	.patch_DrawScreen 0x416398 : {
 		*(.patch_DrawScreen)
 	}

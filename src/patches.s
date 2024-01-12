@@ -111,3 +111,6 @@ CameraUpdate_patch:
 
 .section .patch_ActorDrawContext
     bl Actor_rDrawContext
+
+.section .patch_before_GameState_Update
+    bl hook_before_GameState_Update

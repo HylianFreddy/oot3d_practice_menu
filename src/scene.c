@@ -7,7 +7,7 @@
 #include "camera.h"
 
 u8 noClip = 0;
-u8 releasedNoClipButtons = 0;
+u8 waitingButtonRelease = 0;
 u8 haltActors = 0;
 
 static Menu CollisionMenu = {
@@ -134,7 +134,7 @@ void Scene_NoClipToggle(void) {
             noClip = 0;
         }
         menuOpen = false;
-        releasedNoClipButtons = 0;
+        waitingButtonRelease = 1;
     }
 }
 
