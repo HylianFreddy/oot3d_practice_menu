@@ -312,6 +312,7 @@ typedef struct ActorHeapNode {
     u32 size;
     struct ActorHeapNode* next;
     struct ActorHeapNode* prev;
+    Actor actor;
 } ActorHeapNode;
 
 void Actor_Kill(Actor* actor);

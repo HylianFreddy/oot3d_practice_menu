@@ -100,10 +100,10 @@ Menu DebugMenu = {
 /* give type 0xC for "all" */
 static s32 PopulateActorList(ShowActor_Info* list, ActorType type) {
     s32 i = 0;
-    ActorHeapNode* cur = (ActorHeapNode*)((u32)PLAYER - sizeof(ActorHeapNode));
+    ActorHeapNode* cur = (ActorHeapNode*)((u32)PLAYER - offsetof(ActorHeapNode, actor));
     while (cur){
-        if (!cur->free){
-            Actor* actor = (Actor*)((u32)cur + sizeof(ActorHeapNode));
+        if (!cur->free && cur->size != 0x10000){ // skip weird empty node that always has size 0x10000
+            Actor* actor = &cur->actor;
             if (type == 0xC || actor->type == type){
                 list[i].instance = actor;
                 list[i].id = actor->id;
