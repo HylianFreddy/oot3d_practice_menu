@@ -63,6 +63,11 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
     FreeCam_Update();
 }
 
+// Called after the `PlayState` draw function.
+void after_Play_Draw() {
+    gMainClass->sub180.saModelsList1[1].saModel->unk_14->cmbManager = 0;
+}
+
 // Called once for every update on any GameState.
 void before_GameState_Update(GameState* gameState) {
     if (!gInit || gameState->running != 2 ||

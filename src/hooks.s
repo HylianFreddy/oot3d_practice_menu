@@ -18,15 +18,20 @@ hook_before_GlobalContext_Update:
 
 .global hook_after_GlobalContext_Update
 hook_after_GlobalContext_Update:
-    push {r0-r12, lr}
+    push {lr}
+    push {r0-r12}
     bl after_GlobalContext_Update
-    pop {r0-r12, lr}
+    pop {r0-r12}
 .if _JP_==1
-    b 0x2E2108
+    bl 0x2E2108
 .else
 # both USA and EUR
-    b 0x2E25F0
+    bl 0x2E25F0
 .endif
+    push {r0-r12}
+    bl after_Play_Draw
+    pop {r0-r12}
+    pop {pc}
 
 .section .loader
 .global hook_into_loader
