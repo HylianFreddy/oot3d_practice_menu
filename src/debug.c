@@ -315,9 +315,22 @@ void DebugActors_ShowActors(void) {
         }
         else if(pressed & BUTTON_X)
         {
+            Actor* selectedActor = actorList[selected].instance;
             // prevent accidentally deleting the player actor
-            if(actorList[selected].instance->id != 0 || ADDITIONAL_FLAG_BUTTON) {
-                Actor_Kill(actorList[selected].instance);
+            if (selectedActor->id != 0) {
+                Actor_Kill(selectedActor);
+            }
+
+            if (pressed & BUTTON_R1) { // Kill all instances of this actor in the list
+                s32 i        = 0;
+                bool killAll = pressed & BUTTON_L1; // Kill all actors in the list
+
+                while (i < listSize && actorList[i].instance != NULL) {
+                    if (killAll || actorList[i].instance->id == selectedActor->id) {
+                        Actor_Kill(actorList[i].instance);
+                    }
+                    i++;
+                }
             }
         }
         else if(pressed & BUTTON_Y){
