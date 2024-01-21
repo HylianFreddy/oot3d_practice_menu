@@ -134,7 +134,7 @@ static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
 #define TOGGLE_MENU_MAX_SHOW 18
 #define AMOUNT_MENU_MAX_SHOW 18
 
-void menuShow();
+void menuShow(Menu* rootMenu);
 void ToggleMenuShow(ToggleMenu *menu);
 void AmountMenuShow(AmountMenu *menu);
 void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max,

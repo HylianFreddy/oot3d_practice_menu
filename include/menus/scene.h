@@ -16,6 +16,11 @@ enum FreeCamSetting {
     FREECAMSETTING_REMEMBER_POS,
 };
 
+enum RoomSelectorOptions {
+    ROOMSELECTOR_NUMBER,
+    ROOMSELECTOR_LOAD,
+};
+
 extern Menu SceneMenu;
 extern ToggleMenu HideEntitiesMenu;
 
@@ -23,12 +28,13 @@ extern u8 noClip;
 extern u8 waitingButtonRelease;
 extern u8 haltActors;
 
-extern void Scene_RoomNumberMenuShow(void);
+extern void Scene_RoomSelectorMenuShow(void);
 extern void Scene_HideEntitiesMenuShow(void);
 extern void Scene_FreeCamSettingsMenuShow(void);
 
 extern void Scene_SetEntrancePoint(void);
-extern void Scene_SetRoomNumberinEP(s32 selected);
+extern void Scene_SelectRoomNumber(void);
+extern void Scene_LoadRoom(void);
 extern void Scene_SetFlags(void);
 extern void Scene_ClearFlags(void);
 extern void Scene_NoClipToggle(void);

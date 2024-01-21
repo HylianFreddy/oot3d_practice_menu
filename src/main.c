@@ -3,6 +3,7 @@
  */
 
 #include "menu.h"
+#include "menus.h"
 #include "advance.h"
 #include "draw.h"
 #include "input.h"
@@ -231,7 +232,7 @@ void advance_main(void) {
     drawAlert();
 
     if(menuOpen) {
-        menuShow();
+        menuShow(&gz3DMenu);
 
         Draw_Lock();
         Draw_ClearFramebuffer();
@@ -258,7 +259,7 @@ void advance_main(void) {
         Command_UpdateCommands(rInputCtx.cur.val);
         drawAlert();
         if(menuOpen) {
-            menuShow();
+            menuShow(&gz3DMenu);
             Draw_Lock();
             Draw_ClearFramebuffer();
             Draw_FlushFramebuffer();

@@ -415,11 +415,26 @@ typedef struct GameState {
 _Static_assert(sizeof(GameState) == 0x104, "GameState size");
 
 typedef struct {
-    /* 0x000 */ s8   currentRoomNumber;
-    /* 0x001 */ char unk_01[0x7BF];
-    /* 0x7C0 */ u16  unk_7C0;
-    /* 0x7C2 */ char unk_7C2[0x796];
-} RoomContext; // size 0xF58
+    /* 0x00 */ s8    num;
+    /* 0x01 */ u8    unk_01;
+    /* 0x02 */ u8    behaviorType2;
+    /* 0x03 */ u8    behaviorType1;
+    /* 0x04 */ s8    echo;
+    /* 0x05 */ u8    lensMode;
+    /* 0x08 */ void* roomShape; // maybe?
+    /* 0x0C */ void* segment;   // maybe?
+    /* 0x10 */ char  unk_10[0x3CC];
+} Room;
+_Static_assert(sizeof(Room) == 0x3DC, "Room size");
+
+typedef struct {
+    /* 0x000 */ Room curRoom;
+    /* 0x3DC */ Room prevRoom;
+    /* 0x7B8 */ char unk_7B8[0x19];
+    /* 0x7D1 */ s8   status;
+    /* 0x7D2 */ char unk_7D2[0x786];
+} RoomContext;
+_Static_assert(sizeof(RoomContext) == 0xF58, "RoomContext size");
 
 typedef struct {
     /* 0x000 */ s32 topY;
@@ -462,6 +477,12 @@ typedef struct {
 } TransitionFade;
 _Static_assert(sizeof(TransitionFade) == 0xC, "TransitionFade size");
 
+typedef struct {
+    /* 0x00 */ char fileName[0x40];
+    /* 0x40 */ u32  unk_40; // size?
+} RomFile;
+_Static_assert(sizeof(RomFile) == 0x44, "RomFile size");
+
 // Global Context (ram start: 0871E840)
 typedef struct GlobalContext {
     /* 0x0000 */ GameState             state;
@@ -492,7 +513,12 @@ typedef struct GlobalContext {
     /* 0x5B88 */ char                  unk_5B88[0x0074];
     /* 0x5BFC */ u32                   gameplayFrames;
     /* 0x5C00 */ u8                    linkAgeOnLoad;
-    /* 0x5C01 */ char                  unk_5C01[0x001B];
+    /* 0x5C01 */ u8                    haltAllActors;
+    /* 0x5C02 */ u8                    spawn;
+    /* 0x5C03 */ u8                    numActorEntries;
+    /* 0x5C04 */ u8                    numRooms;
+    /* 0x5C08 */ RomFile*              roomList;
+    /* 0x5C0C */ char                  unk_5C0C[0x0010];
     /* 0x5C1C */ s16*                  setupExitList;
     /* 0x5C20 */ char                  unk_5C20[0x000D];
     /* 0x5C2D */ s8                    transitionTrigger; // "fade_direction"
@@ -716,6 +742,22 @@ typedef void (*CollisionCheck_DrawCollision_proc)(GlobalContext*, CollisionCheck
     #define CollisionCheck_DrawCollision_addr 0x47CACC
 #endif
 #define CollisionCheck_DrawCollision ((CollisionCheck_DrawCollision_proc)CollisionCheck_DrawCollision_addr)
+
+typedef s32 (*Room_StartTransition_proc)(GlobalContext*, RoomContext*, s32);
+#ifdef Version_JP
+    #define Room_StartTransition_addr 0x33B1D4
+#else //USA & EUR
+    #define Room_StartTransition_addr 0x33B6BC
+#endif
+#define Room_StartTransition ((Room_StartTransition_proc)Room_StartTransition_addr)
+
+typedef s32 (*Room_ClearPrevRoom_proc)(GlobalContext*, RoomContext*);
+#ifdef Version_JP
+    #define Room_ClearPrevRoom_addr 0x36C038
+#else //USA & EUR
+    #define Room_ClearPrevRoom_addr 0x36C520
+#endif
+#define Room_ClearPrevRoom ((Room_ClearPrevRoom_proc)Room_ClearPrevRoom_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);

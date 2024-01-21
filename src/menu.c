@@ -55,9 +55,9 @@ static void menuDraw(Menu *menu, u32 selected)
     Draw_FlushFramebuffer();
 }
 
-void menuShow()
+void menuShow(Menu* rootMenu)
 {
-    Menu *currentMenu = &gz3DMenu;
+    Menu *currentMenu = rootMenu;
     u32 selectedItem = currentMenu->initialCursorPos;
     u32 nbPreviousMenus = 0;
     Menu *previousMenus[0x80];
@@ -79,11 +79,6 @@ void menuShow()
 
         if(pressed & BUTTON_A)
         {
-            Draw_Lock();
-            Draw_ClearFramebuffer();
-            Draw_FlushFramebuffer();
-            Draw_Unlock();
-
             switch(currentMenu->items[selectedItem].action_type)
             {
                 case METHOD:
@@ -120,7 +115,6 @@ void menuShow()
             }
             else
             {
-                menuOpen = false;
                 break;
             }
         }
@@ -146,8 +140,12 @@ void menuShow()
     }
     while(onMenuLoop());
 
-    if(gInit && gGlobalContext->transitionTrigger != 0x14 && gGlobalContext->state.running != 0) {
-        svcSleepThread(1000 * 1000 * 300LL); //wait 300 milliseconds for users to buffer inputs
+    // Wait 300 milliseconds for users to buffer inputs and set menu as closed, but only if:
+    //  - the menu is closing normally (as opposed to something else setting menuOpen to false);
+    //  - this function was not called from some other menu.
+    if (menuOpen && (rootMenu == &gz3DMenu)) {
+        svcSleepThread(1000 * 1000 * 300LL);
+        menuOpen = false;
     }
 }
 

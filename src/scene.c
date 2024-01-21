@@ -10,6 +10,8 @@ u8 noClip = 0;
 u8 waitingButtonRelease = 0;
 u8 haltActors = 0;
 
+static s32 selectedRoomNumber = -1;
+
 static Menu CollisionMenu = {
     "Collision",
     .nbItems = 1,
@@ -19,13 +21,13 @@ static Menu CollisionMenu = {
     }
 };
 
-AmountMenu RoomNumberMenu = {
-    "Choose a Room Number, then void out",
-    .nbItems = 1,
+static Menu RoomSelectorMenu = {
+    "Room Selector",
+    .nbItems = 2,
     .initialCursorPos = 0,
     {
-        {.amount = 0, .isSigned = false, .min = 0, .max = 28, .nDigits = 2, .hex = false,
-            .title = "Room Number", .method = Scene_SetRoomNumberinEP},
+        {"Room Number: --", METHOD, .method = Scene_SelectRoomNumber},
+        {"Load", METHOD, .method = Scene_LoadRoom},
     }
 };
 
@@ -71,7 +73,7 @@ Menu SceneMenu = {
         {"Set Entrance Point", METHOD, .method = Scene_SetEntrancePoint},
         {"Set Flags", METHOD, .method = Scene_SetFlags},
         {"Clear Flags", METHOD, .method = Scene_ClearFlags},
-        {"Room Selector (Entrance Point)", METHOD, .method = Scene_RoomNumberMenuShow},
+        {"Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow},
         {"Collision (TODO)", MENU, .menu = &CollisionMenu},
         {"Free Camera", MENU, .menu = &FreeCamMenu},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
@@ -84,7 +86,7 @@ void Scene_SetEntrancePoint(void) {
         PLAYER->actor.shape.rot.y,
         (ADDITIONAL_FLAG_BUTTON ? 0x0EFF : 0x0DFF),
         gSaveContext.entranceIndex,
-        gGlobalContext->roomCtx.currentRoomNumber,
+        gGlobalContext->roomCtx.curRoom.num,
         0,
         gGlobalContext->actorCtx.flags.tempSwch,
         gGlobalContext->actorCtx.flags.tempCollect,
@@ -92,17 +94,45 @@ void Scene_SetEntrancePoint(void) {
     setAlert(ADDITIONAL_FLAG_BUTTON ? "EP set as from EPG" : "EP set!", 90);
 }
 
-void Scene_RoomNumberMenuInit(void) {
-    RoomNumberMenu.items[0].amount = gSaveContext.respawn[0].roomIndex;
+static void Scene_RoomSelectorUpdateNumber(void) {
+    // Write current room number to menu item title
+    snprintf(RoomSelectorMenu.items[ROOMSELECTOR_NUMBER].title + 13, 3, "%2.2d", selectedRoomNumber);
 }
 
-void Scene_RoomNumberMenuShow(void) {
-    Scene_RoomNumberMenuInit();
-    AmountMenuShow(&RoomNumberMenu);
+void Scene_RoomSelectorMenuShow(void) {
+    if (!isInGame()) {
+        setAlert("Not in game", 90);
+        return;
+    }
+    selectedRoomNumber = gGlobalContext->roomCtx.curRoom.num;
+    RoomSelectorMenu.initialCursorPos = 0; // reset the cursor because it's useless to keep it on "Load"
+    Scene_RoomSelectorUpdateNumber();
+    menuShow(&RoomSelectorMenu);
 }
 
-void Scene_SetRoomNumberinEP(s32 selected) {
-    gSaveContext.respawn[0].roomIndex = RoomNumberMenu.items[0].amount;
+void Scene_SelectRoomNumber(void) {
+    Menu_EditAmount(30 + 12 * SPACING_X, 30, &selectedRoomNumber, VARTYPE_U16, 0, gGlobalContext->numRooms - 1, 2,
+                    false, NULL, 0);
+    Scene_RoomSelectorUpdateNumber();
+    if (ADDITIONAL_FLAG_BUTTON) { // preserve old behavior of setting the room number in the Entrance Point
+        gSaveContext.respawn[0].roomIndex = selectedRoomNumber;
+        setAlert("Set in EP", 90);
+    }
+}
+
+void Scene_LoadRoom(void) {
+    if (selectedRoomNumber == gGlobalContext->roomCtx.curRoom.num) {
+        setAlert("Already loaded", 90);
+        return;
+    }
+    if (gGlobalContext->roomCtx.prevRoom.num != -1) {
+        // For now, let's just refuse loading rooms while the game is already in a room transition state.
+        setAlert("roomCtx busy!", 90);
+        return;
+    }
+    Room_StartTransition(gGlobalContext, &gGlobalContext->roomCtx, selectedRoomNumber);
+    Room_ClearPrevRoom(gGlobalContext, &gGlobalContext->roomCtx);
+    menuOpen = false;
 }
 
 void Scene_SetFlags(void) {
@@ -210,6 +240,7 @@ void Scene_FreeCamDescription(void) {
         if (pressed & BUTTON_A){
             FreeCam_Toggle();
             menuOpen = false;
+            waitingButtonRelease = 1;
         }
     }while(onMenuLoop());
 }
