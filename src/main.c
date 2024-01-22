@@ -20,6 +20,7 @@
 #include "z3D/z3D.h"
 #include "actor.h"
 #include "camera.h"
+#include "colview.h"
 
 #define NOCLIP_SLOW_SPEED 8
 #define NOCLIP_FAST_SPEED 30
@@ -61,11 +62,12 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
     }
     NoClip_Update();
     FreeCam_Update();
+    ColView_DrawCollision();
 }
 
 // Called after the `PlayState` draw function.
 void after_Play_Draw() {
-    gMainClass->sub180.saModelsList1[1].saModel->unk_14->cmbManager = 0;
+    // gMainClass->sub180.saModelsList1[1].saModel->unk_14->cmbManager = 0;
 }
 
 // Called once for every update on any GameState.

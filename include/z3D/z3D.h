@@ -539,7 +539,7 @@ typedef struct StaticContext {
     /* 0x0000 */ char unk_0[0x0E60];
     /* 0x0E60 */ u16  spawnOnEpona;
     /* 0x0E62 */ char unk_E72[0x0010];
-    /* 0x0E72 */ u16  collisionDisplay;
+    /* 0x0E72 */ u16  collisionDisplay; // add flags for AT,AC,OC colliders
     /* 0x0E74 */ char unk_E74[0x015C];
     /* 0x0FD0 */ u16  renderGeometryDisable;
     /* 0x0FD2 */ char unk_FD2[0x0602];
@@ -767,6 +767,13 @@ typedef void (*WriteDungeonSceneTable_proc)(void);
     #define WriteDungeonSceneTable_addr 0x2EAFB4
 #endif
 #define WriteDungeonSceneTable ((WriteDungeonSceneTable_proc)WriteDungeonSceneTable_addr)
+
+// typedef void (*Collider_DrawPoly_proc)(GraphicsContext* gfxCtx, Vec3f* vA, Vec3f* vB, Vec3f* vC, u8 r, u8 g, u8 b);
+// #define Collider_DrawPoly ((Collider_DrawPoly_proc)0x2c5900)
+
+typedef void (*Collider_DrawPolyImpl_proc)(void* unkStaticPointer /*always address 0x5C1858*/, Vec3f* vA, Vec3f* vB,
+                                           Vec3f* vC, Color_RGBAf* rgba);
+#define Collider_DrawPolyImpl ((Collider_DrawPolyImpl_proc)0x2C56C4)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
