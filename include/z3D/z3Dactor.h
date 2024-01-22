@@ -15,7 +15,8 @@ typedef struct {
 } PosRot; // size = 0x14
 
 typedef struct {
-    /* 0x00 */ char   unk_00[0x8];
+    /* 0x00 */ u16    type;
+    /* 0x02 */ u16    vtxData[3]; // id for each vertex in the vtxList
     /* 0x08 */ Vec3s  norm;  // Normal vector
     /* 0x0E */ s16    dist;  // Plane distance from origin
 } CollisionPoly; // size = 0x10
