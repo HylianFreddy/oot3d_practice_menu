@@ -194,14 +194,8 @@ void File_ToggleBlueWarps(s32 selected) {
 }
 
 void File_ToggleMasterQuest(s32 selected) {
-    if (FileMenu.items[selected].on) {
-        gSaveContext.masterQuestFlag = 0;
-        FileMenu.items[selected].on = 0;
-    }
-    else {
-        gSaveContext.masterQuestFlag = 1;
-        FileMenu.items[selected].on = 1;
-    }
+    gSaveContext.masterQuestFlag = FileMenu.items[selected].on = !FileMenu.items[selected].on;
+    WriteDungeonSceneTable();
 }
 
 void File_TimersMenuInit(void) {

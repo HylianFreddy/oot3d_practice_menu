@@ -759,6 +759,14 @@ typedef s32 (*Room_ClearPrevRoom_proc)(GlobalContext*, RoomContext*);
 #endif
 #define Room_ClearPrevRoom ((Room_ClearPrevRoom_proc)Room_ClearPrevRoom_addr)
 
+typedef void (*WriteDungeonSceneTable_proc)(void);
+#ifdef Version_JP
+    #define WriteDungeonSceneTable_addr 0x2EAACC
+#else //USA & EUR
+    #define WriteDungeonSceneTable_addr 0x2EAFB4
+#endif
+#define WriteDungeonSceneTable ((WriteDungeonSceneTable_proc)WriteDungeonSceneTable_addr)
+
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
 #define Item_Give_addr 0x376A78
