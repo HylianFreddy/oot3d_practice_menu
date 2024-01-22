@@ -19,7 +19,9 @@ typedef struct {
     /* 0x02 */ u16    vtxData[3]; // id for each vertex in the vtxList
     /* 0x08 */ Vec3s  norm;  // Normal vector
     /* 0x0E */ s16    dist;  // Plane distance from origin
+    /* 0x10 */ char   unk_10[0x4];
 } CollisionPoly; // size = 0x10
+_Static_assert(sizeof(CollisionPoly) == 0x14, "CollisionPoly size");
 
 struct SkeletonAnimationModel;
 typedef void (*SkeletonAnimationModelFunc)(struct SkeletonAnimationModel*);
