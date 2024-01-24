@@ -111,8 +111,10 @@ void Scene_RoomSelectorMenuShow(void) {
 }
 
 void Scene_SelectRoomNumber(void) {
-    Menu_EditAmount(30 + 12 * SPACING_X, 30, &selectedRoomNumber, VARTYPE_U16, 0, gGlobalContext->numRooms - 1, 2,
-                    false, NULL, 0);
+    if (gGlobalContext->numRooms > 1) {
+        Menu_EditAmount(30 + 12 * SPACING_X, 30, &selectedRoomNumber, VARTYPE_U16, 0, gGlobalContext->numRooms - 1, 2,
+                        false, NULL, 0);
+    }
     Scene_RoomSelectorUpdateNumber();
     if (ADDITIONAL_FLAG_BUTTON) { // preserve old behavior of setting the room number in the Entrance Point
         gSaveContext.respawn[0].roomIndex = selectedRoomNumber;

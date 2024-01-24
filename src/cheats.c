@@ -145,9 +145,10 @@ void applyCheats() {
             gGlobalContext->msgCtx.msgMode = 23;
         }
     }
-    if(cheats[CHEATS_FIX_BLACK_SCREEN_GLITCH] && isInGame() && gSaveContext.cutsceneIndex == 0 && gSaveContext.gameMode == 1 &&
-        gGlobalContext->transitionMode == 0 && gGlobalContext->transitionFadeFlash.color.a == 0xFF) {
-        gGlobalContext->transitionFadeFlash.color = (Color_RGBA8_u32){0};
+    if(cheats[CHEATS_FIX_BLACK_SCREEN_GLITCH] && isInGame() && gSaveContext.cutsceneIndex == 0 &&
+        gSaveContext.sceneSetupIndex >= 4 && gGlobalContext->transitionMode == 0 &&
+        gGlobalContext->transitionFadeFlash.color.a == 0xFF) {
+        gGlobalContext->transitionFadeFlash.color = (Color_RGBA8_u32){ 0 };
         gGlobalContext->transitionMode = 1;
     }
 }
