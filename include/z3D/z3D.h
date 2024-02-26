@@ -338,19 +338,6 @@ typedef struct CutsceneContext {
     /* 0x44 */ CsCmdActorAction* actorActions[10]; // "npcdemopnt"
 } CutsceneContext; // size = 0x6C
 
-typedef struct Sub_118_C {
-    s32 data[4];
-} Sub_118_C;
-
-typedef struct SubGlobalContext_118 {
-    /* 0x00 */ char unk_00[0x0C];
-    /* 0x0C */ Sub_118_C* sub0C; //an array of these
-    /* 0x10 */ char unk_10[0x24];
-    /* 0x34 */ s32 indexInto0C;
-    /* 0x38 */ char unk_38[0x28];
-    /* 0x60 */ void** unk_60; //seems to point to an array of cutscene pointers, maybe?
-} SubGlobalContext_118; // size = at least 0x64
-
 typedef struct Collider Collider; //TODO
 typedef struct OcLine OcLine; //TODO
 #define COLLISION_CHECK_AT_MAX 50
@@ -375,16 +362,43 @@ typedef struct {
 #define OBJECT_EXCHANGE_BANK_MAX 19
 #define OBJECT_ID_MAX 417
 
+typedef struct ZAR {
+    /* 0x00 */ char	magic[4]; //"ZAR\1"
+    /* 0x04 */ u32  size;
+    /* 0x08 */ u16  numTypes;
+    /* 0x0A */ u16  numFiles;
+    /* 0x0C */ u32  fileTypesOffset;
+    /* 0x10 */ u32  fileMetadataOffset;
+    /* 0x14 */ u32  dataOffset;
+    /* 0x18 */ char magic2[8]; // "queen"
+    /* 0x20 */ char data[1];
+} ZAR;
+
+typedef struct ZARFileTypeEntry {
+    /* 0x00 */ u32	numFiles;
+    /* 0x04 */ u32  filesListOffset;
+    /* 0x08 */ u16  typeNameOffset;
+    /* 0x0C */ u16  unk_0C; // always -1?
+} ZARFileTypeEntry;
+
 typedef struct ZARInfo {
     /* 0x00 */ void* buf;
-    /* 0x04 */ char unk_04[0x48];
+    /* 0x04 */ s32 size;
+    /* 0x08 */ ZAR* buf2;
+    /* 0x0C */ ZARFileTypeEntry* fileTypes;
+    /* 0x10 */ void* fileMetadata;
+    /* 0x14 */ void* data;
+    /* 0x18 */ ZAR* buf3;
+    /* 0x1C */ s32 fileTypeMap[11];
+    /* 0x48 */ char unk_48[0x4];
     /* 0x4C */ void*** cmbPtrs;  /* Really, this is a pointer to an array of pointers to CMB managers,
                                     the first member of which is a pointer to the CMB data */
     /* 0x50 */ void*** csabPtrs; /* Same as above but for CSAB */
-    /* 0x54 */ char unk_54[0x04];
+    /* 0x54 */ void* ctxb;
     /* 0x58 */ void*** cmabPtrs; /* Same as above but for CMAB */
     /* 0x5C */ char unk_5C[0x14];
 } ZARInfo; // size = 0x70
+_Static_assert(sizeof(ZARInfo) == 0x70, "ZARInfo size");
 
 typedef struct {
     /* 0x00 */ s16 id;
@@ -489,9 +503,8 @@ typedef struct GlobalContext {
     /* 0x0104 */ s16                   sceneNum;
     /* 0x0106 */ char                  unk_106[0x000A];
     /* 0x0110 */ void*                 sceneSegment;
-    /* 0x0114 */ char                  unk_114[0x0004];
-    /* 0x0118 */ SubGlobalContext_118  sub118;
-    /* 0x017C */ char                  unk_17C[0x000C];
+    /* 0x0114 */ ZAR*                  sceneZAR;
+    /* 0x0118 */ ZARInfo               sceneZARInfo;
     /* 0x0188 */ View                  view;
     /* 0x0364 */ Camera                mainCamera;
     /* 0x0520 */ Camera                subCameras[3];
