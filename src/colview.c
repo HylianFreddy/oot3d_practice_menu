@@ -116,13 +116,23 @@ void ColView_DrawCollision(void) {
     ColViewPoly dummyPoly = createDummyPoly();
     ColView_DrawPoly(dummyPoly);
 
-    for (u32 i = 0; i < 100; i++) {
-        ColView_DrawPoly(getColPolyData(i));
-    }
-
     if (PLAYER->actor.floorPoly != 0) {
         ColView_DrawPoly(getPlayerFloorPoly());
     }
+
+    u16 lookupIndex = 1;
+    u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
+    SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex];
+
+    while (node.next != 0xFFFF) {
+        CitraPrint("%X", node.next);
+        ColView_DrawPoly(getColPolyData(node.polyId));
+        node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
+    }
+
+    // for (u32 i = 0; i < 100; i++) {
+    //     ColView_DrawPoly(getColPolyData(i));
+    // }
 
     // if (ABS(gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir.y - dummyPoly.norm.y) > 0x4000) {
     // }

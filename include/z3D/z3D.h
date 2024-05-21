@@ -271,8 +271,37 @@ typedef struct {
 } CollisionHeader; // original name: BGDataInfo
 
 typedef struct {
-    /* 0x00 */ CollisionHeader* colHeader;
-    /* 0x04 */ char             unk_04[0x4C];
+    s16 polyId;
+    u16 next; // next SSNode index
+} SSNode;
+
+typedef struct {
+    u16 head; // first SSNode index
+} SSList;
+
+typedef struct {
+    /* 0x00 */ u16 max;          // original name: short_slist_node_size
+    /* 0x02 */ u16 count;        // original name: short_slist_node_last_index
+    /* 0x04 */ SSNode* tbl;      // original name: short_slist_node_tbl
+    /* 0x08 */ u8* polyCheckTbl; // points to an array of bytes, one per static poly. Zero initialized when starting a
+                                 // bg check, and set to 1 if that poly has already been tested.
+} SSNodeList;
+
+typedef struct {
+    SSList floor;
+    SSList wall;
+    SSList ceiling;
+} StaticLookup;
+
+typedef struct {
+    /* 0x00 */ CollisionHeader* colHeader; // scene's static collision
+    /* 0x04 */ Vec3f minBounds;            // minimum coordinates of collision bounding box
+    /* 0x10 */ Vec3f maxBounds;            // maximum coordinates of collision bounding box
+    /* 0x1C */ Vec3i subdivAmount;         // x, y, z subdivisions of the scene's static collision
+    /* 0x28 */ Vec3f subdivLength;         // x, y, z subdivision worldspace lengths
+    /* 0x34 */ Vec3f subdivLengthInv;      // inverse of subdivision length
+    /* 0x40 */ StaticLookup* lookupTbl;    // 3d array of length subdivAmount
+    /* 0x44 */ SSNodeList polyNodes;
 } StaticCollisionContext; // size = 0x50
 
 typedef struct {
