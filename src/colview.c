@@ -49,6 +49,17 @@ ColViewPoly getColPolyData(u32 id) {
     //     menuShow(&gz3DMenu);
     // }
 
+    CitraPrint("poly vtx A= %X", colPoly->vtxData[0]);
+    CitraPrint("poly vtx B= %X", colPoly->vtxData[1]);
+    CitraPrint("poly vtx C= %X", colPoly->vtxData[2]);
+    CitraPrint("poly A X = %X", vtxList[colPoly->vtxData[0]].x);
+    CitraPrint("poly A Y = %X", vtxList[colPoly->vtxData[0]].y);
+    CitraPrint("poly A Z = %X", vtxList[colPoly->vtxData[0]].z);
+    CitraPrint("numVertices = %X", gGlobalContext->colCtx.stat.colHeader->numVertices);
+    memoryEditorAddress = (u32)gGlobalContext->colCtx.stat.colHeader;
+    menuOpen = 1;
+    menuShow(&gz3DMenu);
+
     return (ColViewPoly){
         .vA = {
             .x=(f32)(vtxList[colPoly->vtxData[0]].x),
@@ -117,17 +128,21 @@ void ColView_DrawCollision(void) {
     ColView_DrawPoly(dummyPoly);
 
     if (PLAYER->actor.floorPoly != 0) {
-        ColView_DrawPoly(getPlayerFloorPoly());
+        // ColView_DrawPoly(getPlayerFloorPoly());
     }
 
     u16 lookupIndex = 1;
     u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
     SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex];
 
+    u16 i = 0;
     while (node.next != 0xFFFF) {
-        CitraPrint("%X", node.next);
-        ColView_DrawPoly(getColPolyData(node.polyId));
+        if (i == 2) {
+            ColViewPoly poly = getColPolyData(node.polyId);
+            ColView_DrawPoly(poly);
+        }
         node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
+        i++;
     }
 
     // for (u32 i = 0; i < 100; i++) {
