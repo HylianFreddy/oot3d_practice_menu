@@ -41,4 +41,5 @@ ips += b'EOF'
 
 with open("code.ips", 'wb') as patchFile:
     patchFile.write(ips)
-    print("created basecode.ips\n")
+
+print("created code.ips\n")
