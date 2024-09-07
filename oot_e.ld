@@ -56,8 +56,8 @@ SECTIONS
 		*(.patch_before_GameState_Update)
 	}
 
-	.patch_DrawScreen 0x416398 : {
-		*(.patch_DrawScreen)
+	.patch_after_GameState_Update 0x416398 : {
+		*(.patch_after_GameState_Update)
 	}
 
 	.patch_ItemUsability_Shield 0x42E2E4 : {

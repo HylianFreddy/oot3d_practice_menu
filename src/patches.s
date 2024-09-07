@@ -106,8 +106,8 @@ CameraUpdate_patch:
 .section .patch_Actor_UpdateAll
     bl hook_Actor_UpdateAll
 
-.section .patch_DrawScreen
-    bl hook_DrawScreen
+.section .patch_after_GameState_Update
+    bl hook_after_GameState_Update
 
 .section .patch_ActorDrawContext
     bl Actor_rDrawContext

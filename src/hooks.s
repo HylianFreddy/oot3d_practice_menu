@@ -270,8 +270,8 @@ hook_Actor_UpdateAll:
     popne {r0,r1,r4-r11,lr}
     bx lr
 
-.global hook_DrawScreen
-hook_DrawScreen:
+.global hook_after_GameState_Update
+hook_after_GameState_Update:
     push {r0-r12, lr}
     bl checkFastForward
     cmp r0,#0x0
