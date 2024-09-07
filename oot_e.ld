@@ -28,6 +28,10 @@ SECTIONS
 	    * (.patch_ActorDrawContext)
 	}
 
+	.patch_BlackScreenFix 0x2E2F48 : {
+	    * (.patch_BlackScreenFix)
+	}
+
 	.patch_Gfx_Update 0x310254 : {
 		*(.patch_Gfx_Update)
 	}

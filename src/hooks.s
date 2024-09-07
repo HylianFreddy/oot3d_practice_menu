@@ -285,3 +285,13 @@ hook_before_GameState_Update:
     bl before_GameState_Update
     pop {r0-r12, lr}
     bx lr
+
+.global hook_BlackScreenFix
+hook_BlackScreenFix:
+    cmp r0,#0x0 @ cutscene pointer, if 0 the fade-in will start
+    bxeq lr
+    push {r0-r12, lr}
+    bl Cheats_ShouldFixBlackScreen
+    cmp r0,#0x1
+    pop {r0-r12, lr}
+    bx lr

@@ -114,3 +114,6 @@ CameraUpdate_patch:
 
 .section .patch_before_GameState_Update
     bl hook_before_GameState_Update
+
+.section .patch_BlackScreenFix
+    bl hook_BlackScreenFix

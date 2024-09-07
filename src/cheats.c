@@ -145,12 +145,6 @@ void applyCheats() {
             gGlobalContext->msgCtx.msgMode = 23;
         }
     }
-    if(cheats[CHEATS_FIX_BLACK_SCREEN_GLITCH] && isInGame() && gSaveContext.cutsceneIndex == 0 &&
-        gSaveContext.sceneSetupIndex >= 4 && gGlobalContext->transitionMode == 0 &&
-        gGlobalContext->transitionFadeFlash.color.a == 0xFF) {
-        gGlobalContext->transitionFadeFlash.color = (Color_RGBA8_u32){ 0 };
-        gGlobalContext->transitionMode = 1;
-    }
 }
 
 u32 Cheats_RemoveBGM(u32 original) {
@@ -187,4 +181,8 @@ void Cheats_UsableItems() {
 
 u32 Cheats_areItemsForcedUsable() {
     return cheats[CHEATS_USABLE_ITEMS] && forcedUsableItems;
+}
+
+u32 Cheats_ShouldFixBlackScreen() {
+    return cheats[CHEATS_FIX_BLACK_SCREEN_GLITCH];
 }
