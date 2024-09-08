@@ -1057,10 +1057,10 @@ void MemoryEditor_TableSettings(void) {
                                              "R+Y on memory value: Jump to Table Element\n"
                                              "R+Y from this menu: Jump to chosen Index");
         // Table Settings
-        Draw_DrawFormattedString(30, 120, COLOR_GRAY, "Stored Table Start : %08X", storedTableStart);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "Table Element Size : 0x%04X", tableElementSize);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Table Index Type : %s", TableIndexTypeNames[tableIndexType]);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? COLOR_GREEN : COLOR_WHITE, "Table Index : %c0x%04X", tableIndexSign, tableIndexAbs);
+        Draw_DrawFormattedString(30, 120, COLOR_GRAY, "Stored Table Start: %08X", storedTableStart);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "Table Element Size: 0x%04X", tableElementSize);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Table Index Type:   < %s>", TableIndexTypeNames[tableIndexType]);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? COLOR_GREEN : COLOR_WHITE, "Table Index:       %c0x%04X", tableIndexSign, tableIndexAbs);
 
         Draw_DrawFormattedString(30, 120 + SPACING_Y * 6, selected == 3 ? COLOR_GREEN : COLOR_WHITE, "Side Info: %s", SideInfoOptions[sideInfo]);
 
@@ -1075,17 +1075,13 @@ void MemoryEditor_TableSettings(void) {
         else if (pressed & BUTTON_A) {
             switch (selected) {
                 case 0:
-                    Menu_EditAmount(30 + SPACING_X * 20, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true, NULL, 0);
+                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true, NULL, 0);
                     if (tableElementSize != 0) {
                         sideInfo = SIDEINFO_TABLE_DATA;
                     }
                     break;
-                case 1:
-                    tableIndexType = (tableIndexType + 1) % 4;
-                    UpdateTableIndexValueSign();
-                    break;
                 case 2:
-                    Menu_EditAmount(30 + SPACING_X * 14, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true, NULL, 0);
+                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true, NULL, 0);
                     UpdateTableIndexValueSign();
                     break;
                 case 3:
@@ -1101,15 +1097,25 @@ void MemoryEditor_TableSettings(void) {
             selected = 0;
         }
         else {
-            if (pressed & PAD_DOWN){
+            if (pressed & PAD_DOWN) {
                 selected++;
                 if (selected > 3)
                     selected = 0;
             }
-            if (pressed & PAD_UP){
+            else if (pressed & PAD_UP) {
                 selected--;
                 if (selected < 0)
                     selected = 3;
+            }
+            else if (selected == 1) {
+                if (pressed & PAD_LEFT) {
+                    tableIndexType = (tableIndexType + VARTYPE_S32 - 1) % VARTYPE_S32;
+                    UpdateTableIndexValueSign();
+                }
+                else if (pressed & PAD_RIGHT) {
+                    tableIndexType = (tableIndexType + 1) % VARTYPE_S32;
+                    UpdateTableIndexValueSign();
+                }
             }
         }
 
