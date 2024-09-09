@@ -147,6 +147,10 @@ void menuShow(Menu* rootMenu)
         svcSleepThread(1000 * 1000 * 300LL);
         menuOpen = false;
     }
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0) {
+        commandList[COMMAND_OPEN_MENU].waiting = 0;
+    }
 }
 
 void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to rosalina cheats page

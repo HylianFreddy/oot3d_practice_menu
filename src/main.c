@@ -66,11 +66,14 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
 
 // Called once for every update on any GameState.
 void before_GameState_Update(GameState* gameState) {
-    if (!gInit || gameState->running != 2 ||
-        (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel))
+    if (!gInit || gameState->running != 2)
         return;
 
     Input_Update();
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel)
+        return;
+
     Command_UpdateCommands(rInputCtx.cur.val);
     applyCheats();
     autoLoadSaveFile();
