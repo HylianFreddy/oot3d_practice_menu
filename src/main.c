@@ -64,8 +64,8 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
     FreeCam_Update();
 }
 
-// Called once for every update on any GameState.
-void before_GameState_Update(GameState* gameState) {
+// Called once for every update on any GameState, before all the functions in the Graph_ThreadEntry loop.
+void before_GameState_Loop(GameState* gameState) {
     if (!gInit || gameState->running != 2)
         return;
 

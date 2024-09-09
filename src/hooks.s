@@ -233,23 +233,6 @@ hook_LoadGame:
     pop {r0-r12, lr}
     bx lr
 
-.global hook_SaveMenuIgnoreOpen
-hook_SaveMenuIgnoreOpen:
-    push {r0-r12, lr}
-    bl SaveMenu_IgnoreOpen
-    cmp r0,#0x1
-    pop {r0-r12, lr}
-.if _USA_==1
-    beq 0x42F270
-.endif
-.if _EUR_==1
-    beq 0x42F294
-.endif
-.if _JP_==1
-    beq 0x42F248
-.endif
-    bx lr
-
 .global hook_CameraUpdate
 hook_CameraUpdate:
     push {r0-r12,lr}
@@ -270,6 +253,15 @@ hook_Actor_UpdateAll:
     popne {r0,r1,r4-r11,lr}
     bx lr
 
+.global hook_before_GameState_Loop
+hook_before_GameState_Loop:
+    push {r0-r12, lr}
+    cpy r0,r5
+    bl before_GameState_Loop
+    pop {r0-r12, lr}
+    cpy r0,r4
+    bx lr
+
 .global hook_after_GameState_Update
 hook_after_GameState_Update:
     push {r0-r12, lr}
@@ -277,13 +269,6 @@ hook_after_GameState_Update:
     cmp r0,#0x0
     pop {r0-r12, lr}
     beq 0x418B88 @ handles drawing screen
-    bx lr
-
-.global hook_before_GameState_Update
-hook_before_GameState_Update:
-    push {r0-r12, lr}
-    bl before_GameState_Update
-    pop {r0-r12, lr}
     bx lr
 
 .global hook_BlackScreenFix
@@ -294,4 +279,12 @@ hook_BlackScreenFix:
     bl Cheats_ShouldFixBlackScreen
     cmp r0,#0x1
     pop {r0-r12, lr}
+    bx lr
+
+.global hook_GameButtonInputs
+hook_GameButtonInputs:
+    push {r0-r12,lr}
+    cpy r0,r4
+    bl Commands_OverrideGameButtonInputs
+    pop {r0-r12,lr}
     bx lr

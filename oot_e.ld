@@ -56,20 +56,20 @@ SECTIONS
 		*(.patch_SleepQueryCallback)
 	}
 
-	.patch_before_GameState_Update 0x416388 : {
-		*(.patch_before_GameState_Update)
+	.patch_before_GameState_Loop 0x416340 : {
+		*(.patch_before_GameState_Loop)
 	}
 
 	.patch_after_GameState_Update 0x416398 : {
 		*(.patch_after_GameState_Update)
 	}
 
-	.patch_ItemUsability_Shield 0x42E2E4 : {
-		*(.patch_ItemUsability_Shield)
+	.patch_GameButtonInputs 0x41ABF8 : {
+		*(.patch_GameButtonInputs)
 	}
 
-	.patch_SaveMenuIgnoreOpen 0x42EC24 : {
-		*(.patch_SaveMenuIgnoreOpen)
+	.patch_ItemUsability_Shield 0x42E2E4 : {
+		*(.patch_ItemUsability_Shield)
 	}
 
 	.patch_LoadGame 0x4473A0 : {
