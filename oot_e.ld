@@ -68,7 +68,7 @@ SECTIONS
 		*(.patch_GameButtonInputs)
 	}
 
-	.patch_ItemUsability_Shield 0x42E2E4 : {
+	.patch_ItemUsability_Shield 0x42E314 : {
 		*(.patch_ItemUsability_Shield)
 	}
 
