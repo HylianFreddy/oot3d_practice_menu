@@ -20,6 +20,7 @@
 #include "z3D/z3D.h"
 #include "actor.h"
 #include "camera.h"
+#include "commit_string.h"
 
 #define NOCLIP_SLOW_SPEED 8
 #define NOCLIP_FAST_SPEED 30
@@ -191,8 +192,9 @@ void drawAlert(void) {
     }
 }
 
-static void titleScreenDisplay(void){
-    Draw_DrawFormattedStringTop(150, 20, COLOR_WHITE, "OoT3D Practice Patch");
+static void titleScreenDisplay(void) {
+    Draw_DrawCenteredStringTop(14, COLOR_WHITE, "OoT3D Practice Patch");
+    Draw_DrawCenteredStringTop(25, COLOR_WHITE, COMMIT_STRING);
     Draw_FlushFramebufferTop();
 
     char menuComboString[COMMAND_COMBO_MAX + 1] = {0};

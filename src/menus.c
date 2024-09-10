@@ -32,6 +32,7 @@
 #include "z3D/z3D.h"
 #include "input.h"
 #include "common.h"
+#include "commit_string.h"
 
 #include "menus/warps.h"
 #include "menus/scene.h"
@@ -82,7 +83,7 @@ void quitGame(void) {
 }
 
 Menu gz3DMenu = {
-    "Practice Menu",
+    "Practice Menu (" COMMIT_STRING ")",
     .nbItems = 12,
     .initialCursorPos = 0,
     {

@@ -65,6 +65,8 @@ void Draw_DrawOverlaidCharacter(u32 posX, u32 posY, u32 color, char character);
 void Draw_DrawCharacterTop(u32 posX, u32 posY, u32 color, char character);
 u32 Draw_DrawStringTop(u32 posX, u32 posY, u32 color, const char *string);
 u32 Draw_DrawFormattedStringTop(u32 posX, u32 posY, u32 color, const char *fmt, ...);
+#define Draw_DrawCenteredStringTop(posY, color, string) \
+    Draw_DrawStringTop(SCREEN_TOP_WIDTH / 2 - SPACING_X * (sizeof(string) - 1) / 2, posY, color, string);
 
 void Draw_FillFramebuffer(u32 value);
 void Draw_ClearFramebuffer(void);

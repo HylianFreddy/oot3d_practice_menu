@@ -162,6 +162,7 @@ endif
 all: $(BUILD)
 
 $(BUILD):
+	@$(TOPDIR)/write_commit_string.sh
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	@if ! python3 patch.py $(OUTPUT).elf; then \
