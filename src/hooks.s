@@ -276,4 +276,5 @@ hook_GameButtonInputs:
     cpy r0,r4
     bl Commands_OverrideGameButtonInputs
     pop {r0-r12,lr}
+    add r0,r0,r9,lsl#0x4
     bx lr
