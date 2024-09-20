@@ -604,11 +604,7 @@ typedef struct MainClass {
 extern GlobalContext* gGlobalContext;
 extern const u32 ItemSlots[];
 extern const char DungeonNames[][25];
-#if Version_KOR || Version_TWN
-    #define gSaveContext (*(SaveContext*)0x00595FD0)
-#else
-    #define gSaveContext (*(SaveContext*)0x00587958)
-#endif
+
 #define gStaticContext (*(StaticContext*)0x08080010)
 #define gObjectTable ((ObjectFile*)0x53CCF4)
 #define gEntranceTable ((EntranceInfo*)0x543BB8)
@@ -622,15 +618,19 @@ extern const char DungeonNames[][25];
 #define gDrawItemTable ((DrawItemTableEntry*)0x4D88C8)
 #define gRestrictionFlags ((RestrictionFlags*)0x539DC4)
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
+#define gMainClass ((MainClass*)0x5BE5B8)
+
 #if Version_KOR || Version_TWN
+    #define gSaveContext (*(SaveContext*)0x595FD0)
     #define ControlStick_X (*(f32*)0x573C38)
     #define ControlStick_Y (*(f32*)0x573C3C)
+    #define gActorHeapAddress (*(void**)0x5B14B4)
 #else
+    #define gSaveContext (*(SaveContext*)0x587958)
     #define ControlStick_X (*(f32*)0x5655C0)
     #define ControlStick_Y (*(f32*)0x5655C4)
+    #define gActorHeapAddress (*(void**)0x5A2E3C)
 #endif
-#define gActorHeapAddress (*(void**)0x5A2E3C)
-#define gMainClass ((MainClass*)0x5BE5B8)
 
 typedef enum {
     DUNGEON_DEKU_TREE = 0,
@@ -676,11 +676,15 @@ typedef enum {
 #endif
 
 typedef Actor* (*Actor_Spawn_proc)(ActorContext *actorCtx,GlobalContext *globalCtx,s16 actorId,float posX,float posY,float posZ,s16 rotX,s16 rotY,s16 rotZ,s16 params)
-    __attribute__((pcs("aapcs-vfp")));;
-#if Version_JPN
-    #define Actor_Spawn_addr 0x3733E8
-#else //USA & EUR
+    __attribute__((pcs("aapcs-vfp")));
+#if Version_USA || Version_EUR
     #define Actor_Spawn_addr 0x3738D0
+#elif Version_JPN
+    #define Actor_Spawn_addr 0x3733E8
+#elif Version_KOR
+    #define Actor_Spawn_addr 0x2F7CAC
+#elif Version_TWN
+    #define Actor_Spawn_addr 0x2F7DAC
 #endif
 #define Actor_Spawn ((Actor_Spawn_proc)Actor_Spawn_addr)
 
