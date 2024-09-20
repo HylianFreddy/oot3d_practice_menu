@@ -48,6 +48,10 @@
 static u32 sfxId = 0;
 
 void PlaySFX(s32 selected) {
+#if defined(Version_KOR) || defined(Version_TWN)
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
     sfxId = PlaySFXMenu.items[selected].amount;
     PlaySound(0x1000000 + sfxId);
 }
@@ -75,6 +79,10 @@ void quitGame(void) {
         return;
     }
 
+#if defined(Version_KOR) || defined(Version_TWN)
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
     gGlobalContext->state.running = 0;
     gGlobalContext->state.init = 0;
     *((u8*)0x5C6605) = 1; // break loop calling Graph_ThreadEntry

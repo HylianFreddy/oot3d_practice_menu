@@ -354,6 +354,7 @@ void autoLoadSaveFile(void) {
         if (gSaveContext.saveCount > 0) {
             setAlert("Autoload File 1", 90);
             gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
+#if !defined(Version_KOR) && !defined(Version_TWN)
             if (gSaveContext.masterQuestFlag) {
                 // These static variables are used at some point during the load to overwrite the MQ flag.
                 // Setting them like this is kind of broken (saving the game will save onto MQ slot 1),
@@ -361,6 +362,7 @@ void autoLoadSaveFile(void) {
                 *(u8*)0x587934 = 0xBE; // Enable quest type buttons on title screen
                 *(u8*)0x587953 = 0xEF; // Pressed the MQ button
             }
+#endif
         } else {
             setAlert("File 1 is empty", 90);
         }

@@ -37,7 +37,9 @@ static void Command_Break(void){
         }
 
         // "aggressive" break
+#if !defined(Version_KOR) && !defined(Version_TWN)
         Message_CloseTextbox(gGlobalContext);
+#endif
         gGlobalContext->mainCamera.setting   = 1;
         gGlobalContext->mainCamera.animState = 0;
         PLAYER->stateFlags1 = 0x0;

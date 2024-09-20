@@ -12,6 +12,10 @@
     #define REGION REGION_JP
 #elif Version_EUR
     #define REGION REGION_EUR
+#elif Version_TWN
+    #define REGION REGION_TWN
+#elif Version_KOR
+    #define REGION REGION_KOR
 #else // Version_USA
     #define REGION REGION_USA
 #endif
@@ -34,6 +38,8 @@ enum Region {
     REGION_USA,
     REGION_EUR,
     REGION_JP,
+    REGION_KOR,
+    REGION_TWN,
 };
 
 typedef enum {

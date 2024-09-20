@@ -429,7 +429,11 @@ void Debug_ShowObjects(void) {
         if(pressed & BUTTON_B)
             break;
         else if((pressed & BUTTON_Y) && objectId != 0 && gGlobalContext->objectCtx.num < OBJECT_EXCHANGE_BANK_MAX) {
+#if defined(Version_KOR) || defined(Version_TWN)
+            setAlert(UNSUPPORTED_WARNING, 90);
+#else
             Object_Spawn(&(gGlobalContext->objectCtx), (s16)objectId);
+#endif
         }
         else if((pressed & BUTTON_X) && gGlobalContext->objectCtx.num > 0) {
             gGlobalContext->objectCtx.status[--gGlobalContext->objectCtx.num].id = 0;

@@ -604,7 +604,11 @@ typedef struct MainClass {
 extern GlobalContext* gGlobalContext;
 extern const u32 ItemSlots[];
 extern const char DungeonNames[][25];
-#define gSaveContext (*(SaveContext*)0x00587958)
+#if defined(Version_KOR) || defined(Version_TWN)
+    #define gSaveContext (*(SaveContext*)0x00595FD0)
+#else
+    #define gSaveContext (*(SaveContext*)0x00587958)
+#endif
 #define gStaticContext (*(StaticContext*)0x08080010)
 #define gObjectTable ((ObjectFile*)0x53CCF4)
 #define gEntranceTable ((EntranceInfo*)0x543BB8)
@@ -618,8 +622,13 @@ extern const char DungeonNames[][25];
 #define gDrawItemTable ((DrawItemTableEntry*)0x4D88C8)
 #define gRestrictionFlags ((RestrictionFlags*)0x539DC4)
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
-#define ControlStick_X (*(f32*)0x5655C0)
-#define ControlStick_Y (*(f32*)0x5655C4)
+#if defined(Version_KOR) || defined(Version_TWN)
+    #define ControlStick_X (*(f32*)0x573C38)
+    #define ControlStick_Y (*(f32*)0x573C3C)
+#else
+    #define ControlStick_X (*(f32*)0x5655C0)
+    #define ControlStick_Y (*(f32*)0x5655C4)
+#endif
 #define gActorHeapAddress (*(void**)0x5A2E3C)
 #define gMainClass ((MainClass*)0x5BE5B8)
 
@@ -650,12 +659,21 @@ typedef enum {
 #define real_hid_addr   0x10002000
 #define real_hid        (*(hid_mem_t *) real_hid_addr)
 
-#define Z3D_TOP_SCREEN_LEFT_1 0x14313890
-#define Z3D_TOP_SCREEN_LEFT_2 0x14359DA0
-#define Z3D_TOP_SCREEN_RIGHT_1 0x14410AD0
-#define Z3D_TOP_SCREEN_RIGHT_2 0x14456FE0
-#define Z3D_BOTTOM_SCREEN_1 0x143A02B0
-#define Z3D_BOTTOM_SCREEN_2 0x143D86C0
+#if defined(Version_KOR) || defined(Version_TWN)
+    #define Z3D_TOP_SCREEN_LEFT_1 0x1430A900
+    #define Z3D_TOP_SCREEN_LEFT_2 0x14350E10
+    #define Z3D_TOP_SCREEN_RIGHT_1 0x14407DD0
+    #define Z3D_TOP_SCREEN_RIGHT_2 0x1444E2E0
+    #define Z3D_BOTTOM_SCREEN_1 0x14397380
+    #define Z3D_BOTTOM_SCREEN_2 0x143CF790
+#else
+    #define Z3D_TOP_SCREEN_LEFT_1 0x14313890
+    #define Z3D_TOP_SCREEN_LEFT_2 0x14359DA0
+    #define Z3D_TOP_SCREEN_RIGHT_1 0x14410AD0
+    #define Z3D_TOP_SCREEN_RIGHT_2 0x14456FE0
+    #define Z3D_BOTTOM_SCREEN_1 0x143A02B0
+    #define Z3D_BOTTOM_SCREEN_2 0x143D86C0
+#endif
 
 typedef Actor* (*Actor_Spawn_proc)(ActorContext *actorCtx,GlobalContext *globalCtx,s16 actorId,float posX,float posY,float posZ,s16 rotX,s16 rotY,s16 rotZ,s16 params)
     __attribute__((pcs("aapcs-vfp")));;
@@ -711,6 +729,10 @@ typedef void (*Play_Init_proc)(GameState*);
     #define Play_Init_addr 0x435314
 #elif Version_JP
     #define Play_Init_addr 0x4352C8
+#elif Version_KOR
+    #define Play_Init_addr 0x11EE6C
+#elif Version_TWN
+    #define Play_Init_addr 0x11EF44
 #else // Version_USA
     #define Play_Init_addr 0x4352F0
 #endif
@@ -721,6 +743,10 @@ typedef void (*FileSelect_LoadGame_proc)(GameState* gameState, s32 fileNum);
     #define FileSelect_LoadGame_addr 0x44737C
 #elif Version_JP
     #define FileSelect_LoadGame_addr 0x447334
+#elif Version_KOR
+    #define FileSelect_LoadGame_addr 0x12E5BC
+#elif Version_TWN
+    #define FileSelect_LoadGame_addr 0x12E694
 #else // Version_USA
     #define FileSelect_LoadGame_addr 0x44735C
 #endif
@@ -731,6 +757,10 @@ typedef void (*Load_Savefiles_Buffer_proc)();
     #define Load_Savefiles_Buffer_addr 0x447170
 #elif Version_JP
     #define Load_Savefiles_Buffer_addr 0x447128
+#elif Version_KOR
+    #define Load_Savefiles_Buffer_addr 0x12E3C0
+#elif Version_TWN
+    #define Load_Savefiles_Buffer_addr 0x12E498
 #else // Version_USA
     #define Load_Savefiles_Buffer_addr 0x447150
 #endif

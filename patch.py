@@ -17,8 +17,8 @@ ips = b'PATCH'
 with open(elf, 'rb') as e:
     for vaddr, offset, size in sections:
 
-        if vaddr >= 0x4CA000 and vaddr < 0x5C7000: #this is not good lol just trying to avoid __GNU_EH_FRAME_HDR section
-            continue
+        # if vaddr >= 0x4CA000 and vaddr < 0x5C7000: #this is not good lol just trying to avoid __GNU_EH_FRAME_HDR section
+        #     continue
 
         e.seek(offset, 0)
         while size > 65535:

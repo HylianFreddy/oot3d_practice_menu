@@ -13,7 +13,11 @@ hook_before_GlobalContext_Update:
     push {r0-r12, lr}
     bl before_GlobalContext_Update
     pop {r0-r12, lr}
+.if (_KOR_ || _TWN_)
+    cpy r8,r0
+.else
     cpy r7,r0
+.endif
     bx lr
 
 .global hook_after_GlobalContext_Update
@@ -21,21 +25,18 @@ hook_after_GlobalContext_Update:
     push {r0-r12, lr}
     bl after_GlobalContext_Update
     pop {r0-r12, lr}
-.if _JP_==1
-    b 0x2E2108
-.else
-# both USA and EUR
+.if (_USA_ || _EUR_)
     b 0x2E25F0
 .endif
-
-.section .loader
-.global hook_into_loader
-hook_into_loader:
-    push {r0-r12, lr}
-    bl loader_main
-    pop {r0-r12, lr}
-    bl 0x100028
-    b  0x100004
+.if _JP_==1
+    b 0x2E2108
+.endif
+.if _TWN_==1
+    b 0x2FC1A0
+.endif
+.if _KOR_==1
+    b 0x2FC0A0
+.endif
 
 .global hook_PlaySound
 hook_PlaySound:
@@ -238,18 +239,31 @@ hook_Actor_UpdateAll:
     bl Scene_HaltActorsEnabled
     cmp r0,#0x0
     pop {r0-r12,lr}
+.if (_KOR_ || _TWN_)
+    moveq r7,#0x0
+.else
     moveq r9,#0x0
+.endif
     popne {r0,r1,r4-r11,lr}
     bx lr
 
 .global hook_before_GameState_Loop
 hook_before_GameState_Loop:
+.if (_KOR_ || _TWN_)
+    push {r0-r12, lr}
+    cpy r0,r4
+    bl before_GameState_Loop
+    pop {r0-r12, lr}
+    cpy r0,r9
+    bx lr
+.else
     push {r0-r12, lr}
     cpy r0,r5
     bl before_GameState_Loop
     pop {r0-r12, lr}
     cpy r0,r4
     bx lr
+.endif
 
 .global hook_after_GameState_Update
 hook_after_GameState_Update:
@@ -257,7 +271,11 @@ hook_after_GameState_Update:
     bl checkFastForward
     cmp r0,#0x0
     pop {r0-r12, lr}
+.if (_KOR_ || _TWN_)
+    beq 0x102880
+.else
     beq 0x418B88 @ handles drawing screen
+.endif
     bx lr
 
 .global hook_BlackScreenFix
@@ -272,9 +290,34 @@ hook_BlackScreenFix:
 
 .global hook_GameButtonInputs
 hook_GameButtonInputs:
+.if (_KOR_ || _TWN_)
+    push {r0-r12,lr}
+    cpy r0,r1
+    bl Commands_OverrideGameButtonInputs
+    pop {r0-r12,lr}
+    str r0,[r4,#0x4]
+    bx lr
+.else
     push {r0-r12,lr}
     cpy r0,r4
     bl Commands_OverrideGameButtonInputs
     pop {r0-r12,lr}
     add r0,r0,r9,lsl#0x4
     bx lr
+.endif
+
+@---------------------
+@---------------------
+
+.section .loader
+.global hook_into_loader
+hook_into_loader:
+    push {r0-r12, lr}
+    bl loader_main
+    pop {r0-r12, lr}
+.if (_KOR_ || _TWN_)
+    bl 0x100024
+.else
+    bl 0x100028
+.endif
+    b  0x100004
