@@ -195,7 +195,7 @@ void File_ToggleBlueWarps(s32 selected) {
 
 void File_ToggleMasterQuest(s32 selected) {
     gSaveContext.masterQuestFlag = FileMenu.items[selected].on = !FileMenu.items[selected].on;
-#if !defined(Version_KOR) && !defined(Version_TWN)
+#if !Version_KOR && !Version_TWN
     WriteDungeonSceneTable();
 #endif
 }

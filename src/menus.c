@@ -48,7 +48,7 @@
 static u32 sfxId = 0;
 
 void PlaySFX(s32 selected) {
-#if defined(Version_KOR) || defined(Version_TWN)
+#if Version_KOR || Version_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
     return;
 #endif
@@ -79,7 +79,7 @@ void quitGame(void) {
         return;
     }
 
-#if defined(Version_KOR) || defined(Version_TWN)
+#if Version_KOR || Version_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
     return;
 #endif

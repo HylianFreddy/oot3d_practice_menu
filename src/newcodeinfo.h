@@ -6,7 +6,7 @@
 #ifndef _NEWCODEINFO_H_
 #define _NEWCODEINFO_H_
 
-#if defined(Version_KOR) || defined(Version_TWN)
+#if Version_KOR || Version_TWN
     #define NEWCODE_OFFSET 0x005CE000
 #else
     #define NEWCODE_OFFSET 0x005C7000

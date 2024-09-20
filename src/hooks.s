@@ -28,13 +28,13 @@ hook_after_GlobalContext_Update:
 .if (_USA_ || _EUR_)
     b 0x2E25F0
 .endif
-.if _JP_==1
+.if _JPN_
     b 0x2E2108
 .endif
-.if _TWN_==1
+.if _TWN_
     b 0x2FC1A0
 .endif
-.if _KOR_==1
+.if _KOR_
     b 0x2FC0A0
 .endif
 
@@ -44,7 +44,7 @@ hook_PlaySound:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r3-r7, lr}
-.if _JP_==1
+.if _JPN_
     b 0x35C044
 .else
     b 0x35C52C
@@ -56,7 +56,7 @@ hook_SetBGMEntrance:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
-.if _JP_==1
+.if _JPN_
     b 0x330B64
 .else
     b 0x33104C
@@ -68,13 +68,13 @@ hook_SetBGMDayNight:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
-.if _USA_==1
+.if _USA_
     b 0x483C8C
 .endif
-.if _EUR_==1
+.if _EUR_
     b 0x483CAC
 .endif
-.if _JP_==1
+.if _JPN_
     b 0x483C64
 .endif
 
@@ -86,7 +86,7 @@ hook_SetBGMEvent:
     cpy r1,r0
     pop {r0, r2-r12, lr}
     push {r4-r11, lr}
-.if _JP_==1
+.if _JPN_
     b 0x36E75C
 .else
     b 0x36EC44
@@ -118,7 +118,7 @@ hook_InstantTextBoxBreak:
     bl Cheats_IsInstantText
     cmp r0,#0x1
     pop {r0-r12, lr}
-.if _JP_==1
+.if _JPN_
     bne 0x2E09F8
 .else
     bne 0x2E0EE0
@@ -130,7 +130,7 @@ hook_InstantTextBoxBreak:
     blx r1
     strb r11,[r4,#0x24]
     pop {r0-r12, lr}
-.if _JP_==1
+.if _JPN_
     bne 0x2E09F8
 .else
     bne 0x2E0EE0
@@ -142,7 +142,7 @@ hook_InstantTextRemoveOff:
     bl Cheats_IsInstantText
     cmp r0,#0x1
     pop {r0-r12, lr}
-.if _JP_==1
+.if _JPN_
     beq 0x2E09EC
     ldr r0,[r5,#0x0]
     b 0x2E01E4

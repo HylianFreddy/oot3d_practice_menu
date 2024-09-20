@@ -56,7 +56,7 @@ void Settings_InitExtSaveData(void) {
     memcpy(gExtSaveData.watches, watches, sizeof(watches));
     gExtSaveData.info.memAddrs.globalCtx = gGlobalContext;
     gExtSaveData.info.memAddrs.actorHeap = gActorHeapAddress;
-    gExtSaveData.info.region = REGION;
+    gExtSaveData.info.region = CURRENT_REGION;
 }
 
 // copies saved values to the menu structs
@@ -158,14 +158,14 @@ void Settings_UpdateWatchAddresses(void) {
         else if (watchAddr >= gExtSaveData.info.memAddrs.globalCtx) {
             offset = globalCtxOffset;
         }
-        else if (gExtSaveData.info.region == REGION_EUR && REGION == REGION_USA) {
+        else if (gExtSaveData.info.region == REGION_EUR && CURRENT_REGION == REGION_USA) {
             if (watchAddr >= (void*)0x41A168 && watchAddr <= (void*)0x4366AF) {
                 offset = -0x24;
             } else if (watchAddr >= (void*)0x4366B0 && watchAddr <= (void*)0x4A5AFF) {
                 offset = -0x20;
             }
         }
-        else if (gExtSaveData.info.region == REGION_USA && REGION == REGION_EUR) {
+        else if (gExtSaveData.info.region == REGION_USA && CURRENT_REGION == REGION_EUR) {
             if (watchAddr >= (void*)0x41A144 && watchAddr <= (void*)0x43668B) {
                 offset = 0x24;
             } else if (watchAddr >= (void*)0x436690 && watchAddr <= (void*)0x4A5ADF) {

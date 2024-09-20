@@ -38,35 +38,33 @@ INCLUDES    +=  assets
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-USA         := USA
-EUR         := EUR
-JP          := JP
-KOR         := KOR
-TWN         := TWN
+IS_USA      := 0
+IS_EUR      := 0
+IS_JPN      := 0
+IS_KOR      := 0
+IS_TWN      := 0
 REGION      := USA
 
-ifeq ($(USA), $(REGION))
+ifeq ($(REGION), USA)
   LINK_SCRIPT 	:= oot.ld
-  ASFLAGS += -D _USA_=1 -D _JP_=0 -D _EUR_=0 -D _KOR_=0 -D _TWN_=0
+  IS_USA := 1
 endif
-ifeq ($(JP), $(REGION))
+ifeq ($(REGION), JPN)
   LINK_SCRIPT 	:= oot_j.ld
-  ASFLAGS += -D _USA_=0 -D _JP_=1 -D _EUR_=0 -D _KOR_=0 -D _TWN_=0
+  IS_JPN := 1
 endif
-ifeq ($(EUR), $(REGION))
+ifeq ($(REGION), EUR)
   LINK_SCRIPT 	:= oot_e.ld
-  ASFLAGS += -D _USA_=0 -D _JP_=0 -D _EUR_=1 -D _KOR_=0 -D _TWN_=0
+  IS_EUR := 1
 endif
-ifeq ($(KOR), $(REGION))
+ifeq ($(REGION), KOR)
   LINK_SCRIPT 	:= oot_k.ld
-  ASFLAGS += -D _USA_=0 -D _JP_=0 -D _EUR_=0 -D _KOR_=1 -D _TWN_=0
+  IS_KOR := 1
 endif
-ifeq ($(TWN), $(REGION))
+ifeq ($(REGION), TWN)
   LINK_SCRIPT 	:= oot_t.ld
-  ASFLAGS += -D _USA_=0 -D _JP_=0 -D _EUR_=0 -D _KOR_=0 -D _TWN_=1
+  IS_TWN := 1
 endif
-
-VERFLAGS := -D USA=$(USA) -D JP=$(JP) -D EUR=$(EUR) -D REGION=$(REGION)
 
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=softfp -mtp=soft -mfpu=vfpv2
 
@@ -83,22 +81,13 @@ LDFLAGS	=	-g $(ARCH) -Wl,-Map,$(notdir $*.map) -T $(TOPDIR)/$(LINK_SCRIPT) -nost
 
 LIBS	:=	-lgcc
 
+# Define version for the Assembly code
+ASFLAGS	+=	-D _USA_=$(IS_USA) -D _EUR_=$(IS_EUR) -D _JPN_=$(IS_JPN) \
+			-D _KOR_=$(IS_KOR) -D _TWN_=$(IS_TWN)
+
 # Define version for the C code
-ifeq ($(REGION), $(USA))
-	CFLAGS += -g -DVersion_USA
-endif
-ifeq ($(REGION), $(JP))
-	CFLAGS += -g -DVersion_JP
-endif
-ifeq ($(REGION), $(EUR))
-	CFLAGS += -g -DVersion_EUR
-endif
-ifeq ($(REGION), $(KOR))
-	CFLAGS += -g -DVersion_KOR
-endif
-ifeq ($(REGION), $(TWN))
-	CFLAGS += -g -DVersion_TWN
-endif
+CFLAGS	+=	-D Version_USA=$(IS_USA) -D Version_EUR=$(IS_EUR) -D Version_JPN=$(IS_JPN) \
+			-D Version_KOR=$(IS_KOR) -D Version_TWN=$(IS_TWN)
 
 citra ?= 0
 ifneq ($(citra), 0)

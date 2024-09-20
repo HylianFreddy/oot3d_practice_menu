@@ -604,7 +604,7 @@ typedef struct MainClass {
 extern GlobalContext* gGlobalContext;
 extern const u32 ItemSlots[];
 extern const char DungeonNames[][25];
-#if defined(Version_KOR) || defined(Version_TWN)
+#if Version_KOR || Version_TWN
     #define gSaveContext (*(SaveContext*)0x00595FD0)
 #else
     #define gSaveContext (*(SaveContext*)0x00587958)
@@ -622,7 +622,7 @@ extern const char DungeonNames[][25];
 #define gDrawItemTable ((DrawItemTableEntry*)0x4D88C8)
 #define gRestrictionFlags ((RestrictionFlags*)0x539DC4)
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
-#if defined(Version_KOR) || defined(Version_TWN)
+#if Version_KOR || Version_TWN
     #define ControlStick_X (*(f32*)0x573C38)
     #define ControlStick_Y (*(f32*)0x573C3C)
 #else
@@ -659,7 +659,7 @@ typedef enum {
 #define real_hid_addr   0x10002000
 #define real_hid        (*(hid_mem_t *) real_hid_addr)
 
-#if defined(Version_KOR) || defined(Version_TWN)
+#if Version_KOR || Version_TWN
     #define Z3D_TOP_SCREEN_LEFT_1 0x1430A900
     #define Z3D_TOP_SCREEN_LEFT_2 0x14350E10
     #define Z3D_TOP_SCREEN_RIGHT_1 0x14407DD0
@@ -677,7 +677,7 @@ typedef enum {
 
 typedef Actor* (*Actor_Spawn_proc)(ActorContext *actorCtx,GlobalContext *globalCtx,s16 actorId,float posX,float posY,float posZ,s16 rotX,s16 rotY,s16 rotZ,s16 params)
     __attribute__((pcs("aapcs-vfp")));;
-#ifdef Version_JP
+#if Version_JPN
     #define Actor_Spawn_addr 0x3733E8
 #else //USA & EUR
     #define Actor_Spawn_addr 0x3738D0
@@ -685,7 +685,7 @@ typedef Actor* (*Actor_Spawn_proc)(ActorContext *actorCtx,GlobalContext *globalC
 #define Actor_Spawn ((Actor_Spawn_proc)Actor_Spawn_addr)
 
 typedef s32 (*Object_proc)(ObjectContext* objectCtx, s16 objectId);
-#ifdef Version_JP
+#if Version_JPN
     #define Object_Spawn_addr 0x32DD34
 #else //USA & EUR
     #define Object_Spawn_addr 0x32E21C
@@ -693,7 +693,7 @@ typedef s32 (*Object_proc)(ObjectContext* objectCtx, s16 objectId);
 #define Object_Spawn ((Object_proc)Object_Spawn_addr)
 
 typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* player);
-#ifdef Version_JP
+#if Version_JPN
     #define Player_SetEquipmentData_addr 0x348C54
 #else //USA & EUR
     #define Player_SetEquipmentData_addr 0x34913C
@@ -701,7 +701,7 @@ typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* p
 #define Player_SetEquipmentData ((Player_SetEquipmentData_proc)Player_SetEquipmentData_addr)
 
 typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
-#ifdef Version_JP
+#if Version_JPN
     #define Flags_SetEnv_addr 0x36621C
 #else //USA & EUR
     #define Flags_SetEnv_addr 0x366704
@@ -713,7 +713,7 @@ typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor*
 #define DisplayTextbox ((DisplayTextbox_proc)DisplayTextbox_addr)
 
 typedef void (*CloseTextbox_proc)(GlobalContext* globalCtx);
-#ifdef Version_JP
+#if Version_JPN
     #define CloseTextbox_addr 0x3720F8
 #else //USA & EUR
     #define CloseTextbox_addr 0x3725E0
@@ -725,9 +725,9 @@ typedef void (*PlaySound_proc)(u32);
 #define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
 
 typedef void (*Play_Init_proc)(GameState*);
-#ifdef Version_EUR
+#if Version_EUR
     #define Play_Init_addr 0x435314
-#elif Version_JP
+#elif Version_JPN
     #define Play_Init_addr 0x4352C8
 #elif Version_KOR
     #define Play_Init_addr 0x11EE6C
@@ -739,9 +739,9 @@ typedef void (*Play_Init_proc)(GameState*);
 #define Play_Init ((Play_Init_proc)Play_Init_addr)
 
 typedef void (*FileSelect_LoadGame_proc)(GameState* gameState, s32 fileNum);
-#ifdef Version_EUR
+#if Version_EUR
     #define FileSelect_LoadGame_addr 0x44737C
-#elif Version_JP
+#elif Version_JPN
     #define FileSelect_LoadGame_addr 0x447334
 #elif Version_KOR
     #define FileSelect_LoadGame_addr 0x12E5BC
@@ -753,9 +753,9 @@ typedef void (*FileSelect_LoadGame_proc)(GameState* gameState, s32 fileNum);
 #define FileSelect_LoadGame ((FileSelect_LoadGame_proc)FileSelect_LoadGame_addr)
 
 typedef void (*Load_Savefiles_Buffer_proc)();
-#ifdef Version_EUR
+#if Version_EUR
     #define Load_Savefiles_Buffer_addr 0x447170
-#elif Version_JP
+#elif Version_JPN
     #define Load_Savefiles_Buffer_addr 0x447128
 #elif Version_KOR
     #define Load_Savefiles_Buffer_addr 0x12E3C0
@@ -767,9 +767,9 @@ typedef void (*Load_Savefiles_Buffer_proc)();
 #define Load_Savefiles_Buffer ((Load_Savefiles_Buffer_proc)Load_Savefiles_Buffer_addr)
 
 typedef void (*Actor_DrawContext_proc)(GlobalContext*, ActorContext*);
-#ifdef Version_EUR
+#if Version_EUR
     #define Actor_DrawContext_addr 0x461904
-#elif Version_JP
+#elif Version_JPN
     #define Actor_DrawContext_addr 0x4618BC
 #else // Version_USA
     #define Actor_DrawContext_addr 0x4618E4
@@ -777,9 +777,9 @@ typedef void (*Actor_DrawContext_proc)(GlobalContext*, ActorContext*);
 #define Actor_DrawContext ((Actor_DrawContext_proc)Actor_DrawContext_addr)
 
 typedef void (*CollisionCheck_DrawCollision_proc)(GlobalContext*, CollisionCheckContext*);
-#ifdef Version_EUR
+#if Version_EUR
     #define CollisionCheck_DrawCollision_addr 0x47CAEC
-#elif Version_JP
+#elif Version_JPN
     #define CollisionCheck_DrawCollision_addr 0x47CAA4
 #else // Version_USA
     #define CollisionCheck_DrawCollision_addr 0x47CACC
@@ -787,7 +787,7 @@ typedef void (*CollisionCheck_DrawCollision_proc)(GlobalContext*, CollisionCheck
 #define CollisionCheck_DrawCollision ((CollisionCheck_DrawCollision_proc)CollisionCheck_DrawCollision_addr)
 
 typedef s32 (*Room_StartTransition_proc)(GlobalContext*, RoomContext*, s32);
-#ifdef Version_JP
+#if Version_JPN
     #define Room_StartTransition_addr 0x33B1D4
 #else //USA & EUR
     #define Room_StartTransition_addr 0x33B6BC
@@ -795,7 +795,7 @@ typedef s32 (*Room_StartTransition_proc)(GlobalContext*, RoomContext*, s32);
 #define Room_StartTransition ((Room_StartTransition_proc)Room_StartTransition_addr)
 
 typedef s32 (*Room_ClearPrevRoom_proc)(GlobalContext*, RoomContext*);
-#ifdef Version_JP
+#if Version_JPN
     #define Room_ClearPrevRoom_addr 0x36C038
 #else //USA & EUR
     #define Room_ClearPrevRoom_addr 0x36C520
@@ -803,7 +803,7 @@ typedef s32 (*Room_ClearPrevRoom_proc)(GlobalContext*, RoomContext*);
 #define Room_ClearPrevRoom ((Room_ClearPrevRoom_proc)Room_ClearPrevRoom_addr)
 
 typedef void (*WriteDungeonSceneTable_proc)(void);
-#ifdef Version_JP
+#if Version_JPN
     #define WriteDungeonSceneTable_addr 0x2EAACC
 #else //USA & EUR
     #define WriteDungeonSceneTable_addr 0x2EAFB4

@@ -316,7 +316,7 @@ typedef struct ActorHeapNode {
 } ActorHeapNode;
 
 void Actor_Kill(Actor* actor);
-#if defined(Version_KOR) || defined(Version_TWN)
+#if Version_KOR || Version_TWN
     #define gActorOverlayTable ((ActorOverlay*)0x5184AC)
 #else
     #define gActorOverlayTable ((ActorOverlay*)0x50CD84)

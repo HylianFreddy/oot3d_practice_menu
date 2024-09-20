@@ -37,7 +37,7 @@ static void Command_Break(void){
         }
 
         // "aggressive" break
-#if !defined(Version_KOR) && !defined(Version_TWN)
+#if !Version_KOR && !Version_TWN
         Message_CloseTextbox(gGlobalContext);
 #endif
         gGlobalContext->mainCamera.setting   = 1;
