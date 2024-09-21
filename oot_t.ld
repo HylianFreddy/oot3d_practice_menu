@@ -48,6 +48,7 @@ SECTIONS
 		*(.text)
 		*(.text.*)
 		*(.rodata)
+		*(.eh_frame)
 		*(.data)
 		*(.bss)
 		*(COMMON)

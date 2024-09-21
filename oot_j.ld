@@ -115,14 +115,15 @@ SECTIONS
 	}
 
 	. = 0x005C7000;
-    .text : {
-        __text_start = . ;
-        *(.text)
-        *(.text.*)
-        *(.rodata)
-        *(.data)
-        *(.bss)
-        *(COMMON)
-        __text_end  = . ;
-    }
+	.text : {
+		__text_start = . ;
+		*(.text)
+		*(.text.*)
+		*(.rodata)
+		*(.eh_frame)
+		*(.data)
+		*(.bss)
+		*(COMMON)
+		__text_end  = . ;
+	}
 }
