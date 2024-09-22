@@ -119,7 +119,7 @@ hook_InstantTextBoxBreak:
     cmp r0,#0x1
     pop {r0-r12, lr}
 .if _JPN_
-    bne 0x2E09F8
+    bne 0x2DFE60
 .else
     bne 0x2E0EE0
 .endif
@@ -131,7 +131,7 @@ hook_InstantTextBoxBreak:
     strb r11,[r4,#0x24]
     pop {r0-r12, lr}
 .if _JPN_
-    bne 0x2E09F8
+    bne 0x2DFE60
 .else
     bne 0x2E0EE0
 .endif
@@ -143,9 +143,9 @@ hook_InstantTextRemoveOff:
     cmp r0,#0x1
     pop {r0-r12, lr}
 .if _JPN_
-    beq 0x2E09EC
+    beq 0x2DFE54
     ldr r0,[r5,#0x0]
-    b 0x2E01E4
+    b 0x2DF64C
 .else
     beq 0x2E0ED4
     ldr r0,[r5,#0x0]

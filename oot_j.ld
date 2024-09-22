@@ -12,15 +12,15 @@ SECTIONS
 	    * (.patch_CameraUpdate)
 	}
 
-	.patch_InstantTextFirstLine 0x2DFFB4 : {
+	.patch_InstantTextFirstLine 0x2DF41C : {
 		*(.patch_InstantTextFirstLine)
 	}
 
-	.patch_InstantTextBoxBreak 0x2E017C : {
+	.patch_InstantTextBoxBreak 0x2DF5E4 : {
 		*(.patch_InstantTextBoxBreak)
 	}
 
-	.patch_InstantTextRemoveOff 0x2E01E0 : {
+	.patch_InstantTextRemoveOff 0x2DF648 : {
 		*(.patch_InstantTextRemoveOff)
 	}
 
