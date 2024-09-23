@@ -63,9 +63,7 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
     }
     NoClip_Update();
     FreeCam_Update();
-    if (globalCtx->sceneNum == 0x5C) {
-        ColView_DrawCollision();
-    }
+    ColView_DrawCollision();
 }
 
 // Called after the `PlayState` draw function.

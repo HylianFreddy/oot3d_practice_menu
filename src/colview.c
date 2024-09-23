@@ -120,6 +120,8 @@ static void ColView_DrawPoly(ColViewPoly poly) {
 }
 
 void ColView_DrawCollision(void) {
+    // if (gGlobalContext->sceneNum == 0x5C) {
+    // }
     if (rInputCtx.cur.zr) {
         return;
     }
@@ -128,22 +130,22 @@ void ColView_DrawCollision(void) {
     ColView_DrawPoly(dummyPoly);
 
     if (PLAYER->actor.floorPoly != 0) {
-        // ColView_DrawPoly(getPlayerFloorPoly());
+        ColView_DrawPoly(getPlayerFloorPoly());
     }
 
-    u16 lookupIndex = 1;
-    u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
-    SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex];
+    // u16 lookupIndex = 1;
+    // u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
+    // SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex];
 
-    u16 i = 0;
-    while (node.next != 0xFFFF) {
-        if (i == 2) {
-            ColViewPoly poly = getColPolyData(node.polyId);
-            ColView_DrawPoly(poly);
-        }
-        node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
-        i++;
-    }
+    // u16 i = 0;
+    // while (node.next != 0xFFFF) {
+    //     if (i == 2) {
+    //         ColViewPoly poly = getColPolyData(node.polyId);
+    //         ColView_DrawPoly(poly);
+    //     }
+    //     node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
+    //     i++;
+    // }
 
     // for (u32 i = 0; i < 100; i++) {
     //     ColView_DrawPoly(getColPolyData(i));
