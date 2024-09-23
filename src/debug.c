@@ -322,14 +322,18 @@ void DebugActors_ShowActors(void) {
             }
 
             if (pressed & BUTTON_R1) { // Kill all instances of this actor in the list
-                s32 i        = 0;
                 bool killAll = pressed & BUTTON_L1; // Kill all actors in the list
+                bool preserveNearby = pressed & BUTTON_Y; // Don't kill actors close to Link
 
-                while (i < listSize && actorList[i].instance != NULL) {
-                    if (killAll || actorList[i].instance->id == selectedActor->id) {
-                        Actor_Kill(actorList[i].instance);
+                for (s32 i = 0; i < listSize; i++) {
+                    Actor* actor = actorList[i].instance;
+                    if (actor == NULL) {
+                        break;
                     }
-                    i++;
+                    if ((killAll || actor->id == selectedActor->id) &&
+                        (!preserveNearby || actor->xzDistToPlayer > 100)) {
+                        Actor_Kill(actor);
+                    }
                 }
             }
         }
