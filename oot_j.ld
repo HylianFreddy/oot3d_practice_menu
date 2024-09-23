@@ -12,20 +12,24 @@ SECTIONS
 	    * (.patch_CameraUpdate)
 	}
 
-	.patch_InstantTextFirstLine 0x2DFFB4 : {
+	.patch_InstantTextFirstLine 0x2DF41C : {
 		*(.patch_InstantTextFirstLine)
 	}
 
-	.patch_InstantTextBoxBreak 0x2E017C : {
+	.patch_InstantTextBoxBreak 0x2DF5E4 : {
 		*(.patch_InstantTextBoxBreak)
 	}
 
-	.patch_InstantTextRemoveOff 0x2E01E0 : {
+	.patch_InstantTextRemoveOff 0x2DF648 : {
 		*(.patch_InstantTextRemoveOff)
 	}
 
 	.patch_ActorDrawContext 0x2E27F4: {
 	    * (.patch_ActorDrawContext)
+	}
+
+	.patch_BlackScreenFix 0x2E2A60 : {
+	    * (.patch_BlackScreenFix)
 	}
 
 	.patch_Gfx_Update 0x30FD6C : {
@@ -52,20 +56,20 @@ SECTIONS
 		*(.patch_SleepQueryCallback)
 	}
 
-	.patch_before_GameState_Update 0x416388 : {
-		*(.patch_before_GameState_Update)
+	.patch_before_GameState_Loop 0x416340 : {
+		*(.patch_before_GameState_Loop)
 	}
 
-	.patch_DrawScreen 0x416398 : {
-		*(.patch_DrawScreen)
+	.patch_after_GameState_Update 0x416398 : {
+		*(.patch_after_GameState_Update)
+	}
+
+	.patch_GameButtonInputs 0x41ABAC : {
+		*(.patch_GameButtonInputs)
 	}
 
 	.patch_ItemUsability_Shield 0x42E2C8 : {
 		*(.patch_ItemUsability_Shield)
-	}
-
-	.patch_SaveMenuIgnoreOpen 0x42EBD8 : {
-		*(.patch_SaveMenuIgnoreOpen)
 	}
 
 	.patch_LoadGame 0x447358 : {
@@ -111,14 +115,15 @@ SECTIONS
 	}
 
 	. = 0x005C7000;
-    .text : {
-        __text_start = . ;
-        *(.text)
-        *(.text.*)
-        *(.rodata)
-        *(.data)
-        *(.bss)
-        *(COMMON)
-        __text_end  = . ;
-    }
+	.text : {
+		__text_start = . ;
+		*(.text)
+		*(.text.*)
+		*(.rodata)
+		*(.eh_frame)
+		*(.data)
+		*(.bss)
+		*(COMMON)
+		__text_end  = . ;
+	}
 }

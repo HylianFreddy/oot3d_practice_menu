@@ -9,12 +9,12 @@ echo Moving to ./Patch Files/EUR/Citra/code.ips
 mv code.ips "./Patch Files/EUR/Citra/code.ips"
 
 make clean
-make -j12 REGION=JP
+make -j12 REGION=JPN
 echo Moving to ./Patch Files/JP/3DS/code.ips
 mv code.ips "./Patch Files/JP/3DS/code.ips"
 
 make clean
-make -j12 REGION=JP citra=1
+make -j12 REGION=JPN citra=1
 echo Moving to ./Patch Files/JP/Citra/code.ips
 mv code.ips "./Patch Files/JP/Citra/code.ips"
 

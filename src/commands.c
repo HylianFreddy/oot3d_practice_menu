@@ -18,6 +18,11 @@ bool shouldDrawWatches = 0;
 PosRot storedPosRot[STORED_POS_COUNT];
 static u8 storedPosIndex = 0;
 
+// Used to make the game ignore button presses that were used for specific commands.
+btn_t buttonsToIgnore = { 0 };
+
+void Commands_SetButtonsToIgnore(Command cmd);
+
 static void Command_OpenMenu(void){
     menuOpen = true;
 }
@@ -32,7 +37,9 @@ static void Command_Break(void){
         }
 
         // "aggressive" break
+#if !Version_KOR && !Version_TWN
         Message_CloseTextbox(gGlobalContext);
+#endif
         gGlobalContext->mainCamera.setting   = 1;
         gGlobalContext->mainCamera.animState = 0;
         PLAYER->stateFlags1 = 0x0;
@@ -305,6 +312,7 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
                         }
                         break;
                 }
+                Commands_SetButtonsToIgnore(*cmd);
             } else {
                 cmd->curIdx++;
             }
@@ -590,19 +598,28 @@ void Commands_ShowCommandsMenu(void){
     } while(onMenuLoop());
 }
 
-u16 SaveMenu_IgnoreOpen(void) {
-    u8 ignoreSelect = FALSE;
-    u8 ignoreStart = FALSE;
-    u32* openMenuInputs = commandList[COMMAND_OPEN_MENU].inputs;
-
-    for (u32 i = 0; i < COMMAND_COMBO_MAX; i++) {
-        if (openMenuInputs[i] & BUTTON_SELECT) {
-            ignoreSelect = TRUE;
+void Commands_SetButtonsToIgnore(Command cmd) {
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_GAME_IGNORES_COMMAND_BUTTON].on == 0) {
+        return;
         }
-        if (openMenuInputs[i] & BUTTON_START) {
-            ignoreStart = TRUE;
+    buttonsToIgnore.val |= cmd.inputs[cmd.comboLen - 1];
+    if (cmd.comboLen > 1) {
+        buttonsToIgnore.val &= ~cmd.inputs[cmd.comboLen - 2];
+    }
+    if (buttonsToIgnore.sel) {
+        // Save menu is programmed to open on Start press and something maps Select to Start.
+        // So in order to ignore Select you must ignore Start too.
+        buttonsToIgnore.strt = 1;
+    }
+}
+
+void Commands_OverrideGameButtonInputs(btn_t* inputs) { // inputs[0]: held, inputs[1]: pressed
+    if (buttonsToIgnore.val) {
+        if (inputs[0].val & buttonsToIgnore.val) {
+            inputs[0].val &= ~buttonsToIgnore.val;
+            inputs[1].val &= ~buttonsToIgnore.val;
+        } else {
+            buttonsToIgnore.val = 0;
         }
     }
-
-    return (ignoreSelect && rInputCtx.cur.sel) || (ignoreStart && rInputCtx.cur.strt);
 }

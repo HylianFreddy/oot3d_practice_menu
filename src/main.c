@@ -20,6 +20,7 @@
 #include "z3D/z3D.h"
 #include "actor.h"
 #include "camera.h"
+#include "commit_string.h"
 #include "colview.h"
 
 #define NOCLIP_SLOW_SPEED 8
@@ -72,13 +73,16 @@ void after_Play_Draw() {
     // gMainClass->sub180.saModelsList1[1].saModel->unk_14->cmbManager = 0;
 }
 
-// Called once for every update on any GameState.
-void before_GameState_Update(GameState* gameState) {
-    if (!gInit || gameState->running != 2 ||
-        (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel))
+// Called once for every update on any GameState, before all the functions in the Graph_ThreadEntry loop.
+void before_GameState_Loop(GameState* gameState) {
+    if (!gInit || gameState->running != 2)
         return;
 
     Input_Update();
+
+    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel)
+        return;
+
     Command_UpdateCommands(rInputCtx.cur.val);
     applyCheats();
     autoLoadSaveFile();
@@ -200,8 +204,9 @@ void drawAlert(void) {
     }
 }
 
-static void titleScreenDisplay(void){
-    Draw_DrawFormattedStringTop(150, 20, COLOR_WHITE, "OoT3D Practice Patch");
+static void titleScreenDisplay(void) {
+    Draw_DrawCenteredStringTop(14, COLOR_WHITE, "OoT3D Practice Patch");
+    Draw_DrawCenteredStringTop(25, COLOR_WHITE, COMMIT_STRING);
     Draw_FlushFramebufferTop();
 
     char menuComboString[COMMAND_COMBO_MAX + 1] = {0};
@@ -359,6 +364,7 @@ void autoLoadSaveFile(void) {
         if (gSaveContext.saveCount > 0) {
             setAlert("Autoload File 1", 90);
             gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
+#if !Version_KOR && !Version_TWN
             if (gSaveContext.masterQuestFlag) {
                 // These static variables are used at some point during the load to overwrite the MQ flag.
                 // Setting them like this is kind of broken (saving the game will save onto MQ slot 1),
@@ -366,6 +372,7 @@ void autoLoadSaveFile(void) {
                 *(u8*)0x587934 = 0xBE; // Enable quest type buttons on title screen
                 *(u8*)0x587953 = 0xEF; // Pressed the MQ button
             }
+#endif
         } else {
             setAlert("File 1 is empty", 90);
         }

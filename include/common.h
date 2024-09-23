@@ -6,6 +6,12 @@
 #include "z3d/z3Dvec.h"
 #include <stdarg.h>
 
+#define UNSUPPORTED_WARNING ( \
+    Version_KOR ? "Unsupported on KOR" : \
+    Version_TWN ? "Unsupported on TWN" : \
+    "" \
+)
+
 extern MemInfo query_memory_permissions(u32 address);
 extern bool is_valid_memory_read(const MemInfo* info);
 extern bool is_valid_memory_write(const MemInfo* info);

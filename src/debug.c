@@ -133,7 +133,7 @@ static void DebugActors_ShowMoreInfo(Actor* actor) {
         Draw_DrawFormattedString(30, 30 + 4 * SPACING_Y, COLOR_WHITE, "Rot:             x:%04X  y:%04X  z:%04X", actor->world.rot.x & 0xFFFF, actor->world.rot.y & 0xFFFF, actor->world.rot.z & 0xFFFF);
         Draw_DrawFormattedString(30, 30 + 5 * SPACING_Y, COLOR_WHITE, "Vel:             x:%05.2f  y:%05.2f  z:%05.2f", actor->velocity.x, actor->velocity.y, actor->velocity.z);
         Draw_DrawFormattedString(30, 30 + 6 * SPACING_Y, COLOR_WHITE, "Floor:           %08X", actor->floorPoly);
-        Draw_DrawFormattedString(30, 30 + 7 * SPACING_Y, COLOR_WHITE, "Dist. from Link: xz:%05.2f  y:%05.2f", actor->xyzDistToPlayerSq, actor->xzDistToPlayer);
+        Draw_DrawFormattedString(30, 30 + 7 * SPACING_Y, COLOR_WHITE, "Dist. from Link: xz:%05.2f  y:%05.2f", actor->xzDistToPlayer, actor->yDistToPlayer);
         Draw_DrawFormattedString(30, 30 + 8 * SPACING_Y, COLOR_WHITE, "Text ID:         %04X", actor->textId & 0xFFFF);
         Draw_DrawFormattedString(30, 30 + 9 * SPACING_Y, COLOR_WHITE, "Parent:          %08X", actor->parent);
         Draw_DrawFormattedString(30, 30 + 10 * SPACING_Y, COLOR_WHITE, "Child:           %08X", actor->child);
@@ -322,14 +322,18 @@ void DebugActors_ShowActors(void) {
             }
 
             if (pressed & BUTTON_R1) { // Kill all instances of this actor in the list
-                s32 i        = 0;
                 bool killAll = pressed & BUTTON_L1; // Kill all actors in the list
+                bool preserveNearby = pressed & BUTTON_Y; // Don't kill actors close to Link
 
-                while (i < listSize && actorList[i].instance != NULL) {
-                    if (killAll || actorList[i].instance->id == selectedActor->id) {
-                        Actor_Kill(actorList[i].instance);
+                for (s32 i = 0; i < listSize; i++) {
+                    Actor* actor = actorList[i].instance;
+                    if (actor == NULL) {
+                        break;
                     }
-                    i++;
+                    if ((killAll || actor->id == selectedActor->id) &&
+                        (!preserveNearby || actor->xzDistToPlayer > 100)) {
+                        Actor_Kill(actor);
+                    }
                 }
             }
         }
@@ -429,7 +433,11 @@ void Debug_ShowObjects(void) {
         if(pressed & BUTTON_B)
             break;
         else if((pressed & BUTTON_Y) && objectId != 0 && gGlobalContext->objectCtx.num < OBJECT_EXCHANGE_BANK_MAX) {
+#if Version_KOR || Version_TWN
+            setAlert(UNSUPPORTED_WARNING, 90);
+#else
             Object_Spawn(&(gGlobalContext->objectCtx), (s16)objectId);
+#endif
         }
         else if((pressed & BUTTON_X) && gGlobalContext->objectCtx.num > 0) {
             gGlobalContext->objectCtx.status[--gGlobalContext->objectCtx.num].id = 0;
@@ -1063,10 +1071,10 @@ void MemoryEditor_TableSettings(void) {
                                              "R+Y on memory value: Jump to Table Element\n"
                                              "R+Y from this menu: Jump to chosen Index");
         // Table Settings
-        Draw_DrawFormattedString(30, 120, COLOR_GRAY, "Stored Table Start : %08X", storedTableStart);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "Table Element Size : 0x%04X", tableElementSize);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Table Index Type : %s", TableIndexTypeNames[tableIndexType]);
-        Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? COLOR_GREEN : COLOR_WHITE, "Table Index : %c0x%04X", tableIndexSign, tableIndexAbs);
+        Draw_DrawFormattedString(30, 120, COLOR_GRAY, "Stored Table Start: %08X", storedTableStart);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y, selected == 0 ? COLOR_GREEN : COLOR_WHITE, "Table Element Size: 0x%04X", tableElementSize);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 2, selected == 1 ? COLOR_GREEN : COLOR_WHITE, "Table Index Type:   < %s>", TableIndexTypeNames[tableIndexType]);
+        Draw_DrawFormattedString(30, 120 + SPACING_Y * 3, selected == 2 ? COLOR_GREEN : COLOR_WHITE, "Table Index:       %c0x%04X", tableIndexSign, tableIndexAbs);
 
         Draw_DrawFormattedString(30, 120 + SPACING_Y * 6, selected == 3 ? COLOR_GREEN : COLOR_WHITE, "Side Info: %s", SideInfoOptions[sideInfo]);
 
@@ -1081,17 +1089,13 @@ void MemoryEditor_TableSettings(void) {
         else if (pressed & BUTTON_A) {
             switch (selected) {
                 case 0:
-                    Menu_EditAmount(30 + SPACING_X * 20, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true, NULL, 0);
+                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true, NULL, 0);
                     if (tableElementSize != 0) {
                         sideInfo = SIDEINFO_TABLE_DATA;
                     }
                     break;
-                case 1:
-                    tableIndexType = (tableIndexType + 1) % 4;
-                    UpdateTableIndexValueSign();
-                    break;
                 case 2:
-                    Menu_EditAmount(30 + SPACING_X * 14, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true, NULL, 0);
+                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true, NULL, 0);
                     UpdateTableIndexValueSign();
                     break;
                 case 3:
@@ -1107,15 +1111,25 @@ void MemoryEditor_TableSettings(void) {
             selected = 0;
         }
         else {
-            if (pressed & PAD_DOWN){
+            if (pressed & PAD_DOWN) {
                 selected++;
                 if (selected > 3)
                     selected = 0;
             }
-            if (pressed & PAD_UP){
+            else if (pressed & PAD_UP) {
                 selected--;
                 if (selected < 0)
                     selected = 3;
+            }
+            else if (selected == 1) {
+                if (pressed & PAD_LEFT) {
+                    tableIndexType = (tableIndexType + VARTYPE_S32 - 1) % VARTYPE_S32;
+                    UpdateTableIndexValueSign();
+                }
+                else if (pressed & PAD_RIGHT) {
+                    tableIndexType = (tableIndexType + 1) % VARTYPE_S32;
+                    UpdateTableIndexValueSign();
+                }
             }
         }
 

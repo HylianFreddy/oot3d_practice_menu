@@ -32,6 +32,7 @@
 #include "z3D/z3D.h"
 #include "input.h"
 #include "common.h"
+#include "commit_string.h"
 
 #include "menus/warps.h"
 #include "menus/scene.h"
@@ -47,6 +48,10 @@
 static u32 sfxId = 0;
 
 void PlaySFX(s32 selected) {
+#if Version_KOR || Version_TWN
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
     sfxId = PlaySFXMenu.items[selected].amount;
     PlaySound(0x1000000 + sfxId);
 }
@@ -74,6 +79,10 @@ void quitGame(void) {
         return;
     }
 
+#if Version_KOR || Version_TWN
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
     gGlobalContext->state.running = 0;
     gGlobalContext->state.init = 0;
     *((u8*)0x5C6605) = 1; // break loop calling Graph_ThreadEntry
@@ -82,7 +91,7 @@ void quitGame(void) {
 }
 
 Menu gz3DMenu = {
-    "Practice Menu",
+    "Practice Menu (" COMMIT_STRING ")",
     .nbItems = 12,
     .initialCursorPos = 0,
     {

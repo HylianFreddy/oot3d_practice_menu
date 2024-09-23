@@ -6,14 +6,16 @@
 
 #define EXTSAVEDATA_VERSION 0
 
-// Redefine REGION variable from Makefile
-#undef REGION
-#ifdef Version_JP
-    #define REGION REGION_JP
+#if Version_USA
+    #define CURRENT_REGION REGION_USA
 #elif Version_EUR
-    #define REGION REGION_EUR
-#else // Version_USA
-    #define REGION REGION_USA
+    #define CURRENT_REGION REGION_EUR
+#elif Version_JPN
+    #define CURRENT_REGION REGION_JPN
+#elif Version_KOR
+    #define CURRENT_REGION REGION_KOR
+#elif Version_TWN
+    #define CURRENT_REGION REGION_TWN
 #endif
 
 extern Menu SettingsMenu;
@@ -33,7 +35,9 @@ enum Region {
     REGION_UNDEFINED,
     REGION_USA,
     REGION_EUR,
-    REGION_JP,
+    REGION_JPN,
+    REGION_KOR,
+    REGION_TWN,
 };
 
 typedef enum {
@@ -48,6 +52,7 @@ typedef enum {
     TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY,
     TOGGLESETTINGS_REMEMBER_CURSOR_POSITION,
     TOGGLESETTINGS_UPDATE_WATCHES,
+    TOGGLESETTINGS_GAME_IGNORES_COMMAND_BUTTON,
     TOGGLESETTINGS_MAIN_HOOK,
     NUMBER_OF_TOGGLE_SETTINGS,
 } ToggleSettings;

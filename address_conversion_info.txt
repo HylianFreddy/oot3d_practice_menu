@@ -1,0 +1,30 @@
+All numbers in hexadecimal
+
+USA addresses       EUR offsets
+
+000000 - 419E17  :  ±0
+419E18 - 41A143  :  =/= (language-fetching function)
+41A144 - 43668B  :  +24
+43668C - 43668F  :  N/A (padding)
+436690 - 4A5ADF  :  +20
+4A5AE0 - 4A5AFF  :  N/A (padding)
+4A5B00 - 5C6607  :  ±0
+
+
+
+USA addresses       JP offsets
+
+.text
+100000 - 2B6D4B  :  ±0
+2B6D4C - 2B7233  :  +C0B5C (MagicDark_Draw function has moved)
+2B7234 - 377D8F  :  -4E8
+377D90 - 419E17  :  ±0  (MagicDark_Draw function is at 0x3778A8 in JP, resetting offset)
+419E18 - 41A143  :  =/= (language-fetching function)
+41A144 - 4A5AFF  :  -28
+4A5B00 - 4C99A7  :  ±0  (JP has 40 more bytes at 0x4A5ADC (all 0xFF), resetting offset)
+.rodata
+4CA000 - 4F8347  :  ±0
+.data
+4F9000 - 55A21F  :  ±0
+.bss
+?????? (not analyzed)

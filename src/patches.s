@@ -78,7 +78,7 @@ ItemUsability_patch:
 .section .patch_ItemUsability_Shield
 .global ItemUsabilityShield_patch
 ItemUsabilityShield_patch:
-    b hook_ItemUsability_Shield
+    bl hook_ItemUsability_Shield
 
 .section .patch_SleepQueryCallback
 .global SleepQueryCallback_patch
@@ -95,9 +95,6 @@ OverrideSceneSetup_patch:
 LoadGame_patch:
     bl hook_LoadGame
 
-.section .patch_SaveMenuIgnoreOpen
-    bl hook_SaveMenuIgnoreOpen
-
 .section .patch_CameraUpdate
 .global CameraUpdate_patch
 CameraUpdate_patch:
@@ -106,11 +103,17 @@ CameraUpdate_patch:
 .section .patch_Actor_UpdateAll
     bl hook_Actor_UpdateAll
 
-.section .patch_DrawScreen
-    bl hook_DrawScreen
+.section .patch_before_GameState_Loop
+    bl hook_before_GameState_Loop
+
+.section .patch_after_GameState_Update
+    bl hook_after_GameState_Update
 
 .section .patch_ActorDrawContext
     bl Actor_rDrawContext
 
-.section .patch_before_GameState_Update
-    bl hook_before_GameState_Update
+.section .patch_BlackScreenFix
+    bl hook_BlackScreenFix
+
+.section .patch_GameButtonInputs
+    bl hook_GameButtonInputs

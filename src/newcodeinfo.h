@@ -6,7 +6,11 @@
 #ifndef _NEWCODEINFO_H_
 #define _NEWCODEINFO_H_
 
-#define NEWCODE_OFFSET 0x005C7000 //TODO: this 
+#if Version_KOR || Version_TWN
+    #define NEWCODE_OFFSET 0x005CE000
+#else
+    #define NEWCODE_OFFSET 0x005C7000
+#endif
 #define NEWCODE_SIZE   0x0002E000 //TODO: this. even now, this is too big.
 
 #endif //_NEWCODEINFO_H_

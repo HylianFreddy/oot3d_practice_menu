@@ -13,7 +13,11 @@ hook_before_GlobalContext_Update:
     push {r0-r12, lr}
     bl before_GlobalContext_Update
     pop {r0-r12, lr}
+.if (_KOR_ || _TWN_)
+    cpy r8,r0
+.else
     cpy r7,r0
+.endif
     bx lr
 
 .global hook_after_GlobalContext_Update
@@ -22,25 +26,22 @@ hook_after_GlobalContext_Update:
     push {r0-r12}
     bl after_GlobalContext_Update
     pop {r0-r12}
-.if _JP_==1
-    bl 0x2E2108
-.else
-# both USA and EUR
+.if (_USA_ || _EUR_)
     bl 0x2E25F0
+.endif
+.if _JPN_
+    bl 0x2E2108
+.endif
+.if _TWN_
+    bl 0x2FC1A0
+.endif
+.if _KOR_
+    bl 0x2FC0A0
 .endif
     push {r0-r12}
     bl after_Play_Draw
     pop {r0-r12}
     pop {pc}
-
-.section .loader
-.global hook_into_loader
-hook_into_loader:
-    push {r0-r12, lr}
-    bl loader_main
-    pop {r0-r12, lr}
-    bl 0x100028
-    b  0x100004
 
 .global hook_PlaySound
 hook_PlaySound:
@@ -48,7 +49,7 @@ hook_PlaySound:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r3-r7, lr}
-.if _JP_==1
+.if _JPN_
     b 0x35C044
 .else
     b 0x35C52C
@@ -60,7 +61,7 @@ hook_SetBGMEntrance:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
-.if _JP_==1
+.if _JPN_
     b 0x330B64
 .else
     b 0x33104C
@@ -72,13 +73,13 @@ hook_SetBGMDayNight:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
-.if _USA_==1
+.if _USA_
     b 0x483C8C
 .endif
-.if _EUR_==1
+.if _EUR_
     b 0x483CAC
 .endif
-.if _JP_==1
+.if _JPN_
     b 0x483C64
 .endif
 
@@ -90,7 +91,7 @@ hook_SetBGMEvent:
     cpy r1,r0
     pop {r0, r2-r12, lr}
     push {r4-r11, lr}
-.if _JP_==1
+.if _JPN_
     b 0x36E75C
 .else
     b 0x36EC44
@@ -122,8 +123,8 @@ hook_InstantTextBoxBreak:
     bl Cheats_IsInstantText
     cmp r0,#0x1
     pop {r0-r12, lr}
-.if _JP_==1
-    bne 0x2E09F8
+.if _JPN_
+    bne 0x2DFE60
 .else
     bne 0x2E0EE0
 .endif
@@ -134,8 +135,8 @@ hook_InstantTextBoxBreak:
     blx r1
     strb r11,[r4,#0x24]
     pop {r0-r12, lr}
-.if _JP_==1
-    bne 0x2E09F8
+.if _JPN_
+    bne 0x2DFE60
 .else
     bne 0x2E0EE0
 .endif
@@ -146,10 +147,10 @@ hook_InstantTextRemoveOff:
     bl Cheats_IsInstantText
     cmp r0,#0x1
     pop {r0-r12, lr}
-.if _JP_==1
-    beq 0x2E09EC
+.if _JPN_
+    beq 0x2DFE54
     ldr r0,[r5,#0x0]
-    b 0x2E01E4
+    b 0x2DF64C
 .else
     beq 0x2E0ED4
     ldr r0,[r5,#0x0]
@@ -198,21 +199,10 @@ hook_ItemUsability_Shield:
     bl Cheats_areItemsForcedUsable
     cmp r0,#0x0
     pop {r0-r12, lr}
-.if _USA_==1
-    bne 0x42E3DC
+    addne lr,lr,#0xE8
+    bxne lr
     cmp r0,#0x0
-    b 0x42E2F4
-.endif
-.if _EUR_==1
-    bne 0x42E400
-    cmp r0,#0x0
-    b 0x42E2E8
-.endif
-.if _JP_==1
-    bne 0x42E3B4
-    cmp r0,#0x0
-    b 0x42E2CC
-.endif
+    bx lr
 
 .global hook_Gfx_SleepQueryCallback
 hook_Gfx_SleepQueryCallback:
@@ -238,23 +228,6 @@ hook_LoadGame:
     pop {r0-r12, lr}
     bx lr
 
-.global hook_SaveMenuIgnoreOpen
-hook_SaveMenuIgnoreOpen:
-    push {r0-r12, lr}
-    bl SaveMenu_IgnoreOpen
-    cmp r0,#0x1
-    pop {r0-r12, lr}
-.if _USA_==1
-    beq 0x42F270
-.endif
-.if _EUR_==1
-    beq 0x42F294
-.endif
-.if _JP_==1
-    beq 0x42F248
-.endif
-    bx lr
-
 .global hook_CameraUpdate
 hook_CameraUpdate:
     push {r0-r12,lr}
@@ -271,22 +244,85 @@ hook_Actor_UpdateAll:
     bl Scene_HaltActorsEnabled
     cmp r0,#0x0
     pop {r0-r12,lr}
+.if (_KOR_ || _TWN_)
+    moveq r7,#0x0
+.else
     moveq r9,#0x0
+.endif
     popne {r0,r1,r4-r11,lr}
     bx lr
 
-.global hook_DrawScreen
-hook_DrawScreen:
+.global hook_before_GameState_Loop
+hook_before_GameState_Loop:
+.if (_KOR_ || _TWN_)
+    push {r0-r12, lr}
+    cpy r0,r4
+    bl before_GameState_Loop
+    pop {r0-r12, lr}
+    cpy r0,r9
+    bx lr
+.else
+    push {r0-r12, lr}
+    cpy r0,r5
+    bl before_GameState_Loop
+    pop {r0-r12, lr}
+    cpy r0,r4
+    bx lr
+.endif
+
+.global hook_after_GameState_Update
+hook_after_GameState_Update:
     push {r0-r12, lr}
     bl checkFastForward
     cmp r0,#0x0
     pop {r0-r12, lr}
+.if (_KOR_ || _TWN_)
+    beq 0x102880
+.else
     beq 0x418B88 @ handles drawing screen
+.endif
     bx lr
 
-.global hook_before_GameState_Update
-hook_before_GameState_Update:
+.global hook_BlackScreenFix
+hook_BlackScreenFix:
+    cmp r0,#0x0 @ cutscene pointer, if 0 the fade-in will start
+    bxeq lr
     push {r0-r12, lr}
-    bl before_GameState_Update
+    bl Cheats_ShouldFixBlackScreen
+    cmp r0,#0x1
     pop {r0-r12, lr}
     bx lr
+
+.global hook_GameButtonInputs
+hook_GameButtonInputs:
+.if (_KOR_ || _TWN_)
+    push {r0-r12,lr}
+    cpy r0,r1
+    bl Commands_OverrideGameButtonInputs
+    pop {r0-r12,lr}
+    str r0,[r4,#0x4]
+    bx lr
+.else
+    push {r0-r12,lr}
+    cpy r0,r4
+    bl Commands_OverrideGameButtonInputs
+    pop {r0-r12,lr}
+    add r0,r0,r9,lsl#0x4
+    bx lr
+.endif
+
+@---------------------
+@---------------------
+
+.section .loader
+.global hook_into_loader
+hook_into_loader:
+    push {r0-r12, lr}
+    bl loader_main
+    pop {r0-r12, lr}
+.if (_KOR_ || _TWN_)
+    bl 0x100024
+.else
+    bl 0x100028
+.endif
+    b  0x100004

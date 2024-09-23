@@ -28,6 +28,10 @@ SECTIONS
 	    * (.patch_ActorDrawContext)
 	}
 
+	.patch_BlackScreenFix 0x2E2F48 : {
+	    * (.patch_BlackScreenFix)
+	}
+
 	.patch_Gfx_Update 0x310254 : {
 		*(.patch_Gfx_Update)
 	}
@@ -52,20 +56,20 @@ SECTIONS
 		*(.patch_SleepQueryCallback)
 	}
 
-	.patch_before_GameState_Update 0x416388 : {
-		*(.patch_before_GameState_Update)
+	.patch_before_GameState_Loop 0x416340 : {
+		*(.patch_before_GameState_Loop)
 	}
 
-	.patch_DrawScreen 0x416398 : {
-		*(.patch_DrawScreen)
+	.patch_after_GameState_Update 0x416398 : {
+		*(.patch_after_GameState_Update)
 	}
 
-	.patch_ItemUsability_Shield 0x42E2E4 : {
+	.patch_GameButtonInputs 0x41ABF8 : {
+		*(.patch_GameButtonInputs)
+	}
+
+	.patch_ItemUsability_Shield 0x42E314 : {
 		*(.patch_ItemUsability_Shield)
-	}
-
-	.patch_SaveMenuIgnoreOpen 0x42EC24 : {
-		*(.patch_SaveMenuIgnoreOpen)
 	}
 
 	.patch_LoadGame 0x4473A0 : {
@@ -116,6 +120,7 @@ SECTIONS
 		*(.text)
 		*(.text.*)
 		*(.rodata)
+		*(.eh_frame)
 		*(.data)
 		*(.bss)
 		*(COMMON)
