@@ -119,6 +119,21 @@ static void ColView_DrawPoly(ColViewPoly poly) {
     Collider_DrawPolyImpl((void*)0x5c1858, &poly.vA, &poly.vB, &poly.vC, &poly.color);
 }
 
+void ColView_DrawAllFromNode(SSNode node) {
+    u16 i = 0;
+    while (node.next != 0xFFFF) {
+        // CitraPrint("node.polyId: %X", node.polyId);
+        // CitraPrint("node.next: %X", node.next);
+
+        ColViewPoly poly = getColPolyData(node.polyId);
+        ColView_DrawPoly(poly);
+
+        node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
+        i++;
+    }
+    CitraPrint("i max: %X", i);
+}
+
 void ColView_DrawCollision(void) {
     // if (gGlobalContext->sceneNum == 0x5C) {
     // }
@@ -137,21 +152,15 @@ void ColView_DrawCollision(void) {
     // lookupIndex = (lookupIndex + 1) % 5;
     u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
     CitraPrint("floorIndex: %X", floorIndex);
-    if (floorIndex == 0xFFFF) return;
+    if (floorIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex]);
 
-    SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex];
+    u16 wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
+    CitraPrint("wallIndex: %X", wallIndex);
+    if (wallIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[wallIndex]);
 
-    u16 i = 0;
-    if (node.next != 0xFFFF) {
-        CitraPrint("node.polyId: %X", node.polyId);
-        CitraPrint("node.next: %X", node.next);
-
-        ColViewPoly poly = getColPolyData(node.polyId);
-        ColView_DrawPoly(poly);
-
-        node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
-        i++;
-    }
+    u16 ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
+    CitraPrint("ceilingIndex: %X", ceilingIndex);
+    if (ceilingIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[ceilingIndex]);
 
     // for (u32 i = 0; i < 100; i++) {
     //     ColView_DrawPoly(getColPolyData(i));
