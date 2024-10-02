@@ -131,7 +131,7 @@ void ColView_DrawAllFromNode(SSNode node) {
         node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
         i++;
     }
-    CitraPrint("i max: %X", i);
+    // CitraPrint("i max: %X", i);
 }
 
 void ColView_DrawCollision(void) {
@@ -148,24 +148,30 @@ void ColView_DrawCollision(void) {
         // ColView_DrawPoly(getPlayerFloorPoly());
     }
 
-    static u16 lookupIndex = 0;
-    // lookupIndex = (lookupIndex + 1) % 5;
-    u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
-    CitraPrint("floorIndex: %X", floorIndex);
+    static s32 subdivCount = 0;
+    Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
+    subdivCount = v.x * v.y * v.z;
+
+    static u16 lookupIndex = 1;
+    u16 floorIndex, wallIndex, ceilingIndex;
+    do {
+        floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
+        wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
+        ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
+        lookupIndex = (lookupIndex + 1) % subdivCount;
+    } while (floorIndex == 0xFFFF && wallIndex == 0xFFFF && ceilingIndex == 0xFFFF);
+
+    // u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
+    // CitraPrint("floorIndex: %X", floorIndex);
     if (floorIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex]);
 
-    u16 wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
-    CitraPrint("wallIndex: %X", wallIndex);
+    // u16 wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
+    // CitraPrint("wallIndex: %X", wallIndex);
     if (wallIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[wallIndex]);
 
-    u16 ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
-    CitraPrint("ceilingIndex: %X", ceilingIndex);
+    // u16 ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
+    // CitraPrint("ceilingIndex: %X", ceilingIndex);
     if (ceilingIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[ceilingIndex]);
 
-    // for (u32 i = 0; i < 100; i++) {
-    //     ColView_DrawPoly(getColPolyData(i));
-    // }
-
-    // if (ABS(gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir.y - dummyPoly.norm.y) > 0x4000) {
-    // }
+    CitraPrint("subdivCount: %X   lookupIndex: %X", subdivCount, lookupIndex);
 }
