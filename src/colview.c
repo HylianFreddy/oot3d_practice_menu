@@ -38,9 +38,21 @@ ColViewPoly createDummyPoly(void) {
     };
 }
 
+Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
+    Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
+    u16 vtxIdx = colPoly->vtxData[polyVtxId];
+    if (polyVtxId <= 2) {
+        vtxIdx &= 0x1FFF; // See CollisionPoly_GetVertices from decomp
+    }
+    return (Vec3f){
+        .x=(f32)(vtxList[vtxIdx].x),
+        .y=(f32)(vtxList[vtxIdx].y),
+        .z=(f32)(vtxList[vtxIdx].z),
+    };
+}
+
 ColViewPoly getColPolyData(u32 id) {
     CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[id];
-    Vec3s* vtxList        = gGlobalContext->colCtx.stat.colHeader->vtxList;
 
     // CitraPrint("");
     // if (rInputCtx.cur.zr) {
@@ -61,21 +73,9 @@ ColViewPoly getColPolyData(u32 id) {
     // menuShow(&gz3DMenu);
 
     return (ColViewPoly){
-        .vA = {
-            .x=(f32)(vtxList[colPoly->vtxData[0]].x),
-            .y=(f32)(vtxList[colPoly->vtxData[0]].y),
-            .z=(f32)(vtxList[colPoly->vtxData[0]].z),
-        },
-        .vB = {
-            .x=(f32)(vtxList[colPoly->vtxData[1]].x),
-            .y=(f32)(vtxList[colPoly->vtxData[1]].y),
-            .z=(f32)(vtxList[colPoly->vtxData[1]].z),
-        },
-        .vC = {
-            .x=(f32)(vtxList[colPoly->vtxData[2]].x),
-            .y=(f32)(vtxList[colPoly->vtxData[2]].y),
-            .z=(f32)(vtxList[colPoly->vtxData[2]].z),
-        },
+        .vA = ColView_GetVtxPos(colPoly, 0),
+        .vB = ColView_GetVtxPos(colPoly, 1),
+        .vC = ColView_GetVtxPos(colPoly, 2),
         .norm = colPoly->norm,
         .color = {
             .r = 1.0f,
@@ -87,25 +87,13 @@ ColViewPoly getColPolyData(u32 id) {
 }
 
 ColViewPoly getPlayerFloorPoly(void) {
-    CollisionPoly* colpoly = PLAYER->actor.floorPoly;
+    CollisionPoly* colPoly = PLAYER->actor.floorPoly;
 
     return (ColViewPoly){
-        .vA = {
-            .x=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[0]].x),
-            .y=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[0]].y),
-            .z=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[0]].z),
-        },
-        .vB = {
-            .x=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[1]].x),
-            .y=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[1]].y),
-            .z=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[1]].z),
-        },
-        .vC = {
-            .x=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[2]].x),
-            .y=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[2]].y),
-            .z=(f32)(gGlobalContext->colCtx.stat.colHeader->vtxList[colpoly->vtxData[2]].z),
-        },
-        .norm = colpoly->norm,
+        .vA = ColView_GetVtxPos(colPoly, 0),
+        .vB = ColView_GetVtxPos(colPoly, 1),
+        .vC = ColView_GetVtxPos(colPoly, 2),
+        .norm = colPoly->norm,
         .color = {
             .r = 1.0f,
             .g = 1.0f,
@@ -173,5 +161,5 @@ void ColView_DrawCollision(void) {
     // CitraPrint("ceilingIndex: %X", ceilingIndex);
     if (ceilingIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[ceilingIndex]);
 
-    CitraPrint("subdivCount: %X   lookupIndex: %X", subdivCount, lookupIndex);
+    // CitraPrint("subdivCount: %X   lookupIndex: %X", subdivCount, lookupIndex);
 }
