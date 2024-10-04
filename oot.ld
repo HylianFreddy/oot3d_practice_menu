@@ -8,6 +8,14 @@ SECTIONS
 		*(.patch_loader)
 	}
 
+	.patch_collision 0x3247d4 : {
+	    * (.patch_collision)
+	}
+
+	.patch_collisionF 0x32dc60 : {
+	    * (.patch_collisionF)
+	}
+
 	.patch_CameraUpdate 0x2D84C8 : {
 	    * (.patch_CameraUpdate)
 	}

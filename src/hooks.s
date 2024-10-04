@@ -311,6 +311,28 @@ hook_GameButtonInputs:
     bx lr
 .endif
 
+.global hook_collision
+hook_collision:
+    push {r0-r12,lr}
+    ldr r0,[sp,#0x110]
+    add r1,sp,#0x9C
+    bl ColView_FindStaticLookup
+    pop {r0-r12,lr}
+    add r2,sp,#0x58
+    bx lr
+
+.global hook_collisionF
+hook_collisionF:
+    @ cmp r6,#0x0
+    @ bxne lr
+    push {r0-r12,lr}
+    cpy r0,r6
+    ldr r1,[sp,#0x128]
+    bl ColView_FindStaticLookup2
+    pop {r0-r12,lr}
+    cmp r6,#0x0
+    bx lr
+
 @---------------------
 @---------------------
 

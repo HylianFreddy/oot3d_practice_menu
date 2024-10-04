@@ -122,12 +122,16 @@ void ColView_DrawAllFromNode(SSNode node) {
     // CitraPrint("i max: %X", i);
 }
 
+static StaticLookup* sLookup;
+static s32 sceneId = -1;
 void ColView_DrawCollision(void) {
-    // if (gGlobalContext->sceneNum == 0x5C) {
-    // }
-    if (rInputCtx.cur.zr) {
+    if (rInputCtx.cur.zr || sLookup == 0 || sceneId != gGlobalContext->sceneNum) {
         return;
     }
+    // if (rInputCtx.pressed.zr) {
+    //     lookupIndex = (lookupIndex + 1) % 8;
+    //     CitraPrint("lookupIndex: %X", lookupIndex);
+    // }
 
     ColViewPoly dummyPoly = createDummyPoly();
     ColView_DrawPoly(dummyPoly);
@@ -140,14 +144,17 @@ void ColView_DrawCollision(void) {
     Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
     subdivCount = v.x * v.y * v.z;
 
-    static u16 lookupIndex = 1;
+    static u16 lookupIndex = 0;
     u16 floorIndex, wallIndex, ceilingIndex;
-    do {
-        floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
-        wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
-        ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
-        lookupIndex = (lookupIndex + 1) % subdivCount;
-    } while (floorIndex == 0xFFFF && wallIndex == 0xFFFF && ceilingIndex == 0xFFFF);
+    floorIndex = sLookup->floor.head;
+    wallIndex = sLookup->wall.head;
+    ceilingIndex = sLookup->ceiling.head;
+    // do {
+    //     floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
+    //     wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
+    //     ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
+    //     lookupIndex = (lookupIndex + 1) % subdivCount;
+    // } while (floorIndex == 0xFFFF && wallIndex == 0xFFFF && ceilingIndex == 0xFFFF);
 
     // u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
     // CitraPrint("floorIndex: %X", floorIndex);
@@ -162,4 +169,23 @@ void ColView_DrawCollision(void) {
     if (ceilingIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[ceilingIndex]);
 
     // CitraPrint("subdivCount: %X   lookupIndex: %X", subdivCount, lookupIndex);
+}
+
+
+void ColView_FindStaticLookup(Actor* actor, Vec3i* subdivMin) {
+    // if (!isInGame() || actor != &PLAYER->actor) {
+    //     return;
+    // }
+    // CitraPrint("%X, %X, %X", subdivMin->x, subdivMin->y, subdivMin->z);
+    // CitraPrint("? %X", subdivMin->x + subdivMin->y + subdivMin->z);
+}
+
+
+void ColView_FindStaticLookup2(StaticLookup* lookup, Actor* actor) {
+    if (!isInGame() || actor != &PLAYER->actor) {
+        return;
+    }
+    CitraPrint("%X", lookup);
+    sLookup = lookup;
+    sceneId = gGlobalContext->sceneNum;
 }

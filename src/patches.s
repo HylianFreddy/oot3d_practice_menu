@@ -117,3 +117,10 @@ CameraUpdate_patch:
 
 .section .patch_GameButtonInputs
     bl hook_GameButtonInputs
+
+.section .patch_collision
+    bl hook_collision
+    @ mov r0,#0x0
+
+.section .patch_collisionF
+    bl hook_collisionF
