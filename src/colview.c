@@ -122,16 +122,18 @@ void ColView_DrawAllFromNode(SSNode node) {
     // CitraPrint("i max: %X", i);
 }
 
-static StaticLookup* sLookup;
-static s32 sceneId = -1;
+// static u16 lookupIndex = 0;
+StaticLookup* ColView_Lookup;
+// static s32 sceneId = -1;
 void ColView_DrawCollision(void) {
-    if (rInputCtx.cur.zr || sLookup == 0 || sceneId != gGlobalContext->sceneNum) {
+    if (rInputCtx.cur.zr || ColView_Lookup == 0) { // || sceneId != gGlobalContext->sceneNum
         return;
     }
     // if (rInputCtx.pressed.zr) {
     //     lookupIndex = (lookupIndex + 1) % 8;
     //     CitraPrint("lookupIndex: %X", lookupIndex);
     // }
+    // ColView_Lookup = &gGlobalContext->colCtx.stat.lookupTbl[lookupIndex];
 
     ColViewPoly dummyPoly = createDummyPoly();
     ColView_DrawPoly(dummyPoly);
@@ -140,15 +142,14 @@ void ColView_DrawCollision(void) {
         // ColView_DrawPoly(getPlayerFloorPoly());
     }
 
-    static s32 subdivCount = 0;
-    Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
-    subdivCount = v.x * v.y * v.z;
+    // static s32 subdivCount = 0;
+    // Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
+    // subdivCount = v.x * v.y * v.z;
 
-    static u16 lookupIndex = 0;
     u16 floorIndex, wallIndex, ceilingIndex;
-    floorIndex = sLookup->floor.head;
-    wallIndex = sLookup->wall.head;
-    ceilingIndex = sLookup->ceiling.head;
+    floorIndex = ColView_Lookup->floor.head;
+    wallIndex = ColView_Lookup->wall.head;
+    ceilingIndex = ColView_Lookup->ceiling.head;
     // do {
     //     floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
     //     wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
@@ -171,21 +172,32 @@ void ColView_DrawCollision(void) {
     // CitraPrint("subdivCount: %X   lookupIndex: %X", subdivCount, lookupIndex);
 }
 
-
-void ColView_FindStaticLookup(Actor* actor, Vec3i* subdivMin) {
+// from wall detection
+void ColView_FindStaticLookup(Actor* actor, Vec3i* sector) {
     // if (!isInGame() || actor != &PLAYER->actor) {
     //     return;
     // }
-    // CitraPrint("%X, %X, %X", subdivMin->x, subdivMin->y, subdivMin->z);
-    // CitraPrint("? %X", subdivMin->x + subdivMin->y + subdivMin->z);
+    // CitraPrint("%X, %X, %X", sector->x, sector->y, sector->z);
+
+    // StaticCollisionContext ctx = gGlobalContext->colCtx.stat;
+    // s32 lookupId =
+    //     sector->x +
+    //     (sector->y * ctx.subdivAmount.x) +
+    //     (sector->z * ctx.subdivAmount.x * ctx.subdivAmount.y);
+    // CitraPrint("lookupId: %X", lookupId);
+    // lookupIndex = lookupId;
 }
 
-
-void ColView_FindStaticLookup2(StaticLookup* lookup, Actor* actor) {
+// from floor detection
+void ColView_FindStaticLookup2(StaticLookup* lookup, Actor* actor, Vec3f* checkPos) {
     if (!isInGame() || actor != &PLAYER->actor) {
         return;
     }
-    CitraPrint("%X", lookup);
-    sLookup = lookup;
-    sceneId = gGlobalContext->sceneNum;
+    ColView_Lookup = lookup;
+    // CitraPrint("%X Y:%f", lookup, checkPos->y);
+    // if (ColView_Lookup == 0) {
+    //     ColView_Lookup = lookup;
+    //     CitraPrint("___ %X", lookup);
+    // }
+    // sceneId = gGlobalContext->sceneNum;
 }

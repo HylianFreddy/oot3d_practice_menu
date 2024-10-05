@@ -12,7 +12,7 @@ SECTIONS
 	    * (.patch_collision)
 	}
 
-	.patch_collisionF 0x32dc60 : {
+	.patch_collisionF 0x32dc5c : {
 	    * (.patch_collisionF)
 	}
 

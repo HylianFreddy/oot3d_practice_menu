@@ -323,14 +323,13 @@ hook_collision:
 
 .global hook_collisionF
 hook_collisionF:
-    @ cmp r6,#0x0
-    @ bxne lr
+    mla r6,r2,r0,r1
     push {r0-r12,lr}
     cpy r0,r6
     ldr r1,[sp,#0x128]
+    add r2,sp,#0xC8
     bl ColView_FindStaticLookup2
     pop {r0-r12,lr}
-    cmp r6,#0x0
     bx lr
 
 @---------------------
