@@ -257,18 +257,20 @@ typedef struct Camera {
 _Static_assert(sizeof(Camera) == 0x1BC, "Camera size");
 
 typedef struct {
-    /* 0x00 */ char unk_00[0x4];
-    /* 0x04 */ Vec3s minBounds; // minimum coordinates of poly bounding box
-    /* 0x0A */ Vec3s maxBounds; // maximum coordinates of poly bounding box
-    /* 0x10 */ u16 numVertices;
-    /* 0x12 */ u16 numPolygons;
+    /* 0x00 */ Vec3s minBounds; // minimum coordinates of poly bounding box
+    /* 0x06 */ Vec3s maxBounds; // maximum coordinates of poly bounding box
+    /* 0x0C */ u16 numVertices;
+    /* 0x0E */ u16 numPolygons;
+    /* 0x10 */ u16 numSurfaceTypes;
+    /* 0x12 */ u16 numBgCams;
     /* 0x14 */ u16 numWaterBoxes;
-    /* 0x10 */ Vec3s* vtxList;
+    /* 0x18 */ Vec3s* vtxList;
     /* 0x1C */ CollisionPoly* polyList;
     /* 0x20 */ void* surfaceTypeList; // SurfaceType*
     /* 0x24 */ void* bgCamList; // BgCamInfo*
     /* 0x28 */ void* waterBoxes; // WaterBox*
 } CollisionHeader; // original name: BGDataInfo
+_Static_assert(sizeof(CollisionHeader) == 0x2C, "CollisionHeader size");
 
 typedef struct {
     s16 polyId;

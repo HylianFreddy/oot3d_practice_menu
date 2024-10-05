@@ -17,10 +17,10 @@ typedef struct {
 typedef struct {
     /* 0x00 */ u16    type;
     /* 0x02 */ u16    vtxData[3]; // id for each vertex in the vtxList
-    /* 0x08 */ Vec3s  norm;  // Normal vector
-    /* 0x0E */ s16    dist;  // Plane distance from origin
-    /* 0x10 */ char   unk_10[0x4];
-} CollisionPoly; // size = 0x10
+    /* 0x08 */ char   unk_08[0x2];
+    /* 0x0A */ Vec3s  norm;  // Normal vector
+    /* 0x10 */ s32    dist;  // Plane distance from origin
+} CollisionPoly; // size = 0x14
 _Static_assert(sizeof(CollisionPoly) == 0x14, "CollisionPoly size");
 
 struct SkeletonAnimationModel;
