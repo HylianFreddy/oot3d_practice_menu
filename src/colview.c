@@ -122,7 +122,7 @@ static void ColView_DrawPolysForInvisibleSeams(void) {
             // CitraPrint("normal_y: %f", normal_y);
             // CitraPrint("poly.norm.y: %X", poly.norm.y);
             ColView_DrawPoly(getColPolyData(i));
-            CitraPrint("%X", i);
+            // CitraPrint("______ %X", i);
 
             u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
             for (s32 p = 0; p < 3; p++) {
@@ -130,32 +130,53 @@ static void ColView_DrawPolysForInvisibleSeams(void) {
                 Vec3s vtx1 = vtxList[colPoly->vtxData[pair[0] & 0x1FFF]];
                 Vec3s vtx2 = vtxList[colPoly->vtxData[pair[1] & 0x1FFF]];
 
-                if (i == 0x59) {
-                    CitraPrint("%d %d %d %f %f %f %f", vtx1.x, vtx1.y, vtx1.z, normal_x, normal_y, normal_z, colPoly->dist);
-                }
-
                 s32 edge_d_z = vtx2.z - vtx1.z;
                 s32 edge_d_x = vtx2.x - vtx1.x;
 
                 if (edge_d_z != 0 && edge_d_x != 0) {
-                    f32 extend_1_y = ((((normal_x * vtx1.x)) - (normal_z * vtx1.z)) - colPoly->dist) / normal_y;
-                    f32 extend_2_y = ((((normal_x * vtx2.x)) - (normal_z * vtx2.z)) - colPoly->dist) / normal_y;
+                    f32 extend_1_y = (((-(normal_x * vtx1.x)) - (normal_z * vtx1.z)) - colPoly->dist) / normal_y;
+                    f32 extend_2_y = (((-(normal_x * vtx2.x)) - (normal_z * vtx2.z)) - colPoly->dist) / normal_y;
 
-                    // CitraPrint("%f %d %f %d %f %d %d", normal_x, vtx1.x, normal_y, vtx1.y, normal_z, vtx1.z, colPoly->dist);
-                    // CitraPrint("%f", extend_1_y);
+                    Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
+                    Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
+                    Vec3f v3 = (Vec3f){
+                        .x = v1.x,
+                        .y = extend_1_y,
+                        .z = v1.z,
+                    };
+                    Vec3f v4 = (Vec3f){
+                        .x = v2.x,
+                        .y = extend_2_y,
+                        .z = v2.z,
+                    };
 
-                    // Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
-                    // Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
-                    // Vec3f v3 = (Vec3f){
-                    //     .x = v1.x,
-                    //     .y = extend_1_y,
-                    //     .z = v1.z,
-                    // };
-                    // Vec3f v4 = (Vec3f){
-                    //     .x = v2.x,
-                    //     .y = extend_2_y,
-                    //     .z = v2.z,
-                    // };
+                    // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
+
+                    ColView_DrawPoly((ColViewPoly){
+                        .vA = v1,
+                        .vB = v2,
+                        .vC = v3,
+                        .norm = colPoly->norm,
+                        .color = {
+                            .r = 1.0f,
+                            .g = 1.0f,
+                            .b = 1.0f,
+                            .a = 0.50f,
+                        },
+                    });
+
+                    ColView_DrawPoly((ColViewPoly){
+                        .vA = v1,
+                        .vB = v2,
+                        .vC = v4,
+                        .norm = colPoly->norm,
+                        .color = {
+                            .r = 1.0f,
+                            .g = 1.0f,
+                            .b = 1.0f,
+                            .a = 0.50f,
+                        },
+                    });
                 }
             }
         }
