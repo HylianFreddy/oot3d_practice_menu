@@ -135,12 +135,12 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
 
                 Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
                 Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
-                Vec3f v3 = (Vec3f){
+                Vec3f v1ext = (Vec3f){
                     .x = v1.x,
                     .y = extend_1_y,
                     .z = v1.z,
                 };
-                Vec3f v4 = (Vec3f){
+                Vec3f v2ext = (Vec3f){
                     .x = v2.x,
                     .y = extend_2_y,
                     .z = v2.z,
@@ -148,10 +148,15 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
 
                 // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
 
+                // Don't draw seams that extend downwards or only a few units above the poly
+                if (extend_1_y < v1.y + 50.0 && extend_2_y < v2.y + 50.0) {
+                    continue;
+                }
+
                 ColView_DrawPoly((ColViewPoly){
                     .vA = v1,
                     .vB = v2,
-                    .vC = v3,
+                    .vC = v1ext,
                     .norm = colPoly->norm,
                     .color = {
                         .r = 1.0f,
@@ -162,9 +167,9 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
                 });
 
                 ColView_DrawPoly((ColViewPoly){
-                    .vA = v1,
-                    .vB = v2,
-                    .vC = v4,
+                    .vA = v2,
+                    .vB = v1ext,
+                    .vC = v2ext,
                     .norm = colPoly->norm,
                     .color = {
                         .r = 1.0f,
