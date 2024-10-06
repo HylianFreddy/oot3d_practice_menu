@@ -118,7 +118,7 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
         // CitraPrint("normal_y: %f", normal_y);
         // CitraPrint("poly.norm.y: %X", poly.norm.y);
         ColView_DrawPoly(ColView_GetColViewPoly(colPoly));
-        // CitraPrint("______ %X", i);
+        // CitraPrint("______");
 
         u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
         for (s32 p = 0; p < 3; p++) {
@@ -130,8 +130,8 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
             s32 edge_d_x = vtx2.x - vtx1.x;
 
             if (edge_d_z != 0 && edge_d_x != 0) {
-                f32 extend_1_y = (((-(normal_x * vtx1.x)) - (normal_z * vtx1.z)) - colPoly->dist) / normal_y;
-                f32 extend_2_y = (((-(normal_x * vtx2.x)) - (normal_z * vtx2.z)) - colPoly->dist) / normal_y;
+                f32 extend_1_y = -((normal_x * vtx1.x) + (normal_z * vtx1.z) + colPoly->dist) / normal_y;
+                f32 extend_2_y = -((normal_x * vtx2.x) + (normal_z * vtx2.z) + colPoly->dist) / normal_y;
 
                 Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
                 Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
