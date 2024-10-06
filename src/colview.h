@@ -7,7 +7,7 @@ typedef struct ColViewPoly {
     Vec3f vA;
     Vec3f vB;
     Vec3f vC;
-    Vec3s norm;
+    Vec3f norm;
     Color_RGBAf color;
 } ColViewPoly;
 
