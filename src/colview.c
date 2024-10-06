@@ -29,6 +29,7 @@ ColViewPoly createDummyPoly(void) {
             .y = 0,
             .z = 0,
         },
+        .dist = 0.0,
         .color = {
             .r = 1.0f,
             .g = 0.0f,
@@ -86,6 +87,7 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
         .vB = ColView_GetVtxPos(colPoly, 1),
         .vC = ColView_GetVtxPos(colPoly, 2),
         .norm = normal,
+        .dist = colPoly->dist,
         .color = {
             .r = 0.9 + (0.1 * normal.x),
             .g = 0.9 + (0.1 * normal.z),
@@ -93,6 +95,11 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
             .a = 0.5,
         },
     };
+}
+
+s32 ColView_IsPolyVisible(ColViewPoly poly) {
+    Vec3f eye = gGlobalContext->view.eye;
+    return poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist > 0;
 }
 
 ColViewPoly getPlayerFloorPoly(void) {
@@ -103,6 +110,7 @@ ColViewPoly getPlayerFloorPoly(void) {
         .vB = ColView_GetVtxPos(colPoly, 1),
         .vC = ColView_GetVtxPos(colPoly, 2),
         .norm = ColView_GetNormal(colPoly),
+        .dist = colPoly->dist,
         .color = {
             .r = 1.0f,
             .g = 1.0f,
@@ -126,7 +134,7 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     if (normal.y > EPSILON_OOT3D && normal.y < EPSILON_OOT) {
         // CitraPrint("normal.y: %f", normal.y);
         // CitraPrint("poly.norm.y: %X", poly.norm.y);
-        ColView_DrawPoly(ColView_GetColViewPoly(colPoly));
+        // ColView_DrawPoly(ColView_GetColViewPoly(colPoly));
         // CitraPrint("______");
 
         u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
@@ -199,8 +207,12 @@ void ColView_DrawAllFromNode(SSNode node) {
         // CitraPrint("node.next: %X", node.next);
 
         CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId];
-        ColView_DrawPoly(ColView_GetColViewPoly(colPoly));
-        // ColView_DrawPolyForInvisibleSeam(colPoly);
+
+        ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
+        if (ColView_IsPolyVisible(viewPoly)) {
+            ColView_DrawPoly(viewPoly);
+        }
+        ColView_DrawPolyForInvisibleSeam(colPoly);
 
         node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
         i++;
@@ -223,7 +235,9 @@ void ColView_DrawCollision(void) {
     // CitraPrint("numPolygons: %X", gGlobalContext->colCtx.stat.colHeader->numPolygons);
 
     ColViewPoly dummyPoly = createDummyPoly();
-    ColView_DrawPoly(dummyPoly);
+    if (ColView_IsPolyVisible(dummyPoly)) {
+        ColView_DrawPoly(dummyPoly);
+    }
 
     // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
     //     ColView_DrawPolyForInvisibleSeam(&gGlobalContext->colCtx.stat.colHeader->polyList[i]);
