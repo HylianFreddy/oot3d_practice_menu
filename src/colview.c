@@ -51,9 +51,7 @@ Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     };
 }
 
-ColViewPoly getColPolyData(u32 id) {
-    CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[id];
-
+ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
     // CitraPrint("");
     // if (rInputCtx.cur.zr) {
     //     memoryEditorAddress = (u32)colPoly;
@@ -107,77 +105,74 @@ static void ColView_DrawPoly(ColViewPoly poly) {
     Collider_DrawPolyImpl((void*)0x5c1858, &poly.vA, &poly.vB, &poly.vC, &poly.color);
 }
 
-static void ColView_DrawPolysForInvisibleSeams(void) {
+static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     const f32 EPSILON_OOT3D = 0.00008;
     const f32 EPSILON_OOT = 0.008;
     Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
 
-    for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
-        CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[i];
-        f32 normal_x = colPoly->norm.x * (1.0 / 32767.0);
-        f32 normal_y = colPoly->norm.y * (1.0 / 32767.0);
-        f32 normal_z = colPoly->norm.z * (1.0 / 32767.0);
+    f32 normal_x = colPoly->norm.x * (1.0 / 32767.0);
+    f32 normal_y = colPoly->norm.y * (1.0 / 32767.0);
+    f32 normal_z = colPoly->norm.z * (1.0 / 32767.0);
 
-        if (normal_y > EPSILON_OOT3D && normal_y < EPSILON_OOT) {
-            // CitraPrint("normal_y: %f", normal_y);
-            // CitraPrint("poly.norm.y: %X", poly.norm.y);
-            ColView_DrawPoly(getColPolyData(i));
-            // CitraPrint("______ %X", i);
+    if (normal_y > EPSILON_OOT3D && normal_y < EPSILON_OOT) {
+        // CitraPrint("normal_y: %f", normal_y);
+        // CitraPrint("poly.norm.y: %X", poly.norm.y);
+        ColView_DrawPoly(ColView_GetColViewPoly(colPoly));
+        // CitraPrint("______ %X", i);
 
-            u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
-            for (s32 p = 0; p < 3; p++) {
-                u8* pair = pairs[p];
-                Vec3s vtx1 = vtxList[colPoly->vtxData[pair[0] & 0x1FFF]];
-                Vec3s vtx2 = vtxList[colPoly->vtxData[pair[1] & 0x1FFF]];
+        u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
+        for (s32 p = 0; p < 3; p++) {
+            u8* pair = pairs[p];
+            Vec3s vtx1 = vtxList[colPoly->vtxData[pair[0] & 0x1FFF]];
+            Vec3s vtx2 = vtxList[colPoly->vtxData[pair[1] & 0x1FFF]];
 
-                s32 edge_d_z = vtx2.z - vtx1.z;
-                s32 edge_d_x = vtx2.x - vtx1.x;
+            s32 edge_d_z = vtx2.z - vtx1.z;
+            s32 edge_d_x = vtx2.x - vtx1.x;
 
-                if (edge_d_z != 0 && edge_d_x != 0) {
-                    f32 extend_1_y = (((-(normal_x * vtx1.x)) - (normal_z * vtx1.z)) - colPoly->dist) / normal_y;
-                    f32 extend_2_y = (((-(normal_x * vtx2.x)) - (normal_z * vtx2.z)) - colPoly->dist) / normal_y;
+            if (edge_d_z != 0 && edge_d_x != 0) {
+                f32 extend_1_y = (((-(normal_x * vtx1.x)) - (normal_z * vtx1.z)) - colPoly->dist) / normal_y;
+                f32 extend_2_y = (((-(normal_x * vtx2.x)) - (normal_z * vtx2.z)) - colPoly->dist) / normal_y;
 
-                    Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
-                    Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
-                    Vec3f v3 = (Vec3f){
-                        .x = v1.x,
-                        .y = extend_1_y,
-                        .z = v1.z,
-                    };
-                    Vec3f v4 = (Vec3f){
-                        .x = v2.x,
-                        .y = extend_2_y,
-                        .z = v2.z,
-                    };
+                Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
+                Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
+                Vec3f v3 = (Vec3f){
+                    .x = v1.x,
+                    .y = extend_1_y,
+                    .z = v1.z,
+                };
+                Vec3f v4 = (Vec3f){
+                    .x = v2.x,
+                    .y = extend_2_y,
+                    .z = v2.z,
+                };
 
-                    // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
+                // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
 
-                    ColView_DrawPoly((ColViewPoly){
-                        .vA = v1,
-                        .vB = v2,
-                        .vC = v3,
-                        .norm = colPoly->norm,
-                        .color = {
-                            .r = 1.0f,
-                            .g = 1.0f,
-                            .b = 1.0f,
-                            .a = 0.50f,
-                        },
-                    });
+                ColView_DrawPoly((ColViewPoly){
+                    .vA = v1,
+                    .vB = v2,
+                    .vC = v3,
+                    .norm = colPoly->norm,
+                    .color = {
+                        .r = 1.0f,
+                        .g = 0.0f,
+                        .b = 1.0f,
+                        .a = 0.50f,
+                    },
+                });
 
-                    ColView_DrawPoly((ColViewPoly){
-                        .vA = v1,
-                        .vB = v2,
-                        .vC = v4,
-                        .norm = colPoly->norm,
-                        .color = {
-                            .r = 1.0f,
-                            .g = 1.0f,
-                            .b = 1.0f,
-                            .a = 0.50f,
-                        },
-                    });
-                }
+                ColView_DrawPoly((ColViewPoly){
+                    .vA = v1,
+                    .vB = v2,
+                    .vC = v4,
+                    .norm = colPoly->norm,
+                    .color = {
+                        .r = 1.0f,
+                        .g = 0.0f,
+                        .b = 1.0f,
+                        .a = 0.50f,
+                    },
+                });
             }
         }
     }
@@ -189,8 +184,9 @@ void ColView_DrawAllFromNode(SSNode node) {
         // CitraPrint("node.polyId: %X", node.polyId);
         // CitraPrint("node.next: %X", node.next);
 
-        ColViewPoly poly = getColPolyData(node.polyId);
-        ColView_DrawPoly(poly);
+        CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId];
+        // ColView_DrawPoly(ColView_GetColViewPoly(colPoly));
+        ColView_DrawPolyForInvisibleSeam(colPoly);
 
         node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
         i++;
@@ -215,8 +211,10 @@ void ColView_DrawCollision(void) {
     ColViewPoly dummyPoly = createDummyPoly();
     ColView_DrawPoly(dummyPoly);
 
-    ColView_DrawPolysForInvisibleSeams();
-    return;
+    // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
+    //     ColView_DrawPolyForInvisibleSeam(&gGlobalContext->colCtx.stat.colHeader->polyList[i]);
+    // }
+    // return;
 
     if (PLAYER->actor.floorPoly != 0) {
         // ColView_DrawPoly(getPlayerFloorPoly());
