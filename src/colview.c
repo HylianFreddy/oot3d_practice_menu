@@ -121,6 +121,7 @@ ColViewPoly getPlayerFloorPoly(void) {
 }
 
 static void ColView_DrawPoly(ColViewPoly poly) {
+    // max count is 64 polys
     Collider_DrawPolyImpl((void*)0x5c1858, &poly.vA, &poly.vB, &poly.vC, &poly.color);
 }
 
