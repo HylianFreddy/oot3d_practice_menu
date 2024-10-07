@@ -236,9 +236,7 @@ void ColView_DrawCollision(void) {
     // CitraPrint("numPolygons: %X", gGlobalContext->colCtx.stat.colHeader->numPolygons);
 
     ColViewPoly dummyPoly = createDummyPoly();
-    if (ColView_IsPolyVisible(dummyPoly)) {
-        ColView_DrawPoly(dummyPoly);
-    }
+    ColView_DrawPoly(dummyPoly);
 
     // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
     //     ColView_DrawPolyForInvisibleSeam(&gGlobalContext->colCtx.stat.colHeader->polyList[i]);
