@@ -89,9 +89,9 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
         .norm = normal,
         .dist = colPoly->dist,
         .color = {
-            .r = 0.9 + (0.1 * normal.x),
-            .g = 0.9 + (0.1 * normal.z),
-            .b = 0.9 + (0.1 * normal.y), // floors -> high y normal
+            .r = 0.7 - 0.1*normal.y + 0.2*normal.z,
+            .g = 1.0 - 0.2*ABS(normal.y),
+            .b = 0.7 + 0.1*normal.y + 0.2*normal.z,
             .a = 0.5,
         },
     };
