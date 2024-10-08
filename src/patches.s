@@ -124,3 +124,9 @@ CameraUpdate_patch:
 
 .section .patch_collisionF
     bl hook_collisionF
+
+.section .patch_color
+    mov r1,#0x1
+
+.section .patch_ColTest
+    bx lr

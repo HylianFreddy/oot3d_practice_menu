@@ -4,10 +4,38 @@
 #include "menus.h"
 #include "input.h"
 #include "menus/debug.h"
+#include <math.h>
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
+typedef struct Sub32A0_10 {
+    void* unk_00;
+    void* unk_04;
+    void* unk_08;
+    void* unk_0C;
+    void* unk_10;
+    void* unk_14;
+    void* unk_18;
+    void* unk_1C;
+    char unk_20[0x15C];
+    Color_RGBAf colors[6];
+} Sub32A0_10;
+
+typedef struct PArr {
+    Sub32A0_10* arr[1000];
+} PArr;
+
+typedef struct Sub32A0 {
+    char unk_00[0xC];
+    s16 polyCounter;
+    s16 polyMax;
+    PArr* arr10;
+    void* (*arr14)[];
+} Sub32A0;
+
 ColViewPoly createDummyPoly(void) {
+    // u32 fakeFloat = 0x7f700001;
+    // f32 bigFloat = *(f32*)&fakeFloat;
     return (ColViewPoly){
         .vA = {
             .x=-25.0f,
@@ -235,8 +263,17 @@ void ColView_DrawCollision(void) {
     // ColView_Lookup = &gGlobalContext->colCtx.stat.lookupTbl[lookupIndex];
     // CitraPrint("numPolygons: %X", gGlobalContext->colCtx.stat.colHeader->numPolygons);
 
+    // Sub32A0* s = (Sub32A0*)0x5c1858;
+
     ColViewPoly dummyPoly = createDummyPoly();
     ColView_DrawPoly(dummyPoly);
+
+    // s->arr10->arr[s->polyCounter - 1]->unk_00 = (void*)0;
+    // s->arr10->arr[s->polyCounter - 1]->colors[1].a = 0;
+
+    // CitraPrint("s->polyCounter: %d", s->polyCounter);
+
+    // return;
 
     // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
     //     ColView_DrawPolyForInvisibleSeam(&gGlobalContext->colCtx.stat.colHeader->polyList[i]);

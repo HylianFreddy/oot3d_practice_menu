@@ -16,6 +16,14 @@ SECTIONS
 	    * (.patch_collisionF)
 	}
 
+	/* .patch_color 0x2c5860 : {
+	    * (.patch_color)
+	} */
+
+	/* .patch_ColTest 0x02fad2c : {
+	    * (.patch_ColTest)
+	} */
+
 	.patch_CameraUpdate 0x2D84C8 : {
 	    * (.patch_CameraUpdate)
 	}
