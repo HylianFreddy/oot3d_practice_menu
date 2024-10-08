@@ -69,10 +69,7 @@ ColViewPoly createDummyPoly(void) {
 
 Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
-    u16 vtxIdx = colPoly->vtxData[polyVtxId];
-    if (polyVtxId <= 2) {
-        vtxIdx &= 0x1FFF; // See CollisionPoly_GetVertices from decomp
-    }
+    u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF;
     return (Vec3f){
         .x=(f32)(vtxList[vtxIdx].x),
         .y=(f32)(vtxList[vtxIdx].y),
