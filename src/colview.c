@@ -70,11 +70,18 @@ ColViewPoly createDummyPoly(void) {
 Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
     u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF;
-    return (Vec3f){
+    Vec3f pos = {
         .x=(f32)(vtxList[vtxIdx].x),
         .y=(f32)(vtxList[vtxIdx].y),
         .z=(f32)(vtxList[vtxIdx].z),
     };
+    if (!gStaticContext.renderGeometryDisable) {
+        // try to avoid z-fighting issues
+        pos.x += ((colPoly->norm.x > 0) ? 0.002 : -0.002);
+        pos.y += ((colPoly->norm.y > 0) ? 0.002 : -0.002);
+        pos.z += ((colPoly->norm.z > 0) ? 0.002 : -0.002);
+    }
+    return pos;
 }
 
 Vec3f ColView_GetNormal(CollisionPoly* colPoly) {
