@@ -292,6 +292,10 @@ void ColView_DrawCollision(void) {
     // Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
     // subdivCount = v.x * v.y * v.z;
 
+    if (ColView_Lookup == 0) {
+        return;
+    }
+
     u16 floorIndex, wallIndex, ceilingIndex;
     floorIndex = ColView_Lookup->floor.head;
     wallIndex = ColView_Lookup->wall.head;
