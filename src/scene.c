@@ -5,6 +5,7 @@
 #include "common.h"
 #include "input.h"
 #include "camera.h"
+#include "colview.h"
 
 u8 noClip = 0;
 u8 waitingButtonRelease = 0;
@@ -12,12 +13,13 @@ u8 haltActors = 0;
 
 static s32 selectedRoomNumber = -1;
 
-static Menu CollisionMenu = {
+static ToggleMenu CollisionMenu = {
     "Collision",
-    .nbItems = 1,
+    .nbItems = 2,
     .initialCursorPos = 0,
     {
-        {"TODO Placeholder", METHOD, .method = NULL}, //TODO: Collision options
+        {0, "Show Static Collision (WIP)", .method = Scene_ToggleCollisionOption},
+        {0, "Show Colliders", .method = Scene_ToggleCollisionOption},
     }
 };
 
@@ -74,11 +76,29 @@ Menu SceneMenu = {
         {"Set Flags", METHOD, .method = Scene_SetFlags},
         {"Clear Flags", METHOD, .method = Scene_ClearFlags},
         {"Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow},
-        {"Collision (TODO)", MENU, .menu = &CollisionMenu},
+        {"Collision", METHOD, .method = Scene_CollisionMenuShow},
         {"Free Camera", MENU, .menu = &FreeCamMenu},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
     }
 };
+
+void Scene_CollisionMenuShow(void) {
+    CollisionMenu.items[COLVIEW_STATIC_COLLISION].on = ColView_Active;
+    CollisionMenu.items[COLVIEW_COLLIDERS].on = gStaticContext.collisionDisplay;
+    ToggleMenuShow(&CollisionMenu);
+}
+
+void Scene_ToggleCollisionOption(s32 selected) {
+    CollisionMenu.items[selected].on ^= 1;
+    switch (selected) {
+        case COLVIEW_STATIC_COLLISION:
+            ColView_Active ^= 1;
+            break;
+        case COLVIEW_COLLIDERS:
+            gStaticContext.collisionDisplay ^= 1;
+            break;
+    }
+}
 
 void Scene_SetEntrancePoint(void) {
     gSaveContext.respawn[0] = (RespawnData){

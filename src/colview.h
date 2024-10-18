@@ -12,6 +12,8 @@ typedef struct ColViewPoly {
     Color_RGBAf color;
 } ColViewPoly;
 
+extern s32 ColView_Active;
+
 void ColView_DrawCollision(void);
 
 #endif // _COLVIEW_H_

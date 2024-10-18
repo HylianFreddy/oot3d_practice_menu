@@ -21,6 +21,11 @@ enum RoomSelectorOptions {
     ROOMSELECTOR_LOAD,
 };
 
+enum ColViewOptions {
+    COLVIEW_STATIC_COLLISION,
+    COLVIEW_COLLIDERS,
+};
+
 extern Menu SceneMenu;
 extern ToggleMenu HideEntitiesMenu;
 
@@ -31,6 +36,7 @@ extern u8 haltActors;
 extern void Scene_RoomSelectorMenuShow(void);
 extern void Scene_HideEntitiesMenuShow(void);
 extern void Scene_FreeCamSettingsMenuShow(void);
+extern void Scene_CollisionMenuShow(void);
 
 extern void Scene_SetEntrancePoint(void);
 extern void Scene_SelectRoomNumber(void);
@@ -43,3 +49,4 @@ extern void Scene_FreeCamDescription(void);
 extern void Scene_ToggleFreeCamSetting(s32 selected);
 extern void Scene_HideRoomsToggle(s32 selected);
 extern void Scene_HideActorsToggle(s32 selected);
+extern void Scene_ToggleCollisionOption(s32 selected);

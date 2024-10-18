@@ -33,6 +33,8 @@ typedef struct Sub32A0 {
     void* (*arr14)[];
 } Sub32A0;
 
+s32 ColView_Active = 0;
+
 ColViewPoly createDummyPoly(void) {
     // u32 fakeFloat = 0x7f700001;
     // f32 bigFloat = *(f32*)&fakeFloat;
@@ -257,6 +259,9 @@ void ColView_DrawAllFromNode(SSNode node) {
 StaticLookup* ColView_Lookup;
 // static s32 sceneId = -1;
 void ColView_DrawCollision(void) {
+    if (!ColView_Active) {
+        return;
+    }
     // if (rInputCtx.cur.zr || ColView_Lookup == 0) { // || sceneId != gGlobalContext->sceneNum
     //     return;
     // }
