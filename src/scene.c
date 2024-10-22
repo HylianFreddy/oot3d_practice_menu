@@ -123,6 +123,10 @@ void Scene_SelectRoomNumber(void) {
 }
 
 void Scene_LoadRoom(void) {
+#if Version_KOR || Version_TWN
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
     if (selectedRoomNumber == gGlobalContext->roomCtx.curRoom.num) {
         setAlert("Already loaded", 90);
         return;

@@ -68,8 +68,9 @@ void Equips_ModifyGear(s32 selected){
         }
     }
 
+#if !Version_KOR && !Version_TWN
     Player_SetEquipmentData(gGlobalContext, PLAYER);
-
+#endif
 }
 
 AmountMenu EquipsMenu = {
