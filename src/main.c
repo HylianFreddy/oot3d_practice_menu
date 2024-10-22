@@ -346,9 +346,7 @@ bool onMenuLoop(void) {
 };
 
 void autoLoadSaveFile(void) {
-    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 &&
-        rInputCtx.cur.l && rInputCtx.cur.r) {
-
+    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 && shouldAutoloadSavefile) {
         Load_Savefiles_Buffer();
         FileSelect_LoadGame(&gGlobalContext->state, 0);
         if (gSaveContext.saveCount > 0) {
@@ -375,5 +373,5 @@ void autoLoadSaveFile(void) {
 // While holding ZL, a frame will only be drawn every 20 update cycles.
 s32 checkFastForward(void) {
     static u32 updateCycleCounter = 0;
-    return rInputCtx.cur.zl && (++updateCycleCounter % 20 != 0);
+    return shouldFastForward && (++updateCycleCounter % 20 != 0);
 }

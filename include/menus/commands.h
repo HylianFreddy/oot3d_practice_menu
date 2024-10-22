@@ -36,6 +36,8 @@ typedef enum {
     COMMAND_BREAK,
     COMMAND_NOCLIP,
     COMMAND_FREECAM,
+    COMMAND_AUTOLOAD_SAVEFILE,
+    COMMAND_FAST_FORWARD,
     NUMBER_OF_COMMANDS,
 } commandNames;
 
@@ -66,3 +68,5 @@ extern u32 pauseUnpause;
 extern u32 frameAdvance;
 extern PosRot storedPosRot[STORED_POS_COUNT];
 extern u32 commandInit;
+extern u32 shouldAutoloadSavefile;
+extern u32 shouldFastForward;
