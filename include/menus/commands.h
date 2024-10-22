@@ -4,6 +4,8 @@
 #include "z3D/z3D.h"
 
 #define COMMAND_COMBO_MAX 4
+#define COMMAND_BUTTON_NAME_LENGTH 4
+#define COMMAND_COMBO_STRING_SIZE (COMMAND_COMBO_MAX * COMMAND_BUTTON_NAME_LENGTH)
 #define COMMAND_COMBO_TIMEOUT 3
 #define COMMAND_MENU_MAX_SHOW 17
 #define STORED_POS_COUNT 9
@@ -58,7 +60,7 @@ extern Command commandList[NUMBER_OF_COMMANDS];
 
 void Commands_ShowCommandsMenu(void);
 void Command_UpdateCommands(u32 inputs);
-void Commands_ComboToString(char* buf, u32 commandIdx);
+void Commands_ComboToString(char buf[COMMAND_COMBO_STRING_SIZE], u32 commandIdx);
 
 extern u32 pauseUnpause;
 extern u32 frameAdvance;

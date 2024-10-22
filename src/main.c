@@ -200,9 +200,9 @@ static void titleScreenDisplay(void) {
     Draw_DrawCenteredStringTop(25, COLOR_WHITE, COMMIT_STRING);
     Draw_FlushFramebufferTop();
 
-    char menuComboString[COMMAND_COMBO_MAX + 1] = {0};
-    Commands_ComboToString(menuComboString, 0);
-    Draw_DrawFormattedString(150, 0, COLOR_WHITE, menuComboString);
+    char menuComboString[COMMAND_COMBO_STRING_SIZE];
+    Commands_ComboToString(menuComboString, COMMAND_OPEN_MENU);
+    Draw_DrawCenteredStringBottom(0, COLOR_WHITE, menuComboString);
     Draw_FlushFramebuffer();
 }
 
