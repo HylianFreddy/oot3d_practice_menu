@@ -68,8 +68,8 @@ SECTIONS
 		*(.patch_GameButtonInputs)
 	}
 
-	.patch_ItemUsability_Shield 0x42E2C8 : {
-		*(.patch_ItemUsability_Shield)
+	.patch_ItemUsability_AnyAction 0x42E51C : {
+		*(.patch_ItemUsability_AnyAction)
 	}
 
 	.patch_LoadGame 0x447358 : {
@@ -92,8 +92,8 @@ SECTIONS
 		*(.patch_Actor_UpdateAll)
 	}
 
-	.patch_ItemUsability 0x476CF4 : {
-		*(.patch_ItemUsability)
+	.patch_ItemUsability_AnyArea 0x47629C : {
+		*(.patch_ItemUsability_AnyArea)
 	}
 
 	.patch_TurboTextAdvance 0x480900 : {

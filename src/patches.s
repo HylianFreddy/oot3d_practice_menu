@@ -70,15 +70,11 @@ InstantTextBoxBreak_patch:
 InstantTextRemoveOff_patch:
     b hook_InstantTextRemoveOff
 
-.section .patch_ItemUsability
-.global ItemUsability_patch
-ItemUsability_patch:
-    bl hook_ItemUsability
+.section .patch_ItemUsability_AnyArea
+    bl hook_ItemUsability_AnyArea
 
-.section .patch_ItemUsability_Shield
-.global ItemUsabilityShield_patch
-ItemUsabilityShield_patch:
-    bl hook_ItemUsability_Shield
+.section .patch_ItemUsability_AnyAction
+    bl hook_ItemUsability_AnyAction
 
 .section .patch_SleepQueryCallback
 .global SleepQueryCallback_patch

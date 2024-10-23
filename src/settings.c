@@ -51,7 +51,6 @@ void Settings_InitExtSaveData(void) {
     memset(&gExtSaveData, 0, sizeof(gExtSaveData));
     gExtSaveData.version = EXTSAVEDATA_VERSION; // Do not change this line
     memcpy(gExtSaveData.cheats, cheats, sizeof(cheats));
-    gExtSaveData.cheatForcedUsableItems = forcedUsableItems;
     memcpy(gExtSaveData.commands, commandList, sizeof(commandList));
     memcpy(gExtSaveData.watches, watches, sizeof(watches));
     gExtSaveData.info.memAddrs.globalCtx = gGlobalContext;
@@ -62,7 +61,6 @@ void Settings_InitExtSaveData(void) {
 // copies saved values to the menu structs
 void Settings_ApplyExtSaveData(void) {
     memcpy(cheats, gExtSaveData.cheats, sizeof(cheats));
-    forcedUsableItems = gExtSaveData.cheatForcedUsableItems;
     for (u32 i = 0; i < NUMBER_OF_COMMANDS; i++) {
         commandList[i].comboLen = gExtSaveData.commands[i].comboLen;
         memcpy(commandList[i].inputs, gExtSaveData.commands[i].inputs, sizeof(gExtSaveData.commands[i].inputs));

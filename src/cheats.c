@@ -7,14 +7,12 @@
 #define SEQ_AUDIO_BLANK 0x1000142
 
 u8 cheats[NUMBER_OF_CHEATS] = {0};
-u8 forcedUsableItems = 0;
 u16 frozenTime = 0;
 
 void Cheats_CheatsMenuInit() {
     for (int i = 0; i < NUMBER_OF_CHEATS; i++) {
         CheatsMenu.items[i].on = cheats[i];
     }
-    if (forcedUsableItems) CheatsMenu.items[CHEATS_USABLE_ITEMS].title = "Unrestricted Items - Forced mode ON";
 };
 
 void Cheats_ShowCheatsMenu(){
@@ -27,15 +25,6 @@ void Cheats_Toggle(s32 selected){
     CheatsMenu.items[selected].on = !CheatsMenu.items[selected].on;
 
     switch (selected) {
-        case (CHEATS_USABLE_ITEMS):
-            if (ADDITIONAL_FLAG_BUTTON) {
-                forcedUsableItems = 1;
-                CheatsMenu.items[CHEATS_USABLE_ITEMS].title = "Unrestricted Items - Forced mode ON";
-            } else {
-                forcedUsableItems = 0;
-                CheatsMenu.items[CHEATS_USABLE_ITEMS].title = "Unrestricted Items - Forced mode OFF";
-            }
-            break;
         case (CHEATS_FREEZE_TIME):
             frozenTime = gSaveContext.dayTime;
             break;
@@ -67,7 +56,8 @@ ToggleMenu CheatsMenu = {
         {0, "Infinite Nayru's Love", .method = Cheats_Toggle},
         {0, "Freeze time of day", .method = Cheats_Toggle},
         {0, "No music", .method = Cheats_Toggle},
-        {0, "Unrestricted Items - Forced mode OFF", .method = Cheats_Toggle},
+        {0, "Items usable in any area", .method = Cheats_Toggle},
+        {0, "Items usable at all times", .method = Cheats_Toggle},
         {0, "ISG", .method = Cheats_Toggle},
         {0, "Turbo Text", .method = Cheats_Toggle},
         {0, "Skip Songs Playback", .method = Cheats_Toggle},
@@ -134,9 +124,6 @@ void applyCheats() {
     if(cheats[CHEATS_ISG] && isInGame()) {
         PLAYER->meleeWeaponState = 1;
     }
-    if(forcedUsableItems && isInGame()) {
-        Cheats_UsableItems();
-    }
     if(cheats[CHEATS_SKIP_SONGS_PLAYBACK] && isInGame()) {
         // msgModes 18 to 23 are used to manage the song replays. Skipping to mode 23 ends the replay.
         // msgMode 18 starts the playback music. It can't be skipped for scarecrow's song (song "12") because it spawns Pierre.
@@ -162,25 +149,26 @@ u32 Cheats_IsTurboText() {
     return (cheats[CHEATS_QUICK_TEXT] && rInputCtx.cur.b);
 }
 
-void Cheats_UsableItems() {
-    // Leave restriction for states that disable buttons.
-    if (!cheats[CHEATS_USABLE_ITEMS] || (!forcedUsableItems &&
-        (gSaveContext.eventInf[0] & 0x1 ||  // Ingo's Minigame state
-        PLAYER->stateFlags1 & 0x08A02000 || // Swimming, riding horse, Down A, hanging from a ledge
-        PLAYER->stateFlags2 & 0x00040000))  // Blank A
-        // Shielding, spinning and getting skull tokens still disable buttons automatically
-        ) {
-        return;
+void* Cheats_GetFakeItemRestrictions() {
+    static u8 emptyRestrictions[12] = { 0 };
+
+    if (cheats[CHEATS_USABLE_ITEMS_NORMAL]) {
+        return &emptyRestrictions;
     }
 
-    for (int i = 1; i < 5; i++) {
-        gSaveContext.buttonStatus[i] = BTN_ENABLED;
-    }
-    gSaveContext.ocarinaButtonStatus = BTN_ENABLED;
+    return 0;
 }
 
-u32 Cheats_areItemsForcedUsable() {
-    return cheats[CHEATS_USABLE_ITEMS] && forcedUsableItems;
+void Cheats_ForceUsableItems() {
+    if (cheats[CHEATS_USABLE_ITEMS_FORCED]) {
+        if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+            gSaveContext.buttonStatus[0] = BTN_ENABLED;;
+        }
+        for (int i = 1; i < 5; i++) {
+            gSaveContext.buttonStatus[i] = BTN_ENABLED;
+        }
+        gSaveContext.ocarinaButtonStatus = BTN_ENABLED;
+    }
 }
 
 u32 Cheats_ShouldFixBlackScreen() {

@@ -72,8 +72,7 @@ typedef struct ExtInfo {
 typedef struct {
     u32      version;
     u8       cheats[32];
-    u8       cheatForcedUsableItems;
-    char     padding[3];
+    char     padding[4];
     Command  commands[32];
     Watch    watches[30];
     ExtInfo  info;

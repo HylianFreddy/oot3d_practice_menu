@@ -180,23 +180,30 @@ hook_TurboTextSignalNPC:
     movne r4,#0x1
     bx lr
 
-.global hook_ItemUsability
-hook_ItemUsability:
-    push {r0-r12, lr}
-    bl Cheats_UsableItems
-    pop {r0-r12, lr}
-    add sp,sp,#0x14
+.global hook_ItemUsability_AnyArea
+hook_ItemUsability_AnyArea:
+@ R11 is InterfaceContext, used after this hook
+@ only to get the restriction flags.
+@ If the cheat is active, the function will
+@ return an array of empty restriction flags.
+@ Forge R11 so that when the game tries to access
+@ the flags, it finds the empty array instead.
+@ Don't store R0 because it's overwritten below anyway.
+    push {r1-r12, lr}
+    bl Cheats_GetFakeItemRestrictions
+    cmp r0,#0x0
+    pop {r1-r12, lr}
+    subne r0,r0,#0x200
+    subne r11,r0,#0x9E
+    ldrb r0,[r11,#0x29F]
     bx lr
 
-.global hook_ItemUsability_Shield
-hook_ItemUsability_Shield:
+.global hook_ItemUsability_AnyAction
+hook_ItemUsability_AnyAction:
     push {r0-r12, lr}
-    bl Cheats_areItemsForcedUsable
-    cmp r0,#0x0
+    bl Cheats_ForceUsableItems
     pop {r0-r12, lr}
-    addne lr,lr,#0xE8
-    bxne lr
-    cmp r0,#0x0
+    cmp r7,#0x0
     bx lr
 
 .global hook_Gfx_SleepQueryCallback
