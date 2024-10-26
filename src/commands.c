@@ -298,11 +298,6 @@ static void Commands_ListInitDefaults(void){
     commandList[COMMAND_BREAK].inputs[3] = BUTTON_Y | BUTTON_X | BUTTON_B | BUTTON_A;
     commandList[COMMAND_BREAK].strict = 0;
 
-    commandList[COMMAND_AUTOLOAD_SAVEFILE].comboLen = 2;
-    commandList[COMMAND_AUTOLOAD_SAVEFILE].inputs[0] = BUTTON_L1;
-    commandList[COMMAND_AUTOLOAD_SAVEFILE].inputs[1] = BUTTON_L1 | BUTTON_R1;
-    commandList[COMMAND_AUTOLOAD_SAVEFILE].strict = 0;
-
     commandList[COMMAND_FAST_FORWARD].comboLen = 1;
     commandList[COMMAND_FAST_FORWARD].inputs[0] = BUTTON_ZL;
     commandList[COMMAND_FAST_FORWARD].strict = 0;
