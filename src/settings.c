@@ -4,6 +4,8 @@
 #include "common.h"
 #include <string.h>
 
+static void Settings_AlertProfileLoad(WatchUpdateResult res);
+
 ExtSaveData gExtSaveData;
 u8 selectedProfile = 0;
 
@@ -54,7 +56,7 @@ void Settings_InitExtSaveData(void) {
     memcpy(gExtSaveData.commands, commandList, sizeof(commandList));
     memcpy(gExtSaveData.watches, watches, sizeof(watches));
     gExtSaveData.info.memAddrs.globalCtx = gGlobalContext;
-    gExtSaveData.info.memAddrs.actorHeap = gActorHeapAddress;
+    gExtSaveData.info.memAddrs.actorHeap = gStoredActorHeapAddress;
     gExtSaveData.info.region = CURRENT_REGION;
 }
 
@@ -103,7 +105,7 @@ void Settings_LoadExtSaveData(void) {
     Handle fileHandle;
 
     if (R_FAILED(res = extDataMount(&fsa))) {
-        setAlert("Failed to load! ", 90);
+        setAlert("Failed to load ext data!", 120);
         return;
     }
 
@@ -111,7 +113,7 @@ void Settings_LoadExtSaveData(void) {
 
     if (R_FAILED(res = extDataOpen(&fileHandle, fsa, path))) {
         extDataUnmount(fsa);
-        setAlert("Failed to load! ", 90);
+        setAlert("No profile to load", 120);
         return;
     }
 
@@ -119,7 +121,7 @@ void Settings_LoadExtSaveData(void) {
     if (version != EXTSAVEDATA_VERSION) {
         extDataClose(fileHandle);
         extDataUnmount(fsa);
-        setAlert("Failed to load! ", 90);
+        setAlert("Wrong profile version!", 120);
         return;
     }
 
@@ -132,20 +134,23 @@ void Settings_LoadExtSaveData(void) {
 
     if (gInit && ToggleSettingsMenu.items[TOGGLESETTINGS_UPDATE_WATCHES].on) {
         Settings_UpdateWatchAddresses();
+    } else {
+        Settings_AlertProfileLoad(WATCHUPDATE_NONE);
     }
-
-    char* alert = "Profile X loaded";
-    alert[8] = selectedProfile + '0';
-    setAlert(alert, 90);
 }
 
 void Settings_UpdateWatchAddresses(void) {
     if (gExtSaveData.info.region == REGION_UNDEFINED) {
-        setAlert("Cannot verify watches", 90);
+        // Show the alert only if there are saved watches.
+        for (u32 i = 0; i < WATCHES_MAX; i++) {
+            if (watches[i].addr != NULL) {
+                Settings_AlertProfileLoad(WATCHUPDATE_FAILED);
+            }
+        }
         return;
     }
     bool updated = false;
-    s32 actorHeapOffset = gActorHeapAddress - gExtSaveData.info.memAddrs.actorHeap;
+    s32 actorHeapOffset = gStoredActorHeapAddress - gExtSaveData.info.memAddrs.actorHeap;
     s32 globalCtxOffset = (void*)gGlobalContext - gExtSaveData.info.memAddrs.globalCtx;
     for (int i = 0; i < WATCHES_MAX; i++) {
         #define watchAddr watches[i].addr
@@ -179,8 +184,21 @@ void Settings_UpdateWatchAddresses(void) {
     }
 
     if (updated) {
-        setAlert("Watches updated", 90);
+        Settings_AlertProfileLoad(WATCHUPDATE_SUCCESS);
     }
+}
+
+static void Settings_AlertProfileLoad(WatchUpdateResult res) {
+    static char* messages[3] = {
+        "Profile X loaded",
+        "Profile X loaded, watches updated",
+        "Profile X loaded, cannot verify watches",
+    };
+
+    char* alert = messages[res];
+    alert[8] = selectedProfile + '0';
+    u32 alertFrames = (res == WATCHUPDATE_NONE ? 90 : 120);
+    setAlert(alert, alertFrames);
 }
 
 // This function is called when loading a save file.

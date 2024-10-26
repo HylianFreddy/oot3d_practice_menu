@@ -602,6 +602,7 @@ typedef struct MainClass {
 } MainClass;
 
 extern GlobalContext* gGlobalContext;
+extern void* gStoredActorHeapAddress;
 extern const u32 ItemSlots[];
 extern const char DungeonNames[][25];
 

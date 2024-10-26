@@ -291,9 +291,6 @@ static void Watches_DrawWatch(Watch watch, u32 color) {
         return;
     }
 
-    #define DrawThisWatchWithFormat(format, type) \
-        (Draw_DrawFormattedString(watch.posX, watch.posY, color, "%s: "format, watch.name, *(type*)watch.addr))
-
     // Skip attempting to draw the address if it would otherwise be an invalid read.
     // Attempting to read these locations would crash the game.
     const MemInfo address_info = query_memory_permissions((int)watch.addr);
@@ -301,6 +298,9 @@ static void Watches_DrawWatch(Watch watch, u32 color) {
         Draw_DrawFormattedString(watch.posX, watch.posY, color, "%s: Invalid address", watch.name);
         return;
     }
+
+    #define DrawThisWatchWithFormat(format, type) \
+        (Draw_DrawFormattedString(watch.posX, watch.posY, color, "%s: "format, watch.name, *(type*)watch.addr))
 
     switch(watch.type) {
         case(WATCHTYPE_S8):

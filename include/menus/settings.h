@@ -57,6 +57,12 @@ typedef enum {
     NUMBER_OF_TOGGLE_SETTINGS,
 } ToggleSettings;
 
+typedef enum WatchUpdateResult {
+    WATCHUPDATE_NONE,
+    WATCHUPDATE_SUCCESS,
+    WATCHUPDATE_FAILED,
+} WatchUpdateResult;
+
 typedef struct MemAddrs {
     void* globalCtx;
     void* actorHeap;

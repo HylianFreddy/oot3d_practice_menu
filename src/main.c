@@ -30,22 +30,21 @@ uint8_t practice_menu_init = 0;
 static bool isAsleep = false;
 static u32 sAlertFrames = 0;
 static char* sAlertMessage = "";
+static u32 sAlertPosX;
 bool menuOpen = false;
 
 GlobalContext* gGlobalContext;
+void* gStoredActorHeapAddress;
 u8 gInit = 0;
 
 void autoLoadSaveFile(void);
 void NoClip_Update(void);
 
-void setGlobalContext(GlobalContext* globalContext) {
-    gGlobalContext = globalContext;
-}
-
 // Called once for every update on the `PlayState` GameState.
 void before_GlobalContext_Update(GlobalContext* globalCtx) {
     if (!gInit) {
-        setGlobalContext(globalCtx);
+        gGlobalContext = globalCtx;
+        gStoredActorHeapAddress = gActorHeapAddress;
         Actor_Init();
         irrstInit();
         if (ToggleSettingsMenu.items[TOGGLESETTINGS_UPDATE_WATCHES].on) {
@@ -99,14 +98,18 @@ void setAlert(char* alertMessage, u32 alertFrames) {
         return;
     }
 
-    Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, "%*s", strlen(sAlertMessage), "");
+    // Clear old message if present
+    Draw_DrawFormattedStringTop(sAlertPosX, 220, COLOR_WHITE, "%*s", strlen(sAlertMessage), "");
+
+    u32 newLen = strlen(alertMessage);
+    sAlertPosX = newLen <= 20 ? 280 : (SCREEN_TOP_WIDTH - newLen * SPACING_X);
     sAlertMessage = alertMessage;
     sAlertFrames = alertFrames;
 }
 
 void drawAlert(void) {
     if (sAlertFrames > 0) {
-        Draw_DrawStringTop(280, 220, COLOR_WHITE, sAlertMessage);
+        Draw_DrawStringTop(sAlertPosX, 220, COLOR_WHITE, sAlertMessage);
         Draw_FlushFramebufferTop();
         sAlertFrames--;
     } else if (strlen(sAlertMessage) > 0) {
