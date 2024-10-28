@@ -165,7 +165,7 @@ $(BUILD):
 	@$(TOPDIR)/write_commit_string.sh
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@python patch.py $(OUTPUT).elf
+	@python patch.py $(OUTPUT).elf $(REGION) $(citra)
 
 #---------------------------------------------------------------------------------
 clean:

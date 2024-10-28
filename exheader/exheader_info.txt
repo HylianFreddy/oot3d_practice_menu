@@ -1,0 +1,17 @@
+These templates are modified versions of the game's vanilla exheader, with the edits listed below. When building the patch, one additional change is applied to the size of the data/bss sections (see patch.py).
+
+Edits to USA exheader template:
+- text section size, at 0x18, changed from 0x003C99A8 to 0x003CA000
+- service access controls in first ACI, starts at 0x250, appended "ir:rst" at 0x328
+- service access controls in second ACI, starts at 0x650, appended "ir:rst" at 0x728
+- kernel capabilities descriptors, starts at 0x370, inserted "\x00\x00\x01\xF4" at 0x37C, shifting data until 0x39F
+
+EUR and JPN versions work with the USA exheader, even though the original file stores the title id in a couple of places, and can have some other differences like SDApplication flag and AccessDesc signature.
+
+
+Edits to KOR exheader template:
+- text section size, at 0x18, changed from 0x3CF2C4 to 0x3D0000
+- service access controls in first ACI, starts at 0x250, appended "ir:rst" at 0x330
+- service access controls in second ACI, starts at 0x650, appended "ir:rst" at 0x730
+
+TWN version works with KOR exheader.

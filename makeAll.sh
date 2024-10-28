@@ -8,7 +8,9 @@ build_patch() {
     make -j12 REGION=$REGION citra=$IS_EMU
     echo Moving to "$PATCH_PATH"
     mkdir -p "$PATCH_PATH"
-    mv code.ips "$PATCH_PATH"
+    mv -v code.ips "$PATCH_PATH"
+    mv -v exheader.bin "$PATCH_PATH"
+    echo
 }
 
 REGIONS=(USA EUR JPN KOR TWN)
