@@ -46,25 +46,20 @@ IS_TWN      := 0
 REGION      := USA
 
 ifeq ($(REGION), USA)
-  LINK_SCRIPT 	:= oot.ld
   IS_USA := 1
-endif
-ifeq ($(REGION), JPN)
-  LINK_SCRIPT 	:= oot_j.ld
+else ifeq ($(REGION), JPN)
   IS_JPN := 1
-endif
-ifeq ($(REGION), EUR)
-  LINK_SCRIPT 	:= oot_e.ld
+else ifeq ($(REGION), EUR)
   IS_EUR := 1
-endif
-ifeq ($(REGION), KOR)
-  LINK_SCRIPT 	:= oot_k.ld
+else ifeq ($(REGION), KOR)
   IS_KOR := 1
-endif
-ifeq ($(REGION), TWN)
-  LINK_SCRIPT 	:= oot_t.ld
+else ifeq ($(REGION), TWN)
   IS_TWN := 1
+else
+  $(error "Invalid region!")
 endif
+
+LINK_SCRIPT	:= linker_scripts/$(REGION).ld
 
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=softfp -mtp=soft -mfpu=vfpv2
 
