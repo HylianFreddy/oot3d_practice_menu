@@ -4,37 +4,14 @@ ENTRY(loader_patch)
 SECTIONS
 {
 	. = 0x100000;
-	.patch_loader 0x100000 : {
-		*(.patch_loader)
-	}
-
-	.patch_before_GameState_Loop 0x100444 : {
-		*(.patch_before_GameState_Loop)
-	}
-
-	.patch_after_GameState_Update 0x1004A0 : {
-		*(.patch_after_GameState_Update)
-	}
-
-	.patch_GameButtonInputs 0x104DE4 : {
-		*(.patch_GameButtonInputs)
-	}
-
-	.patch_before_GlobalContext_Update 0x13A2C8 : {
-		*(.patch_before_GlobalContext_Update)
-	}
-
-	.patch_after_GlobalContext_Update 0x13A320 : {
-		*(.patch_after_GlobalContext_Update)
-	}
-
-	.patch_Actor_UpdateAll 0x148D34 : {
-		*(.patch_Actor_UpdateAll)
-	}
-
-	.patch_Gfx_Update 0x311CA8 : {
-		*(.patch_Gfx_Update)
-	}
+	.patch_loader 0x100000 : {}
+	.patch_before_GameState_Loop 0x100444 : {}
+	.patch_after_GameState_Update 0x1004A0 : {}
+	.patch_GameButtonInputs 0x104DE4 : {}
+	.patch_before_GlobalContext_Update 0x13A2C8 : {}
+	.patch_after_GlobalContext_Update 0x13A320 : {}
+	.patch_Actor_UpdateAll 0x148D34 : {}
+	.patch_Gfx_Update 0x311CA8 : {}
 
 	. = 0x4CF3C4;
 	. = ALIGN(4);

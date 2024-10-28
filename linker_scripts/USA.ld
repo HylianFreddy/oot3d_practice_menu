@@ -4,109 +4,32 @@ ENTRY(loader_patch)
 SECTIONS
 {
 	. = 0x100000;
-	.patch_loader 0x100000 : {
-		*(.patch_loader)
-	}
-
-	.patch_CameraUpdate 0x2D84C8 : {
-	    * (.patch_CameraUpdate)
-	}
-
-	.patch_InstantTextFirstLine 0x2E049C : {
-		*(.patch_InstantTextFirstLine)
-	}
-
-	.patch_InstantTextBoxBreak 0x2E0664 : {
-		*(.patch_InstantTextBoxBreak)
-	}
-
-	.patch_InstantTextRemoveOff 0x2E06C8 : {
-		*(.patch_InstantTextRemoveOff)
-	}
-
-	.patch_ActorDrawContext 0x2E2CDC: {
-	    * (.patch_ActorDrawContext)
-	}
-
-	.patch_BlackScreenFix 0x2E2F48 : {
-	    * (.patch_BlackScreenFix)
-	}
-
-	.patch_Gfx_Update 0x310254 : {
-		*(.patch_Gfx_Update)
-	}
-
-	.patch_SetBGMEntrance 0x331048 : {
-		*(.patch_SetBGMEntrance)
-	}
-
-	.patch_TurboTextSignalNPC 0x3469F4 : {
-		*(.patch_TurboTextSignalNPC)
-	}
-
-	.patch_PlaySound 0x35C528 : {
-		*(.patch_PlaySound)
-	}
-
-	.patch_SetBGMEvent 0x36EC40 : {
-		*(.patch_SetBGMEvent)
-	}
-
-	.patch_SleepQueryCallback 0x3FD6C4 : {
-		*(.patch_SleepQueryCallback)
-	}
-
-	.patch_before_GameState_Loop 0x416340 : {
-		*(.patch_before_GameState_Loop)
-	}
-
-	.patch_after_GameState_Update 0x416398 : {
-		*(.patch_after_GameState_Update)
-	}
-
-	.patch_GameButtonInputs 0x41ABD4 : {
-		*(.patch_GameButtonInputs)
-	}
-
-	.patch_ItemUsability_AnyAction 0x42E544 : {
-		*(.patch_ItemUsability_AnyAction)
-	}
-
-	.patch_LoadGame 0x447380 : {
-		*(.patch_LoadGame)
-	}
-
-	.patch_OverrideSceneSetup 0x4487B8 : {
-		*(.patch_OverrideSceneSetup)
-	}
-
-	.patch_before_GlobalContext_Update 0x452390 : {
-		*(.patch_before_GlobalContext_Update)
-	}
-
-	.patch_after_GlobalContext_Update 0x452434 : {
-		*(.patch_after_GlobalContext_Update)
-	}
-
-	.patch_Actor_UpdateAll 0x461328 : {
-		*(.patch_Actor_UpdateAll)
-	}
-
-	.patch_ItemUsability_AnyArea 0x4762C4 : {
-		*(.patch_ItemUsability_AnyArea)
-	}
-
-	.patch_TurboTextAdvance 0x480928 : {
-		*(.patch_TurboTextAdvance)
-	}
-
-	.patch_SetBGMDayNight 0x483C88 : {
-		*(.patch_SetBGMDayNight)
-	}
-
-	.patch_TurboTextClose 0x488214 : {
-		*(.patch_TurboTextClose)
-	}
+	.patch_loader 0x100000 : {}
+	.patch_CameraUpdate 0x2D84C8 : {}
+	.patch_InstantTextFirstLine 0x2E049C : {}
+	.patch_InstantTextBoxBreak 0x2E0664 : {}
+	.patch_InstantTextRemoveOff 0x2E06C8 : {}
+	.patch_ActorDrawContext 0x2E2CDC: {}
+	.patch_BlackScreenFix 0x2E2F48 : {}
+	.patch_Gfx_Update 0x310254 : {}
+	.patch_SetBGMEntrance 0x331048 : {}
+	.patch_TurboTextSignalNPC 0x3469F4 : {}
+	.patch_PlaySound 0x35C528 : {}
+	.patch_SetBGMEvent 0x36EC40 : {}
+	.patch_SleepQueryCallback 0x3FD6C4 : {}
+	.patch_before_GameState_Loop 0x416340 : {}
+	.patch_after_GameState_Update 0x416398 : {}
+	.patch_GameButtonInputs 0x41ABD4 : {}
+	.patch_ItemUsability_AnyAction 0x42E544 : {}
+	.patch_LoadGame 0x447380 : {}
+	.patch_OverrideSceneSetup 0x4487B8 : {}
+	.patch_before_GlobalContext_Update 0x452390 : {}
+	.patch_after_GlobalContext_Update 0x452434 : {}
+	.patch_Actor_UpdateAll 0x461328 : {}
+	.patch_ItemUsability_AnyArea 0x4762C4 : {}
+	.patch_TurboTextAdvance 0x480928 : {}
+	.patch_SetBGMDayNight 0x483C88 : {}
+	.patch_TurboTextClose 0x488214 : {}
 
 	. = 0x4C99A8;
 	. = ALIGN(4);
