@@ -11,6 +11,7 @@ SECTIONS
 	.patch_InstantTextRemoveOff 0x2DF648 : {}
 	.patch_ActorDrawContext 0x2E27F4: {}
 	.patch_BlackScreenFix 0x2E2A60 : {}
+	.patch_HaltActors 0x2E3ACC : {}
 	.patch_Gfx_Update 0x30FD6C : {}
 	.patch_SetBGMEntrance 0x330B60 : {}
 	.patch_TurboTextSignalNPC 0x34650C : {}
@@ -25,7 +26,6 @@ SECTIONS
 	.patch_OverrideSceneSetup 0x448790 : {}
 	.patch_before_GlobalContext_Update 0x452368 : {}
 	.patch_after_GlobalContext_Update 0x45240C : {}
-	.patch_Actor_UpdateAll 0x461300 : {}
 	.patch_ItemUsability_AnyArea 0x47629C : {}
 	.patch_TurboTextAdvance 0x480900 : {}
 	.patch_SetBGMDayNight 0x483C60 : {}

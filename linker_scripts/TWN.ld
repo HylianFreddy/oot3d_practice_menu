@@ -10,7 +10,8 @@ SECTIONS
 	.patch_GameButtonInputs 0x104DE4 : {}
 	.patch_before_GlobalContext_Update 0x13A2C8 : {}
 	.patch_after_GlobalContext_Update 0x13A320 : {}
-	.patch_Actor_UpdateAll 0x148D34 : {}
+	.patch_ActorDrawContext 0x2FC894: {}
+	.patch_HaltActors 0x2FDD24 : {}
 	.patch_Gfx_Update 0x311CA8 : {}
 
 	. = 0x4CF3C4;

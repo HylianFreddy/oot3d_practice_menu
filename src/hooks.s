@@ -240,18 +240,25 @@ hook_CameraUpdate:
     bxeq lr
     ldmia sp!,{r4-r11,pc}
 
-.global hook_Actor_UpdateAll
-hook_Actor_UpdateAll:
+.global hook_HaltActors
+hook_HaltActors:
     push {r0-r12,lr}
     bl Scene_HaltActorsEnabled
     cmp r0,#0x0
     pop {r0-r12,lr}
-.if (_KOR_ || _TWN_)
-    moveq r7,#0x0
-.else
-    moveq r9,#0x0
+.if (_USA_ || _EUR_)
+    bne 0x2E4090
 .endif
-    popne {r0,r1,r4-r11,lr}
+.if (_JPN_)
+    bne 0x2E3BA8
+.endif
+.if (_KOR_)
+    bne 0x2FDD08
+.endif
+.if (_TWN_)
+    bne 0x2FDE08
+.endif
+    cmp r0,#0x0
     bx lr
 
 .global hook_before_GameState_Loop
@@ -292,6 +299,13 @@ hook_BlackScreenFix:
     push {r0-r12, lr}
     bl Cheats_ShouldFixBlackScreen
     cmp r0,#0x1
+    pop {r0-r12, lr}
+    bx lr
+
+.global hook_ActorDrawContext
+hook_ActorDrawContext:
+    push {r0-r12, lr}
+    bl Actor_rDrawContext
     pop {r0-r12, lr}
     bx lr
 

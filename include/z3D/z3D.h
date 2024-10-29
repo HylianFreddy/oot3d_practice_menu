@@ -595,11 +595,32 @@ typedef struct SubMainClass_180 {
     /* ... size unknown*/
 } SubMainClass_180;
 
+// This struct contains data related to the built-in Collision Display
+typedef struct SubMainClass_32A0 {
+    /* 0x00 */ char unk_00[0x4];
+    /* 0x04 */ s16 saModelCount; // 3D sphere and cylinder models
+    /* 0x06 */ s16 saModelMax;
+    /* 0x08 */ char unk_08[0x4];
+    /* 0x0C */ s16 polyCounter; // 2D quad models
+    /* 0x0E */ s16 polyMax;
+    /* 0x10 */ void*(*arr_10)[]; // pointer to array of pointers
+    /* 0x14 */ void*(*arr_14)[]; // pointer to array of pointers
+    /* 0x18 */ char unk_18[0x8];
+} SubMainClass_32A0;
+_Static_assert(sizeof(SubMainClass_32A0) == 0x20, "SubMainClass_32A0 size");
+
 typedef struct MainClass {
-    /* 0x000 */ char unk_00[0x180];
-    /* 0x180 */ SubMainClass_180 sub180;
+    /* 0x0000 */ char unk_00[0x180];
+    /* 0x0180 */ SubMainClass_180 sub180;
+    /* 0x01A8 */ char unk_1A8[0x30F8];
+#if Version_KOR || Version_TWN
+    /* 0x???? */ char unk_kor_twn[0x4]; // the stuff below is 4 bytes ahead on KOR/TWN
+#endif
+    /* 0x32A0 */ SubMainClass_32A0 sub32A0;
     /* ... size unknown*/
 } MainClass;
+#define MAIN_CLASS_TEMP_SIZE (0x32C0 + (Version_KOR || Version_TWN) * 4)
+_Static_assert(sizeof(MainClass) == MAIN_CLASS_TEMP_SIZE, "MainClass size");
 
 extern GlobalContext* gGlobalContext;
 extern void* gStoredActorHeapAddress;
@@ -619,18 +640,19 @@ extern const char DungeonNames[][25];
 #define gDrawItemTable ((DrawItemTableEntry*)0x4D88C8)
 #define gRestrictionFlags ((RestrictionFlags*)0x539DC4)
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
-#define gMainClass ((MainClass*)0x5BE5B8)
 
 #if Version_KOR || Version_TWN
     #define gSaveContext (*(SaveContext*)0x595FD0)
     #define ControlStick_X (*(f32*)0x573C38)
     #define ControlStick_Y (*(f32*)0x573C3C)
     #define gActorHeapAddress (*(void**)0x5B14B4)
+    #define gMainClass ((MainClass*)0x5C5AA4)
 #else
     #define gSaveContext (*(SaveContext*)0x587958)
     #define ControlStick_X (*(f32*)0x5655C0)
     #define ControlStick_Y (*(f32*)0x5655C4)
     #define gActorHeapAddress (*(void**)0x5A2E3C)
+    #define gMainClass ((MainClass*)0x5BE5B8)
 #endif
 
 typedef enum {
@@ -776,6 +798,10 @@ typedef void (*Actor_DrawContext_proc)(GlobalContext*, ActorContext*);
     #define Actor_DrawContext_addr 0x461904
 #elif Version_JPN
     #define Actor_DrawContext_addr 0x4618BC
+#elif Version_KOR
+    #define Actor_DrawContext_addr 0x1491C4
+#elif Version_TWN
+    #define Actor_DrawContext_addr 0x14929C
 #else // Version_USA
     #define Actor_DrawContext_addr 0x4618E4
 #endif
@@ -786,6 +812,10 @@ typedef void (*CollisionCheck_DrawCollision_proc)(GlobalContext*, CollisionCheck
     #define CollisionCheck_DrawCollision_addr 0x47CAEC
 #elif Version_JPN
     #define CollisionCheck_DrawCollision_addr 0x47CAA4
+#elif Version_KOR
+    #define CollisionCheck_DrawCollision_addr 0x15E6AC
+#elif Version_TWN
+    #define CollisionCheck_DrawCollision_addr 0x15E784
 #else // Version_USA
     #define CollisionCheck_DrawCollision_addr 0x47CACC
 #endif

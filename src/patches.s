@@ -62,8 +62,8 @@ loader_patch:
 .section .patch_CameraUpdate
     bl hook_CameraUpdate
 
-.section .patch_Actor_UpdateAll
-    bl hook_Actor_UpdateAll
+.section .patch_HaltActors
+    bl hook_HaltActors
 
 .section .patch_before_GameState_Loop
     bl hook_before_GameState_Loop
@@ -72,7 +72,7 @@ loader_patch:
     bl hook_after_GameState_Update
 
 .section .patch_ActorDrawContext
-    bl Actor_rDrawContext
+    bl hook_ActorDrawContext
 
 .section .patch_BlackScreenFix
     bl hook_BlackScreenFix
