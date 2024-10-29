@@ -194,7 +194,15 @@ static void Command_FreeCam(void){
         FreeCam_Toggle();
     } else if (freeCam.locked) {
         FreeCam_ToggleLock();
+    } else {
+        return;
     }
+
+    if (advance_ctx.advance_state == PAUSED) {
+        // Unpause automatically when entering FreeCam
+        pauseUnpause = 1;
+    }
+
     waitingButtonRelease = 1;
 }
 

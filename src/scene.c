@@ -5,6 +5,8 @@
 #include "common.h"
 #include "input.h"
 #include "camera.h"
+#include "advance.h"
+#include "menus/commands.h"
 
 u8 noClip = 0;
 u8 waitingButtonRelease = 0;
@@ -166,6 +168,10 @@ void Scene_NoClipToggle(void) {
         if (!noClip) {
             haltActors = 1;
             noClip = 1;
+            if (advance_ctx.advance_state == PAUSED) {
+                // Unpause automatically when entering NoClip
+                pauseUnpause = 1;
+            }
         }
         else {
             haltActors = 0;
