@@ -237,6 +237,7 @@ void Scene_FreeCamDescription(void) {
                                         "C Stick      - Rotate while moving\n"
                                         "DPad Up/Down - Move vertically\n"
                                         "Hold X       - Move fast\n"
+                                        "Y            - Freeze/Unfreeze non-player actors\n"
                                         "A            - Quit and lock camera in place\n"
                                         "B            - Quit and disable Free Camera");
     Draw_FlushFramebuffer();

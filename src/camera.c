@@ -167,6 +167,8 @@ static void FreeCam_Move(void) {
             FreeCam_Toggle();
         } else if (in & BUTTON_A) {
             FreeCam_ToggleLock();
+        } else if (rInputCtx.pressed.val & BUTTON_Y) {
+            haltActors ^= 1;
         }
     }
 }
