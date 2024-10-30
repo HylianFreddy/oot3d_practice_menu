@@ -136,6 +136,52 @@ s32 ColView_IsPolyVisible(ColViewPoly poly) {
     return poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist > 0;
 }
 
+#define MAX_PLANE_DIST 200
+#define MAX_VERT_DIST 200
+s32 ColView_IsPolyCloseToLink(ColViewPoly poly) {
+    Vec3f pos = PLAYER->actor.world.pos;
+    s32 planeCheck = ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) < MAX_PLANE_DIST;
+
+    s32 distCheckX;
+    s32 distCheckY;
+    s32 distCheckZ;
+
+    f32 vAxDiff = poly.vA.x - PLAYER->actor.world.pos.x;
+    f32 vBxDiff = poly.vB.x - PLAYER->actor.world.pos.x;
+    f32 vCxDiff = poly.vC.x - PLAYER->actor.world.pos.x;
+
+    if ((vAxDiff < 0 && vBxDiff < 0 && vCxDiff < 0) ||
+        (vAxDiff > 0 && vBxDiff > 0 && vCxDiff > 0)) {
+        distCheckX = (MIN(MIN(ABS(vAxDiff), ABS(vBxDiff)), ABS(vCxDiff)) < MAX_VERT_DIST);
+    } else {
+        distCheckX = 1;
+    }
+
+    f32 vAyDiff = poly.vA.y - PLAYER->actor.world.pos.y;
+    f32 vByDiff = poly.vB.y - PLAYER->actor.world.pos.y;
+    f32 vCyDiff = poly.vC.y - PLAYER->actor.world.pos.y;
+
+    if ((vAyDiff < 0 && vByDiff < 0 && vCyDiff < 0) ||
+        (vAyDiff > 0 && vByDiff > 0 && vCyDiff > 0)) {
+        distCheckY = (MIN(MIN(ABS(vAyDiff), ABS(vByDiff)), ABS(vCyDiff)) < MAX_VERT_DIST);
+    } else {
+        distCheckY = 1;
+    }
+
+    f32 vAzDiff = poly.vA.z - PLAYER->actor.world.pos.z;
+    f32 vBzDiff = poly.vB.z - PLAYER->actor.world.pos.z;
+    f32 vCzDiff = poly.vC.z - PLAYER->actor.world.pos.z;
+
+    if ((vAzDiff < 0 && vBzDiff < 0 && vCzDiff < 0) ||
+        (vAzDiff > 0 && vBzDiff > 0 && vCzDiff > 0)) {
+        distCheckZ = (MIN(MIN(ABS(vAzDiff), ABS(vBzDiff)), ABS(vCzDiff)) < MAX_VERT_DIST);
+    } else {
+        distCheckZ = 1;
+    }
+
+    return planeCheck && distCheckX && distCheckY && distCheckZ;
+}
+
 ColViewPoly getPlayerFloorPoly(void) {
     CollisionPoly* colPoly = PLAYER->actor.floorPoly;
 
@@ -235,19 +281,24 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     }
 }
 
+void ColView_DrawFromCollPolyId(s16 polyId, s32 invSeam) {
+    CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[polyId];
+    ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
+    if (ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
+        ColView_DrawPoly(viewPoly);
+    }
+    if (invSeam) {
+        ColView_DrawPolyForInvisibleSeam(colPoly);
+    }
+}
+
 void ColView_DrawAllFromNode(SSNode node) {
     u16 i = 0;
     while (node.next != 0xFFFF) {
         // CitraPrint("node.polyId: %X", node.polyId);
         // CitraPrint("node.next: %X", node.next);
 
-        CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId];
-
-        ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
-        if (ColView_IsPolyVisible(viewPoly)) {
-            ColView_DrawPoly(viewPoly);
-        }
-        ColView_DrawPolyForInvisibleSeam(colPoly);
+        ColView_DrawFromCollPolyId(node.polyId, 0);
 
         node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
         i++;
@@ -284,10 +335,10 @@ void ColView_DrawCollision(void) {
 
     // return;
 
-    // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
-    //     ColView_DrawPolyForInvisibleSeam(&gGlobalContext->colCtx.stat.colHeader->polyList[i]);
-    // }
-    // return;
+    for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
+        ColView_DrawFromCollPolyId(i, 0);
+    }
+    return;
 
     if (PLAYER->actor.floorPoly != 0) {
         // ColView_DrawPoly(getPlayerFloorPoly());

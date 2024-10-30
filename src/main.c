@@ -64,12 +64,12 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
     }
     NoClip_Update();
     FreeCam_Update();
-    ColView_DrawCollision();
-    ColView_Lookup = 0;
 }
 
 // Called after the `PlayState` draw function.
 void after_Play_Draw() {
+    ColView_DrawCollision();
+    ColView_Lookup = 0;
     // gMainClass->sub180.saModelsList1[1].saModel->unk_14->cmbManager = 0;
 }
 
