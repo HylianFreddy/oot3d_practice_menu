@@ -124,19 +124,21 @@ static void DebugActors_ShowMoreInfo(Actor* actor) {
 
     do
     {
+        s32 lines = 0;
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Actor Details");
-        Draw_DrawFormattedString(30, 30, COLOR_WHITE, "ID:              %04X", actor->id);
-        Draw_DrawFormattedString(30, 30 + SPACING_Y, COLOR_WHITE, "Type:            %s", ActorTypeNames[actor->type]);
-        Draw_DrawFormattedString(30, 30 + 2 * SPACING_Y, COLOR_WHITE, "Params:          %04X", actor->params & 0xFFFF);
-        Draw_DrawFormattedString(30, 30 + 3 * SPACING_Y, COLOR_WHITE, "Pos:             x:%05.2f  y:%05.2f  z:%05.2f", actor->world.pos.x, actor->world.pos.y, actor->world.pos.z);
-        Draw_DrawFormattedString(30, 30 + 4 * SPACING_Y, COLOR_WHITE, "Rot:             x:%04X  y:%04X  z:%04X", actor->world.rot.x & 0xFFFF, actor->world.rot.y & 0xFFFF, actor->world.rot.z & 0xFFFF);
-        Draw_DrawFormattedString(30, 30 + 5 * SPACING_Y, COLOR_WHITE, "Vel:             x:%05.2f  y:%05.2f  z:%05.2f", actor->velocity.x, actor->velocity.y, actor->velocity.z);
-        Draw_DrawFormattedString(30, 30 + 6 * SPACING_Y, COLOR_WHITE, "Floor:           %08X", actor->floorPoly);
-        Draw_DrawFormattedString(30, 30 + 7 * SPACING_Y, COLOR_WHITE, "Dist. from Link: xz:%05.2f  y:%05.2f", actor->xzDistToPlayer, actor->yDistToPlayer);
-        Draw_DrawFormattedString(30, 30 + 8 * SPACING_Y, COLOR_WHITE, "Text ID:         %04X", actor->textId & 0xFFFF);
-        Draw_DrawFormattedString(30, 30 + 9 * SPACING_Y, COLOR_WHITE, "Parent:          %08X", actor->parent);
-        Draw_DrawFormattedString(30, 30 + 10 * SPACING_Y, COLOR_WHITE, "Child:           %08X", actor->child);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "ID:              %04X", actor->id);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Type:            %s", ActorTypeNames[actor->type]);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Params:          %04X", actor->params & 0xFFFF);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Pos:             x:%05.2f  y:%05.2f  z:%05.2f", actor->world.pos.x, actor->world.pos.y, actor->world.pos.z);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Rot:             x:%04X  y:%04X  z:%04X", actor->world.rot.x & 0xFFFF, actor->world.rot.y & 0xFFFF, actor->world.rot.z & 0xFFFF);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Velocity:        x:%05.2f  y:%05.2f  z:%05.2f", actor->velocity.x, actor->velocity.y, actor->velocity.z);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Speed:           %05.2f", actor->speedXZ);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Floor:           %08X", actor->floorPoly);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Dist. from Link: xz:%05.2f  y:%05.2f", actor->xzDistToPlayer, actor->yDistToPlayer);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Text ID:         %04X", actor->textId & 0xFFFF);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Parent:          %08X", actor->parent);
+        Draw_DrawFormattedString(30, 30 + SPACING_Y * lines++, COLOR_WHITE, "Child:           %08X", actor->child);
 
         Draw_DrawString(10, SCREEN_BOT_HEIGHT - 40, COLOR_TITLE, "Press Y to open Memory Editor");
         Draw_DrawString(10, SCREEN_BOT_HEIGHT - 30, COLOR_TITLE, "Press START to bring this actor to Link");

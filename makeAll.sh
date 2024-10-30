@@ -1,29 +1,23 @@
-make clean
-make -j12 REGION=EUR
-echo Moving to ./Patch Files/EUR/3DS/code.ips
-mv code.ips "./Patch Files/EUR/3DS/code.ips"
+build_patch() {
+    REGION=$1
+    IS_EMU=$2
+    PLATFORM=$([ $IS_EMU -eq 0 ] && echo "3DS" || echo "Citra")
+    PATCH_PATH="./patch_files/$PLATFORM/$REGION/"
 
-make clean
-make -j12 REGION=EUR citra=1
-echo Moving to ./Patch Files/EUR/Citra/code.ips
-mv code.ips "./Patch Files/EUR/Citra/code.ips"
+    make clean
+    make -j12 REGION=$REGION citra=$IS_EMU
+    echo Moving to "$PATCH_PATH"
+    mkdir -p "$PATCH_PATH"
+    mv -v code.ips "$PATCH_PATH"
+    mv -v exheader.bin "$PATCH_PATH"
+    echo
+}
 
-make clean
-make -j12 REGION=JPN
-echo Moving to ./Patch Files/JP/3DS/code.ips
-mv code.ips "./Patch Files/JP/3DS/code.ips"
+REGIONS=(USA EUR JPN KOR TWN)
+EMU_FLAGS=(0 1)
 
-make clean
-make -j12 REGION=JPN citra=1
-echo Moving to ./Patch Files/JP/Citra/code.ips
-mv code.ips "./Patch Files/JP/Citra/code.ips"
-
-make clean
-make -j12 REGION=USA citra=1
-echo Moving to ./Patch Files/USA/Citra/code.ips
-mv code.ips "./Patch Files/USA/Citra/code.ips"
-
-make clean
-make -j12 REGION=USA
-echo Moving to ./Patch Files/USA/3DS/code.ips
-mv code.ips "./Patch Files/USA/3DS/code.ips"
+for REGION in ${REGIONS[@]}; do
+  for EMU_FLAG in ${EMU_FLAGS[@]}; do
+    build_patch $REGION $EMU_FLAG
+  done
+done

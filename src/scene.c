@@ -5,6 +5,8 @@
 #include "common.h"
 #include "input.h"
 #include "camera.h"
+#include "advance.h"
+#include "menus/commands.h"
 #include "colview.h"
 
 u8 noClip = 0;
@@ -38,8 +40,8 @@ static Menu FreeCamMenu = {
     .nbItems = 2,
     .initialCursorPos = 0,
     {
-        {"Info", METHOD, .method = Scene_FreeCamDescription},
         {"Settings", METHOD, .method = Scene_FreeCamSettingsMenuShow},
+        {"Info", METHOD, .method = Scene_FreeCamDescription},
     }
 };
 
@@ -143,6 +145,10 @@ void Scene_SelectRoomNumber(void) {
 }
 
 void Scene_LoadRoom(void) {
+#if Version_KOR || Version_TWN
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
     if (selectedRoomNumber == gGlobalContext->roomCtx.curRoom.num) {
         setAlert("Already loaded", 90);
         return;
@@ -182,6 +188,10 @@ void Scene_NoClipToggle(void) {
         if (!noClip) {
             haltActors = 1;
             noClip = 1;
+            if (advance_ctx.advance_state == PAUSED) {
+                // Unpause automatically when entering NoClip
+                pauseUnpause = 1;
+            }
         }
         else {
             haltActors = 0;
@@ -247,6 +257,7 @@ void Scene_FreeCamDescription(void) {
                                         "C Stick      - Rotate while moving\n"
                                         "DPad Up/Down - Move vertically\n"
                                         "Hold X       - Move fast\n"
+                                        "Y            - Freeze/Unfreeze non-player actors\n"
                                         "A            - Quit and lock camera in place\n"
                                         "B            - Quit and disable Free Camera");
     Draw_FlushFramebuffer();

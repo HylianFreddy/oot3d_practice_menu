@@ -30,6 +30,8 @@
 #include "3ds/types.h"
 #include "3ds/gfx.h"
 
+#include <string.h>
+
 #define FB_BOTTOM_VRAM_ADDR         ((void *)0x1F48F000) // cached
 #define FB_BOTTOM_VRAM_PA           0x1848F000
 #define FB_BOTTOM_SIZE              (320 * 240 * 3)
@@ -66,7 +68,9 @@ void Draw_DrawCharacterTop(u32 posX, u32 posY, u32 color, char character);
 u32 Draw_DrawStringTop(u32 posX, u32 posY, u32 color, const char *string);
 u32 Draw_DrawFormattedStringTop(u32 posX, u32 posY, u32 color, const char *fmt, ...);
 #define Draw_DrawCenteredStringTop(posY, color, string) \
-    Draw_DrawStringTop(SCREEN_TOP_WIDTH / 2 - SPACING_X * (sizeof(string) - 1) / 2, posY, color, string);
+    Draw_DrawStringTop(SCREEN_TOP_WIDTH / 2 - SPACING_X * (strlen(string) - 1) / 2, posY, color, string);
+#define Draw_DrawCenteredStringBottom(posY, color, string) \
+    Draw_DrawString(SCREEN_BOT_WIDTH / 2 - SPACING_X * (strlen(string) - 1) / 2, posY, color, string);
 
 void Draw_FillFramebuffer(u32 value);
 void Draw_ClearFramebuffer(void);

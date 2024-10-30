@@ -1,5 +1,4 @@
 #include "input.h"
-
 #include "z3D/z3D.h"
 #include "hid.h"
 #include "3ds/svc.h"
@@ -7,7 +6,6 @@
 #include "3ds/types.h"
 
 #define HID_PAD (real_hid.pad.pads[real_hid.pad.index].curr.val)
-
 #define SCROLL_BUTTONS  (DPAD_ANY | CPAD_ANY | BUTTON_A)
 
 InputContext rInputCtx;
@@ -32,18 +30,10 @@ void Input_Update(void) {
     irrstCstickRead(&(rInputCtx.cStick));
 }
 
-u32 buttonCheck(u32 key) {
-    for (u32 i = 0x26000; i > 0; i--) {
-        if (key != real_hid.pad.pads[real_hid.pad.index].curr.val)
-            return 0;
-    }
-    return 1;
-}
-
 u32 Input_WaitWithTimeout(u32 msec) {
-    u32 pressedKey = 0;
-    u32 key = 0;
     u32 n = 0;
+
+    Input_Update(); // Record initial state of buttons to detect changes against
 
     const bool isScrollButtonPressed = (HID_PAD & SCROLL_BUTTONS) != 0;
 
@@ -56,6 +46,7 @@ u32 Input_WaitWithTimeout(u32 msec) {
             svcSleepThread(10 * 1000 * 1000LL);
         }
         scrollDelay = 0;
+        Input_Update(); // If the scroll button has been released, clear it from the current buttons
     }
     else if (isScrollButtonPressed)
     {
@@ -65,30 +56,21 @@ u32 Input_WaitWithTimeout(u32 msec) {
     }
     else
     {
-        rInputCtx.cur.val = HID_PAD;
         // Wait for a new key to be pressed in the event that up and down are not pressed.
-        while (HID_PAD <= rInputCtx.cur.val && (msec == 0 || n <= msec))
+        while (rInputCtx.pressed.val == 0 && (msec == 0 || n <= msec))
         {
             scrollDelay = 1;
-            rInputCtx.cur.val = HID_PAD;
+            Input_Update();
             svcSleepThread(1 * 1000 * 1000LL);
             n++;
         }
     }
 
-    do {
-        if (msec != 0 && n >= msec) {
-            return 0;
-        }
+    if (msec != 0 && n >= msec) {
+        return 0;
+    }
 
-        key = HID_PAD;
-
-        // Make sure it's pressed
-        pressedKey = buttonCheck(key);
-    } while (!pressedKey);
-
-    rInputCtx.cur.val = key;
-    return key;
+    return rInputCtx.cur.val;
 }
 
 u32 Input_Wait(void) {

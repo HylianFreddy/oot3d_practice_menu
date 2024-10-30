@@ -185,23 +185,30 @@ hook_TurboTextSignalNPC:
     movne r4,#0x1
     bx lr
 
-.global hook_ItemUsability
-hook_ItemUsability:
-    push {r0-r12, lr}
-    bl Cheats_UsableItems
-    pop {r0-r12, lr}
-    add sp,sp,#0x14
+.global hook_ItemUsability_AnyArea
+hook_ItemUsability_AnyArea:
+@ R11 is InterfaceContext, used after this hook
+@ only to get the restriction flags.
+@ If the cheat is active, the function will
+@ return an array of empty restriction flags.
+@ Forge R11 so that when the game tries to access
+@ the flags, it finds the empty array instead.
+@ Don't store R0 because it's overwritten below anyway.
+    push {r1-r12, lr}
+    bl Cheats_GetFakeItemRestrictions
+    cmp r0,#0x0
+    pop {r1-r12, lr}
+    subne r0,r0,#0x200
+    subne r11,r0,#0x9E
+    ldrb r0,[r11,#0x29F]
     bx lr
 
-.global hook_ItemUsability_Shield
-hook_ItemUsability_Shield:
+.global hook_ItemUsability_AnyAction
+hook_ItemUsability_AnyAction:
     push {r0-r12, lr}
-    bl Cheats_areItemsForcedUsable
-    cmp r0,#0x0
+    bl Cheats_ForceUsableItems
     pop {r0-r12, lr}
-    addne lr,lr,#0xE8
-    bxne lr
-    cmp r0,#0x0
+    cmp r7,#0x0
     bx lr
 
 .global hook_Gfx_SleepQueryCallback
@@ -238,18 +245,25 @@ hook_CameraUpdate:
     bxeq lr
     ldmia sp!,{r4-r11,pc}
 
-.global hook_Actor_UpdateAll
-hook_Actor_UpdateAll:
+.global hook_HaltActors
+hook_HaltActors:
     push {r0-r12,lr}
     bl Scene_HaltActorsEnabled
     cmp r0,#0x0
     pop {r0-r12,lr}
-.if (_KOR_ || _TWN_)
-    moveq r7,#0x0
-.else
-    moveq r9,#0x0
+.if (_USA_ || _EUR_)
+    bne 0x2E4090
 .endif
-    popne {r0,r1,r4-r11,lr}
+.if (_JPN_)
+    bne 0x2E3BA8
+.endif
+.if (_KOR_)
+    bne 0x2FDD08
+.endif
+.if (_TWN_)
+    bne 0x2FDE08
+.endif
+    cmp r0,#0x0
     bx lr
 
 .global hook_before_GameState_Loop
@@ -290,6 +304,13 @@ hook_BlackScreenFix:
     push {r0-r12, lr}
     bl Cheats_ShouldFixBlackScreen
     cmp r0,#0x1
+    pop {r0-r12, lr}
+    bx lr
+
+.global hook_ActorDrawContext
+hook_ActorDrawContext:
+    push {r0-r12, lr}
+    bl Actor_rDrawContext
     pop {r0-r12, lr}
     bx lr
 

@@ -31,22 +31,21 @@ uint8_t practice_menu_init = 0;
 static bool isAsleep = false;
 static u32 sAlertFrames = 0;
 static char* sAlertMessage = "";
+static u32 sAlertPosX;
 bool menuOpen = false;
 
 GlobalContext* gGlobalContext;
+void* gStoredActorHeapAddress;
 u8 gInit = 0;
 
 void autoLoadSaveFile(void);
 void NoClip_Update(void);
 
-void setGlobalContext(GlobalContext* globalContext) {
-    gGlobalContext = globalContext;
-}
-
 // Called once for every update on the `PlayState` GameState.
 void before_GlobalContext_Update(GlobalContext* globalCtx) {
     if (!gInit) {
-        setGlobalContext(globalCtx);
+        gGlobalContext = globalCtx;
+        gStoredActorHeapAddress = gActorHeapAddress;
         Actor_Init();
         irrstInit();
         if (ToggleSettingsMenu.items[TOGGLESETTINGS_UPDATE_WATCHES].on) {
@@ -103,101 +102,24 @@ static void toggle_advance(void) {
     }
 }
 
-static void drawWatches(void) {
-    for(u32 i = 0; i < WATCHES_MAX; ++i) {
-        if (!watches[i].display) {
-            continue;
-        }
-
-        // Skip attempting to draw the address if it would otherwise be an invalid read.
-        // Attempting to read these locations would crash the game.
-        const MemInfo address_info = query_memory_permissions((int)watches[i].addr);
-        if (!is_valid_memory_read(&address_info)) {
-            Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: Invalid address", watches[i].name);
-            continue;
-        }
-
-
-        switch(watches[i].type) {
-            case(S8): {
-                s8 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %03d", watches[i].name, dst);
-                break;
-            }
-            case(U8): {
-                u8 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %03u", watches[i].name, dst);
-                break;
-            }
-            case(X8): {
-                u8 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %02X", watches[i].name, dst);
-                break;
-            }
-            case(S16): {
-                s16 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %05d", watches[i].name, dst);
-                break;
-            }
-            case(U16): {
-                u16 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %05u", watches[i].name, dst);
-                break;
-            }
-            case(X16): {
-                u16 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %04X", watches[i].name, dst);
-                break;
-            }
-            case(S32): {
-                s32 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %010d", watches[i].name, dst);
-                break;
-            }
-            case(U32): {
-                u32 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %010u", watches[i].name, dst);
-                break;
-            }
-            case(X32): {
-                u32 dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %08X", watches[i].name, dst);
-                break;
-            }
-            case(F32): {
-                float dst;
-                memcpy(&dst, watches[i].addr, sizeof(dst));
-                Draw_DrawFormattedString(70, 40 + i * SPACING_Y, COLOR_WHITE, "%s: %05.2F", watches[i].name, dst);
-                break;
-            }
-        }
-    }
-    Draw_FlushFramebuffer();
-}
-
 void setAlert(char* alertMessage, u32 alertFrames) {
     if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0) {
         sAlertFrames = 0;
         return;
     }
 
-    Draw_DrawFormattedStringTop(280, 220, COLOR_WHITE, "%*s", strlen(sAlertMessage), "");
+    // Clear old message if present
+    Draw_DrawFormattedStringTop(sAlertPosX, 220, COLOR_WHITE, "%*s", strlen(sAlertMessage), "");
+
+    u32 newLen = strlen(alertMessage);
+    sAlertPosX = newLen <= 20 ? 280 : (SCREEN_TOP_WIDTH - newLen * SPACING_X);
     sAlertMessage = alertMessage;
     sAlertFrames = alertFrames;
 }
 
 void drawAlert(void) {
     if (sAlertFrames > 0) {
-        Draw_DrawStringTop(280, 220, COLOR_WHITE, sAlertMessage);
+        Draw_DrawStringTop(sAlertPosX, 220, COLOR_WHITE, sAlertMessage);
         Draw_FlushFramebufferTop();
         sAlertFrames--;
     } else if (strlen(sAlertMessage) > 0) {
@@ -210,9 +132,9 @@ static void titleScreenDisplay(void) {
     Draw_DrawCenteredStringTop(25, COLOR_WHITE, COMMIT_STRING);
     Draw_FlushFramebufferTop();
 
-    char menuComboString[COMMAND_COMBO_MAX + 1] = {0};
-    Commands_ComboToString(menuComboString, 0);
-    Draw_DrawFormattedString(150, 0, COLOR_WHITE, menuComboString);
+    char menuComboString[COMMAND_COMBO_STRING_SIZE];
+    Commands_ComboToString(menuComboString, COMMAND_OPEN_MENU);
+    Draw_DrawCenteredStringBottom(0, COLOR_WHITE, menuComboString);
     Draw_FlushFramebuffer();
 }
 
@@ -237,14 +159,15 @@ void advance_main(void) {
         return;
     }
 
+    if(shouldDrawWatches) {
+        Watches_DrawWatches();
+    }
+
     if(gSaveContext.entranceIndex == 0x0629 && gSaveContext.cutsceneIndex == 0xFFF3 && gSaveContext.gameMode != 2){
         titleScreenDisplay();
     }
 
     // Draw_DrawFormattedString(70, 40, COLOR_WHITE, "%4.4X", gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir.y);
-    if(shouldDrawWatches){
-        drawWatches();
-    }
     drawAlert();
 
     if(menuOpen) {
@@ -357,9 +280,7 @@ bool onMenuLoop(void) {
 };
 
 void autoLoadSaveFile(void) {
-    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 &&
-        rInputCtx.cur.l && rInputCtx.cur.r) {
-
+    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 && shouldAutoloadSavefile) {
         Load_Savefiles_Buffer();
         FileSelect_LoadGame(&gGlobalContext->state, 0);
         if (gSaveContext.saveCount > 0) {
@@ -386,5 +307,5 @@ void autoLoadSaveFile(void) {
 // While holding ZL, a frame will only be drawn every 20 update cycles.
 s32 checkFastForward(void) {
     static u32 updateCycleCounter = 0;
-    return rInputCtx.cur.zl && (++updateCycleCounter % 20 != 0);
+    return shouldFastForward && (++updateCycleCounter % 20 != 0);
 }

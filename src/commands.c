@@ -11,15 +11,38 @@
 #include "advance.h"
 #include "camera.h"
 
+#include <string.h>
+
 u32 pauseUnpause = 0; //tells main to pause/unpause
 u32 frameAdvance = 0; //tells main to frame advance
 bool shouldDrawWatches = 0;
+u32 shouldAutoloadSavefile = 0;
+u32 shouldFastForward = 0;
 
 PosRot storedPosRot[STORED_POS_COUNT];
 static u8 storedPosIndex = 0;
 
 // Used to make the game ignore button presses that were used for specific commands.
 btn_t buttonsToIgnore = { 0 };
+
+// Button names in the same order as the `BUTTON_` values; 4 characters each
+static char buttonNames[15][COMMAND_BUTTON_NAME_LENGTH] = {
+    "A   ",    // BUTTON_A
+    "B   ",    // BUTTON_B
+    "Sel ",    // BUTTON_SELECT
+    "St  ",    // BUTTON_START
+    "\x1A   ", // BUTTON_RIGHT
+    "\x1B   ", // BUTTON_LEFT
+    "\x18   ", // BUTTON_UP
+    "\x19   ", // BUTTON_DOWN
+    "R   ",    // BUTTON_R1
+    "L   ",    // BUTTON_L1
+    "X   ",    // BUTTON_X
+    "Y   ",    // BUTTON_Y
+    "    ",    // Unused
+    "ZL  ",    // BUTTON_ZL
+    "ZR  ",    // BUTTON_ZR
+};
 
 void Commands_SetButtonsToIgnore(Command cmd);
 
@@ -171,8 +194,24 @@ static void Command_FreeCam(void){
         FreeCam_Toggle();
     } else if (freeCam.locked) {
         FreeCam_ToggleLock();
+    } else {
+        return;
     }
+
+    if (advance_ctx.advance_state == PAUSED) {
+        // Unpause automatically when entering FreeCam
+        pauseUnpause = 1;
+    }
+
     waitingButtonRelease = 1;
+}
+
+static void Command_TriggerSavefileAutoload(void){
+    shouldAutoloadSavefile = 1;
+}
+
+static void Command_TriggerFastForward(void){
+    shouldFastForward = 1;
 }
 
 Command commandList[NUMBER_OF_COMMANDS] = {
@@ -195,6 +234,8 @@ Command commandList[NUMBER_OF_COMMANDS] = {
     {"Break Free", 0, 0, { 0 }, Command_Break, COMMAND_HOLD_TYPE, 0, 0},
     {"NoClip", 0, 0, { 0 }, Scene_NoClipToggle, COMMAND_PRESS_ONCE_TYPE, 0, 0},
     {"Free Camera", 0, 0, { 0 }, Command_FreeCam, COMMAND_PRESS_ONCE_TYPE, 0, 0},
+    {"Autoload Savefile", 0, 0, { 0 }, Command_TriggerSavefileAutoload, COMMAND_HOLD_TYPE, 0, 0},
+    {"Fast Forward", 0, 0, { 0 }, Command_TriggerFastForward, COMMAND_HOLD_TYPE, 0, 0},
 };
 
 static void Commands_ListInitDefaults(void){
@@ -264,6 +305,10 @@ static void Commands_ListInitDefaults(void){
     commandList[COMMAND_BREAK].inputs[2] = BUTTON_X | BUTTON_B | BUTTON_A;
     commandList[COMMAND_BREAK].inputs[3] = BUTTON_Y | BUTTON_X | BUTTON_B | BUTTON_A;
     commandList[COMMAND_BREAK].strict = 0;
+
+    commandList[COMMAND_FAST_FORWARD].comboLen = 1;
+    commandList[COMMAND_FAST_FORWARD].inputs[0] = BUTTON_ZL;
+    commandList[COMMAND_FAST_FORWARD].strict = 0;
 }
 
 u32 commandInit = 0;
@@ -272,6 +317,10 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
         Commands_ListInitDefaults();
         commandInit = 1;
     }
+
+    // Reset these every time
+    shouldAutoloadSavefile = 0;
+    shouldFastForward = 0;
 
     if (commandList[COMMAND_OPEN_MENU].comboLen == 0) { // prevent getting locked out of the menu
         commandList[COMMAND_OPEN_MENU].comboLen = 3;
@@ -286,8 +335,11 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
     for (int i = 0; i < NUMBER_OF_COMMANDS; i++) {
         Command* cmd = &commandList[i];
 
-        if (cmd->comboLen == 0)
+        if (cmd->comboLen == 0 ||
+            (i == COMMAND_AUTOLOAD_SAVEFILE && (gSaveContext.entranceIndex != 0x629 || gSaveContext.cutsceneIndex != 0xFFF3))
+        ) {
             continue;
+        }
 
         u32 nextInputs     = cmd->inputs[cmd->curIdx];
         u32 previousInputs = (cmd->curIdx > 0) ? cmd->inputs[cmd->curIdx - 1] : 0;
@@ -331,58 +383,33 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
     }
 }
 
-void Commands_ComboToString(char* buf, u32 commandIdx){
+void Commands_ComboToString(char buf[COMMAND_COMBO_STRING_SIZE], u32 commandIdx){
     u32 prevInput = 0;
+    u32 charIdx = 0;
+
+    if (commandList[commandIdx].comboLen == 0) {
+        // Set combo string to whitespaces to overwrite previously drawn characters
+        memset(buf, ' ', COMMAND_COMBO_STRING_SIZE);
+        buf[COMMAND_COMBO_STRING_SIZE - 1] = '\x00';
+        return;
+    }
 
     for (u32 i = 0; i < commandList[commandIdx].comboLen; ++i){
         u32 newInput = commandList[commandIdx].inputs[i] & ~prevInput;
-        switch(newInput){
-            case(BUTTON_A):
-                buf[i] = 'A';
-                break;
-            case(BUTTON_B):
-                buf[i] = 'B';
-                break;
-            case(BUTTON_X):
-                buf[i] = 'X';
-                break;
-            case(BUTTON_Y):
-                buf[i] = 'Y';
-                break;
-            case(BUTTON_START):
-                buf[i] = 'S';
-                break;
-            case(BUTTON_SELECT):
-                buf[i] = 's';
-                break;
-            case(BUTTON_UP):
-                buf[i] = '^';
-                break;
-            case(BUTTON_DOWN):
-                buf[i] = 'v';
-                break;
-            case(BUTTON_LEFT):
-                buf[i] = '<';
-                break;
-            case(BUTTON_RIGHT):
-                buf[i] = '>';
-                break;
-            case(BUTTON_L1):
-                buf[i] = 'L';
-                break;
-            case(BUTTON_R1):
-                buf[i] = 'R';
-                break;
-        }
+        u32 btnIdx = __builtin_ctz(newInput);
+        memcpy(buf + charIdx, buttonNames[btnIdx], COMMAND_BUTTON_NAME_LENGTH);
+        charIdx += COMMAND_BUTTON_NAME_LENGTH;
         prevInput = commandList[commandIdx].inputs[i];
     }
+
+    buf[charIdx - 1] = '\x00';
 }
 
 static void Commands_EditCommand(u32 commandIndex){
     u32 selected = 0;
     u32 editing = 0;
     u32 curColor = COLOR_WHITE;
-    char comboString[COMMAND_COMBO_MAX + 1];
+    char comboString[COMMAND_COMBO_STRING_SIZE];
     u32 prevInput[COMMAND_COMBO_MAX] = {0};
 
     Draw_Lock();
@@ -396,11 +423,7 @@ static void Commands_EditCommand(u32 commandIndex){
         Draw_DrawFormattedString(10, 10, COLOR_TITLE, "Edit Command: %s", commandList[commandIndex].title);
 
         Commands_ComboToString(comboString, commandIndex);
-        Draw_DrawFormattedString(30, 30, curColor, "Combo: %c  %c  %c  %c",
-            commandList[commandIndex].comboLen >= 1 ? comboString[0] : ' ',
-            commandList[commandIndex].comboLen >= 2 ? comboString[1] : ' ',
-            commandList[commandIndex].comboLen >= 3 ? comboString[2] : ' ',
-            commandList[commandIndex].comboLen >= 4 ? comboString[3] : ' ');
+        Draw_DrawFormattedString(30, 30, curColor, "Combo: %s", comboString);
         Draw_DrawCharacter(10, 30, COLOR_TITLE, selected == COMMAND_EDIT_COMBO ? '>' : ' ');
 
         Draw_DrawFormattedString(30, 30 + SPACING_Y, COLOR_WHITE, "Type: %s", commandList[commandIndex].strict ? "Strict " : "Relaxed");
@@ -523,16 +546,12 @@ void Commands_ShowCommandsMenu(void){
 
         for (s32 i = 0; i < COMMAND_MENU_MAX_SHOW && page * COMMAND_MENU_MAX_SHOW + i < NUMBER_OF_COMMANDS; ++i)
         {
-            char comboString[COMMAND_COMBO_MAX + 1];
+            char comboString[COMMAND_COMBO_STRING_SIZE];
             s32 j = page * COMMAND_MENU_MAX_SHOW + i;
             Commands_ComboToString(comboString, j);
-            Draw_DrawFormattedString(30, 30 + i * SPACING_Y, COLOR_WHITE, "%s: %c  %c  %c  %c",
-                commandList[j].title,
-                commandList[j].comboLen >= 1 ? comboString[0] : ' ',
-                commandList[j].comboLen >= 2 ? comboString[1] : ' ',
-                commandList[j].comboLen >= 3 ? comboString[2] : ' ',
-                commandList[j].comboLen >= 4 ? comboString[3] : ' ');
-            Draw_DrawString(200, 30 + i * SPACING_Y, COLOR_WHITE, commandList[j].strict ? "Strict " : "Relaxed");
+            Draw_DrawFormattedString(30,  30 + i * SPACING_Y, COLOR_WHITE, "%s: ", commandList[j].title);
+            Draw_DrawFormattedString(160, 30 + i * SPACING_Y, COLOR_WHITE, "%s",   comboString);
+            Draw_DrawString(260, 30 + i * SPACING_Y, COLOR_WHITE, commandList[j].strict ? "Strict " : "Relaxed");
             Draw_DrawCharacter(10, 30 + i * SPACING_Y, COLOR_TITLE, j == selected ? '>' : ' ');
         }
 

@@ -57,6 +57,12 @@ typedef enum {
     NUMBER_OF_TOGGLE_SETTINGS,
 } ToggleSettings;
 
+typedef enum WatchUpdateResult {
+    WATCHUPDATE_NONE,
+    WATCHUPDATE_SUCCESS,
+    WATCHUPDATE_FAILED,
+} WatchUpdateResult;
+
 typedef struct MemAddrs {
     void* globalCtx;
     void* actorHeap;
@@ -72,8 +78,7 @@ typedef struct ExtInfo {
 typedef struct {
     u32      version;
     u8       cheats[32];
-    u8       cheatForcedUsableItems;
-    char     padding[3];
+    char     padding[4];
     Command  commands[32];
     Watch    watches[30];
     ExtInfo  info;
