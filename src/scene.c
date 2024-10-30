@@ -38,8 +38,8 @@ static Menu FreeCamMenu = {
     .nbItems = 2,
     .initialCursorPos = 0,
     {
-        {"Info", METHOD, .method = Scene_FreeCamDescription},
         {"Settings", METHOD, .method = Scene_FreeCamSettingsMenuShow},
+        {"Info", METHOD, .method = Scene_FreeCamDescription},
     }
 };
 
