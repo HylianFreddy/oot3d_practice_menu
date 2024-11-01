@@ -349,6 +349,7 @@ hook_collisionF:
     cpy r0,r6
     ldr r1,[sp,#0x128]
     add r2,sp,#0xC8
+    add r3,sp,#0x54 @sector
     bl ColView_FindStaticLookup2
     pop {r0-r12,lr}
     bx lr

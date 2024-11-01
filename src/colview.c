@@ -292,18 +292,24 @@ void ColView_DrawFromCollPolyId(s16 polyId, s32 invSeam) {
     }
 }
 
-void ColView_DrawAllFromNode(SSNode node) {
-    u16 i = 0;
-    while (node.next != 0xFFFF) {
-        // CitraPrint("node.polyId: %X", node.polyId);
-        // CitraPrint("node.next: %X", node.next);
-
+void ColView_DrawAllFromNode(u16 nodeId) {
+    // u16 i = 0;
+    while (nodeId != 0xFFFF) {
+        SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[nodeId];
         ColView_DrawFromCollPolyId(node.polyId, 0);
-
-        node = gGlobalContext->colCtx.stat.polyNodes.tbl[node.next];
-        i++;
+        nodeId = node.next;
+        // i++;
     }
     // CitraPrint("i max: %X", i);
+}
+
+void ColView_DrawAllFromLookup(StaticLookup* lookup) {
+    if (lookup == 0) {
+        return;
+    }
+    ColView_DrawAllFromNode(lookup->floor.head);
+    ColView_DrawAllFromNode(lookup->wall.head);
+    ColView_DrawAllFromNode(lookup->ceiling.head);
 }
 
 // static u16 lookupIndex = 0;
@@ -335,47 +341,21 @@ void ColView_DrawCollision(void) {
 
     // return;
 
-    for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
-        ColView_DrawFromCollPolyId(i, 0);
-    }
-    return;
+    // IMPORTANT: TEST GOING THROUGH ALL POLYGONS
+    // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
+    //     ColView_DrawFromCollPolyId(i, 0);
+    // }
+    // return;
 
-    if (PLAYER->actor.floorPoly != 0) {
-        // ColView_DrawPoly(getPlayerFloorPoly());
-    }
+    // if (PLAYER->actor.floorPoly != 0) {
+    //     ColView_DrawPoly(getPlayerFloorPoly());
+    // }
 
     // static s32 subdivCount = 0;
     // Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
     // subdivCount = v.x * v.y * v.z;
 
-    if (ColView_Lookup == 0) {
-        return;
-    }
-
-    u16 floorIndex, wallIndex, ceilingIndex;
-    floorIndex = ColView_Lookup->floor.head;
-    wallIndex = ColView_Lookup->wall.head;
-    ceilingIndex = ColView_Lookup->ceiling.head;
-    // do {
-    //     floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
-    //     wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
-    //     ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
-    //     lookupIndex = (lookupIndex + 1) % subdivCount;
-    // } while (floorIndex == 0xFFFF && wallIndex == 0xFFFF && ceilingIndex == 0xFFFF);
-
-    // u16 floorIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].floor.head;
-    // CitraPrint("floorIndex: %X", floorIndex);
-    if (floorIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[floorIndex]);
-
-    // u16 wallIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].wall.head;
-    // CitraPrint("wallIndex: %X", wallIndex);
-    if (wallIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[wallIndex]);
-
-    // u16 ceilingIndex = gGlobalContext->colCtx.stat.lookupTbl[lookupIndex].ceiling.head;
-    // CitraPrint("ceilingIndex: %X", ceilingIndex);
-    if (ceilingIndex != 0xFFFF) ColView_DrawAllFromNode(gGlobalContext->colCtx.stat.polyNodes.tbl[ceilingIndex]);
-
-    // CitraPrint("subdivCount: %X   lookupIndex: %X", subdivCount, lookupIndex);
+    ColView_DrawAllFromLookup(ColView_Lookup);
 }
 
 // from wall detection
@@ -385,6 +365,7 @@ void ColView_FindStaticLookup(Actor* actor, Vec3i* sector) {
     // }
     // CitraPrint("%X, %X, %X", sector->x, sector->y, sector->z);
 
+    // IMPORTANT: LOOKUP ID FORMULA
     // StaticCollisionContext ctx = gGlobalContext->colCtx.stat;
     // s32 lookupId =
     //     sector->x +
@@ -395,7 +376,7 @@ void ColView_FindStaticLookup(Actor* actor, Vec3i* sector) {
 }
 
 // from floor detection
-void ColView_FindStaticLookup2(StaticLookup* lookup, Actor* actor, Vec3f* checkPos) {
+void ColView_FindStaticLookup2(StaticLookup* lookup, Actor* actor, Vec3f* checkPos, Vec3i* sector) {
     if (!isInGame() || actor != &PLAYER->actor) {
         return;
     }
