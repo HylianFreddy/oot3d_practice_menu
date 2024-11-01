@@ -5,6 +5,7 @@
 #include "common.h"
 #include "input.h"
 #include "camera.h"
+#include "menus/commands.h"
 
 FreeCam freeCam = { 0 };
 
@@ -165,8 +166,10 @@ static void FreeCam_Move(void) {
         u32 in = rInputCtx.cur.val;
         if (in & BUTTON_B) {
             FreeCam_Toggle();
+            Commands_SetButtonsToIgnore(BUTTON_B);
         } else if (in & BUTTON_A) {
             FreeCam_ToggleLock();
+            Commands_SetButtonsToIgnore(BUTTON_A);
         } else if (rInputCtx.pressed.val & BUTTON_Y) {
             haltActors ^= 1;
         }

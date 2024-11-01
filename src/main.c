@@ -261,10 +261,12 @@ void NoClip_Update(void) {
     if(in & BUTTON_A) { //confirm new position
         PLAYER->actor.home.pos = PLAYER->actor.world.pos;
         Scene_NoClipToggle();
+        Commands_SetButtonsToIgnore(BUTTON_A);
     }
     else if(in & BUTTON_B) { //cancel movement
         PLAYER->actor.world.pos = PLAYER->actor.home.pos;
         Scene_NoClipToggle();
+        Commands_SetButtonsToIgnore(BUTTON_B);
     }
 }
 
