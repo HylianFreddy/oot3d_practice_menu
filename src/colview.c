@@ -8,6 +8,8 @@
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
+#define BgCheck_GetStaticLookupIndicesFromPos ((void (*)(CollisionContext *col_ctx,Vec3f *pos,Vec3i *sector))0x2BF5B0)
+
 typedef struct Sub32A0_10 {
     void* unk_00;
     void* unk_04;
@@ -300,8 +302,8 @@ void ColView_DrawCollision(void) {
         return;
     }
 
-    ColViewPoly dummyPoly = createDummyPoly();
-    ColView_DrawPoly(dummyPoly);
+    // ColViewPoly dummyPoly = createDummyPoly();
+    // ColView_DrawPoly(dummyPoly);
 
     // IMPORTANT: TEST GOING THROUGH ALL POLYGONS
     // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
@@ -317,6 +319,15 @@ void ColView_DrawCollision(void) {
     // Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
     // subdivCount = v.x * v.y * v.z;
 
+    Vec3i sector = { 0 };
+    BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
+    StaticCollisionContext ctx = gGlobalContext->colCtx.stat;
+    s32 lookupId =
+        sector.x +
+        (sector.y * ctx.subdivAmount.x) +
+        (sector.z * ctx.subdivAmount.x * ctx.subdivAmount.y);
+    ColView_Lookup = &ctx.lookupTbl[lookupId];
+
     ColView_DrawAllFromLookup(ColView_Lookup);
 
     CitraPrint("%X: %d / %d", ColView_Lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
@@ -328,18 +339,19 @@ void ColView_FindStaticLookup(Actor* actor, Vec3i* sector) {
     //     return;
     // }
 
-    // IMPORTANT: LOOKUP ID FORMULA
+    // // IMPORTANT: LOOKUP ID FORMULA
     // StaticCollisionContext ctx = gGlobalContext->colCtx.stat;
     // s32 lookupId =
     //     sector->x +
     //     (sector->y * ctx.subdivAmount.x) +
     //     (sector->z * ctx.subdivAmount.x * ctx.subdivAmount.y);
+    // ColView_Lookup = &ctx.lookupTbl[lookupId];
 }
 
 // from floor detection
 void ColView_FindStaticLookup2(StaticLookup* lookup, Actor* actor, Vec3f* checkPos, Vec3i* sector) {
-    if (!isInGame() || actor != &PLAYER->actor) {
-        return;
-    }
-    ColView_Lookup = lookup;
+    // if (!isInGame() || actor != &PLAYER->actor) {
+    //     return;
+    // }
+    // ColView_Lookup = lookup;
 }
