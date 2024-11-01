@@ -620,7 +620,7 @@ void Commands_ShowCommandsMenu(void){
 void Commands_SetButtonsToIgnore(Command cmd) {
     if (ToggleSettingsMenu.items[TOGGLESETTINGS_GAME_IGNORES_COMMAND_BUTTON].on == 0) {
         return;
-        }
+    }
     buttonsToIgnore.val |= cmd.inputs[cmd.comboLen - 1];
     if (cmd.comboLen > 1) {
         buttonsToIgnore.val &= ~cmd.inputs[cmd.comboLen - 2];
