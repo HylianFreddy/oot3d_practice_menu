@@ -44,8 +44,6 @@ static char buttonNames[15][COMMAND_BUTTON_NAME_LENGTH] = {
     "ZR  ",    // BUTTON_ZR
 };
 
-void Commands_SetButtonsToIgnore(Command cmd);
-
 static void Command_OpenMenu(void){
     menuOpen = true;
 }
@@ -364,7 +362,9 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
                         }
                         break;
                 }
-                Commands_SetButtonsToIgnore(*cmd);
+                u32 lastButton = cmd->inputs[cmd->comboLen - 1] &
+                                ~(cmd->comboLen > 1 ? cmd->inputs[cmd->comboLen - 2] : 0);
+                Commands_SetButtonsToIgnore(lastButton);
             } else {
                 cmd->curIdx++;
             }
@@ -617,14 +617,11 @@ void Commands_ShowCommandsMenu(void){
     } while(onMenuLoop());
 }
 
-void Commands_SetButtonsToIgnore(Command cmd) {
+void Commands_SetButtonsToIgnore(u32 buttons) {
     if (ToggleSettingsMenu.items[TOGGLESETTINGS_GAME_IGNORES_COMMAND_BUTTON].on == 0) {
         return;
     }
-    buttonsToIgnore.val |= cmd.inputs[cmd.comboLen - 1];
-    if (cmd.comboLen > 1) {
-        buttonsToIgnore.val &= ~cmd.inputs[cmd.comboLen - 2];
-    }
+    buttonsToIgnore.val |= buttons;
     if (buttonsToIgnore.sel) {
         // Save menu is programmed to open on Start press and something maps Select to Start.
         // So in order to ignore Select you must ignore Start too.

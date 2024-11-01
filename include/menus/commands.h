@@ -63,6 +63,7 @@ extern Command commandList[NUMBER_OF_COMMANDS];
 void Commands_ShowCommandsMenu(void);
 void Command_UpdateCommands(u32 inputs);
 void Commands_ComboToString(char buf[COMMAND_COMBO_STRING_SIZE], u32 commandIdx);
+void Commands_SetButtonsToIgnore(u32 buttons);
 
 extern u32 pauseUnpause;
 extern u32 frameAdvance;
