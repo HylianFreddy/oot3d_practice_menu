@@ -35,7 +35,7 @@ typedef struct Sub32A0 {
     void* (*arr14)[];
 } Sub32A0;
 
-s32 ColView_Active = 0;
+s32 ColView_Active = 1;
 
 ColViewPoly createDummyPoly(void) {
     // u32 fakeFloat = 0x7f700001;
@@ -120,8 +120,8 @@ s32 ColView_IsPolyVisible(ColViewPoly poly) {
     // add check if cam is looking at poly
 }
 
-#define MAX_PLANE_DIST 200
-#define MAX_VERT_DIST 200
+#define MAX_PLANE_DIST 100
+#define MAX_VERT_DIST 100
 s32 ColView_IsPolyCloseToLink(ColViewPoly poly) {
     Vec3f pos = PLAYER->actor.world.pos;
     s32 planeCheck = ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) < MAX_PLANE_DIST;
@@ -265,8 +265,7 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     }
 }
 
-void ColView_DrawFromCollPolyId(s16 polyId, s32 invSeam) {
-    CollisionPoly* colPoly = &gGlobalContext->colCtx.stat.colHeader->polyList[polyId];
+void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
     ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
     if (ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
         ColView_DrawPoly(viewPoly);
@@ -280,7 +279,7 @@ void ColView_DrawAllFromNode(u16 nodeId) {
     // u16 i = 0;
     while (nodeId != 0xFFFF) {
         SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[nodeId];
-        ColView_DrawFromCollPolyId(node.polyId, 0);
+        ColView_DrawFromCollPoly(&gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId], 0);
         nodeId = node.next;
         // i++;
     }
@@ -296,6 +295,29 @@ void ColView_DrawAllFromLookup(StaticLookup* lookup) {
     ColView_DrawAllFromNode(lookup->ceiling.head);
 }
 
+#define NEW_Z 301
+void ColView_HackVtx(CollisionPoly* colPoly) {
+    Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
+    Vec3s* vtxA = &vtxList[colPoly->vtxData[0] & 0x1FFF];
+    Vec3s* vtxB = &vtxList[colPoly->vtxData[1] & 0x1FFF];
+    Vec3s* vtxC = &vtxList[colPoly->vtxData[2] & 0x1FFF];
+    // CitraPrint("hack: %d %d %d", vtxA->x, vtxA->y, vtxA->z);
+    // CitraPrint("hack: %d %d %d", vtxB->x, vtxB->y, vtxB->z);
+    // CitraPrint("hack: %d %d %d", vtxC->x, vtxC->y, vtxC->z);
+    if (vtxA->x == -60 && vtxA->y == -240 && vtxA->z == 298) {
+        vtxA->z = NEW_Z;
+        CitraPrint("set vtxA");
+    }
+    if (vtxB->x == -60 && vtxB->y == -240 && vtxB->z == 298) {
+        vtxB->z = NEW_Z;
+        CitraPrint("set vtxA");
+    }
+    if (vtxC->x == -60 && vtxC->y == -240 && vtxC->z == 298) {
+        vtxC->z = NEW_Z;
+        CitraPrint("set vtxA");
+    }
+}
+
 StaticLookup* ColView_Lookup;
 void ColView_DrawCollision(void) {
     if (!ColView_Active) {
@@ -307,17 +329,37 @@ void ColView_DrawCollision(void) {
 
     // IMPORTANT: TEST GOING THROUGH ALL POLYGONS
     // for (s32 i = 0; i < gGlobalContext->colCtx.stat.colHeader->numPolygons; i++) {
-    //     ColView_DrawFromCollPolyId(i, 0);
+    //     ColView_DrawFromCollPoly(&gGlobalContext->colCtx.stat.colHeader->polyList[i], 0);
     // }
     // return;
 
-    // if (PLAYER->actor.floorPoly != 0) {
-    //     ColView_DrawPoly(getPlayerFloorPoly());
-    // }
-
-    // static s32 subdivCount = 0;
-    // Vec3i v = gGlobalContext->colCtx.stat.subdivAmount;
-    // subdivCount = v.x * v.y * v.z;
+    static CollisionPoly* floorA = 0;
+    static CollisionPoly* floorB = 0;
+    Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
+    if (PLAYER->actor.floorPoly != 0 && rInputCtx.pressed.zr) {
+        // ColView_DrawPoly(getPlayerFloorPoly());
+        if (floorA == 0) {
+            floorA = PLAYER->actor.floorPoly;
+        } else {
+            floorB = PLAYER->actor.floorPoly;
+        }
+    }
+    CitraPrint("______________");
+    if (floorA) {
+        ColView_DrawFromCollPoly(floorA, 0);
+        for (s32 i = 0; i < 3; i++) {
+            Vec3s pos = vtxList[floorA->vtxData[i] & 0x1FFF];
+            CitraPrint("%d %d %d", pos.x, pos.y, pos.z);
+        }
+    }
+    if (floorB) {
+        ColView_DrawFromCollPoly(floorB, 0);
+        for (s32 i = 0; i < 3; i++) {
+            Vec3s pos = vtxList[floorA->vtxData[i] & 0x1FFF];
+            CitraPrint("%d %d %d", pos.x, pos.y, pos.z);
+        }
+    }
+    return;
 
     Vec3i sector = { 0 };
     BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
@@ -330,7 +372,7 @@ void ColView_DrawCollision(void) {
 
     ColView_DrawAllFromLookup(ColView_Lookup);
 
-    CitraPrint("%X: %d / %d", ColView_Lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
+    // CitraPrint("%X: %d / %d", ColView_Lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
 }
 
 // from wall detection
