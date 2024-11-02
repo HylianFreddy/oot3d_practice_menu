@@ -340,7 +340,6 @@ static void Watches_DrawWatch(Watch watch, u32 color) {
 }
 
 void Watches_DrawWatches(void) {
-    Draw_DrawFormattedString(200, 200, COLOR_WHITE, "%X", PLAYER->actor.floorPoly);
     for(u32 i = 0; i < WATCHES_MAX; ++i) {
         Watches_DrawWatch(watches[i], COLOR_WHITE);
     }

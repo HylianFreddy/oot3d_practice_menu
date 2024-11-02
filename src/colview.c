@@ -295,29 +295,6 @@ void ColView_DrawAllFromLookup(StaticLookup* lookup) {
     ColView_DrawAllFromNode(lookup->ceiling.head);
 }
 
-#define NEW_Z 301
-void ColView_HackVtx(CollisionPoly* colPoly) {
-    Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
-    Vec3s* vtxA = &vtxList[colPoly->vtxData[0] & 0x1FFF];
-    Vec3s* vtxB = &vtxList[colPoly->vtxData[1] & 0x1FFF];
-    Vec3s* vtxC = &vtxList[colPoly->vtxData[2] & 0x1FFF];
-    // CitraPrint("hack: %d %d %d", vtxA->x, vtxA->y, vtxA->z);
-    // CitraPrint("hack: %d %d %d", vtxB->x, vtxB->y, vtxB->z);
-    // CitraPrint("hack: %d %d %d", vtxC->x, vtxC->y, vtxC->z);
-    if (vtxA->x == -60 && vtxA->y == -240 && vtxA->z == 298) {
-        vtxA->z = NEW_Z;
-        CitraPrint("set vtxA");
-    }
-    if (vtxB->x == -60 && vtxB->y == -240 && vtxB->z == 298) {
-        vtxB->z = NEW_Z;
-        CitraPrint("set vtxA");
-    }
-    if (vtxC->x == -60 && vtxC->y == -240 && vtxC->z == 298) {
-        vtxC->z = NEW_Z;
-        CitraPrint("set vtxA");
-    }
-}
-
 StaticLookup* ColView_Lookup;
 void ColView_DrawCollision(void) {
     if (!ColView_Active) {
@@ -332,34 +309,6 @@ void ColView_DrawCollision(void) {
     //     ColView_DrawFromCollPoly(&gGlobalContext->colCtx.stat.colHeader->polyList[i], 0);
     // }
     // return;
-
-    static CollisionPoly* floorA = 0;
-    static CollisionPoly* floorB = 0;
-    Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
-    if (PLAYER->actor.floorPoly != 0 && rInputCtx.pressed.zr) {
-        // ColView_DrawPoly(getPlayerFloorPoly());
-        if (floorA == 0) {
-            floorA = PLAYER->actor.floorPoly;
-        } else {
-            floorB = PLAYER->actor.floorPoly;
-        }
-    }
-    CitraPrint("______________");
-    if (floorA) {
-        ColView_DrawFromCollPoly(floorA, 0);
-        for (s32 i = 0; i < 3; i++) {
-            Vec3s pos = vtxList[floorA->vtxData[i] & 0x1FFF];
-            CitraPrint("%d %d %d", pos.x, pos.y, pos.z);
-        }
-    }
-    if (floorB) {
-        ColView_DrawFromCollPoly(floorB, 0);
-        for (s32 i = 0; i < 3; i++) {
-            Vec3s pos = vtxList[floorA->vtxData[i] & 0x1FFF];
-            CitraPrint("%d %d %d", pos.x, pos.y, pos.z);
-        }
-    }
-    return;
 
     Vec3i sector = { 0 };
     BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);

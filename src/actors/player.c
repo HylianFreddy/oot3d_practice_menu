@@ -15,10 +15,6 @@ void PlayerActor_rUpdate(Actor* thisx, GlobalContext* globalCtx) {
     if (noClip || (freeCam.enabled && !freeCam.locked))
         return;
 
-    // if (rInputCtx.cur.zr) {
-    //     thisx->world.pos.z = 297.99;
-    // }
-
     vanillaActorInit_Player.update(thisx, globalCtx);
 }
 
