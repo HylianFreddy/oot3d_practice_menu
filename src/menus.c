@@ -86,7 +86,6 @@ void quitGame(void) {
     gGlobalContext->state.running = 0;
     gGlobalContext->state.init = 0;
     *((u8*)0x5C6605) = 1; // break loop calling Graph_ThreadEntry
-    ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on = 0;
     menuOpen = false;
 }
 
@@ -104,7 +103,7 @@ Menu gz3DMenu = {
         { "Watches", METHOD, .method = Watches_ShowWatchesMenu },
         { "Debug", MENU, .menu = &DebugMenu },
         { "Commands", METHOD, .method = Commands_ShowCommandsMenu },
-        { "Settings", MENU, .menu = &SettingsMenu },
+        { "Settings & Profiles", MENU, .menu = &SettingsMenu },
         { "Play SFX", METHOD, .method = showSFXMenu },
         { "Quit Game", METHOD, .method = quitGame },
     }

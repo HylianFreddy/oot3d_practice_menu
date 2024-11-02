@@ -82,7 +82,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
     s32 cutsceneIndex = -1;
     u32 chosen = 0;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
         selected = 3, page = 0, pagePrev = 0;
     }
 
@@ -248,7 +248,7 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
     s32 page = selected / SCENE_MENU_MAX_SHOW;
     s32 pagePrev = page;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
         selected = 0, page = 0, pagePrev = 0;
     }
 

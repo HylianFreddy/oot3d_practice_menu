@@ -39,6 +39,8 @@ static u8* FRAMEBUFFER[6];
 
 static RecursiveLock lock;
 
+u32 sColorTitle = COLOR_DEFAULT_BLUE;
+
 void Draw_Lock(void)
 {
     static bool lockInitialized = false;

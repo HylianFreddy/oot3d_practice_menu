@@ -63,7 +63,7 @@ void menuShow(Menu* rootMenu)
     Menu *previousMenus[0x80];
     u32 previousSelectedItems[0x80];
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
         selectedItem = 0;
     }
 
@@ -90,7 +90,7 @@ void menuShow(Menu* rootMenu)
                     previousMenus[nbPreviousMenus++] = currentMenu;
                     currentMenu = currentMenu->items[selectedItem].menu;
                     selectedItem = currentMenu->initialCursorPos;
-                    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+                    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
                         selectedItem = 0;
                     }
                     break;
@@ -147,17 +147,13 @@ void menuShow(Menu* rootMenu)
         svcSleepThread(1000 * 1000 * 300LL);
         menuOpen = false;
     }
-
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0) {
-        commandList[COMMAND_OPEN_MENU].waiting = 0;
-    }
 }
 
 void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to rosalina cheats page
 {
     s32 selected = menu->initialCursorPos, page = selected / TOGGLE_MENU_MAX_SHOW, pagePrev = page;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
         selected = page = pagePrev = 0;
     }
 
@@ -236,7 +232,7 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
 void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
     s32 selected = menu->initialCursorPos, page = selected / AMOUNT_MENU_MAX_SHOW, pagePrev = page;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
         selected = page = pagePrev = 0;
     }
 
