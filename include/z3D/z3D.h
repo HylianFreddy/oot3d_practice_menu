@@ -256,6 +256,19 @@ typedef struct Camera {
 } Camera; // size = 0x1BC
 _Static_assert(sizeof(Camera) == 0x1BC, "Camera size");
 
+typedef struct SurfaceType {
+    u32 data[2];
+} SurfaceType;
+_Static_assert(sizeof(SurfaceType) == 0x8, "SurfaceType size");
+
+#define SurfaceType_CanHookshot(surfaceType) ((surfaceType.data[1] >> 17) & 1)
+#define SurfaceType_GetWallType(surfaceType) ((surfaceType.data[0] >> 21) & 0x1F)
+#define SurfaceType_GetFloorProperty(surfaceType) ((surfaceType.data[0] >> 26) & 0xF)
+#define SurfaceType_GetExitIndex(surfaceType) ((surfaceType.data[0] >> 8) & 0x1F)
+#define SurfaceType_GetFloorType(surfaceType) ((surfaceType.data[0] >> 13) & 0x1F)
+#define SurfaceType_GetWallDamage(surfaceType) ((surfaceType.data[1] >> 27) & 0x1)
+#define SurfaceType_GetFloorEffect(surfaceType) ((surfaceType.data[1] >> 4) & 0x3)
+
 typedef struct {
     /* 0x00 */ Vec3s minBounds; // minimum coordinates of poly bounding box
     /* 0x06 */ Vec3s maxBounds; // maximum coordinates of poly bounding box
@@ -266,7 +279,7 @@ typedef struct {
     /* 0x14 */ u16 numWaterBoxes;
     /* 0x18 */ Vec3s* vtxList;
     /* 0x1C */ CollisionPoly* polyList;
-    /* 0x20 */ void* surfaceTypeList; // SurfaceType*
+    /* 0x20 */ SurfaceType* surfaceTypeList;
     /* 0x24 */ void* bgCamList; // BgCamInfo*
     /* 0x28 */ void* waterBoxes; // WaterBox*
 } CollisionHeader; // original name: BGDataInfo

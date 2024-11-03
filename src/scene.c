@@ -15,12 +15,13 @@ u8 haltActors = 0;
 
 static s32 selectedRoomNumber = -1;
 
-static ToggleMenu CollisionMenu = {
+ToggleMenu CollisionMenu = {
     "Collision",
-    .nbItems = 2,
+    .nbItems = COLVIEW_MAX,
     .initialCursorPos = 0,
     {
         {0, "Show Static Collision (WIP)", .method = Scene_ToggleCollisionOption},
+        {1, "  Highlight special polygons", .method = Scene_ToggleCollisionOption},
         {0, "Show Colliders", .method = Scene_ToggleCollisionOption},
     }
 };

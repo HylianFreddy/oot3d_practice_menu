@@ -4,7 +4,7 @@
 #include "menus.h"
 #include "input.h"
 #include "menus/debug.h"
-#include <math.h>
+#include "menus/scene.h"
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
@@ -97,19 +97,59 @@ Vec3f ColView_GetNormal(CollisionPoly* colPoly) {
 }
 
 ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
+    SurfaceType surfaceType = gGlobalContext->colCtx.stat.colHeader->surfaceTypeList[colPoly->type];
     Vec3f normal = ColView_GetNormal(colPoly);
+    Color_RGBAf color;
+    if (Scene_GetCollisionOption(COLVIEW_HIGHLIGHT_SPECIAL)) {
+        if (SurfaceType_CanHookshot(surfaceType)) {
+            color.r = 0.5;
+            color.g = 0.5;
+            color.b = 1.0;
+        } else if (SurfaceType_GetWallType(surfaceType) > 0x1) {
+            color.r = 0.75;
+            color.g = 0.0;
+            color.b = 0.75;
+        } else if (SurfaceType_GetFloorProperty(surfaceType) == 0xC) {
+            color.r = 1.0;
+            color.g = 0.0;
+            color.b = 0.0;
+        } else if (SurfaceType_GetExitIndex(surfaceType) != 0x0 ||
+                    SurfaceType_GetFloorProperty(surfaceType) == 0x5) {
+            color.r = 0.0;
+            color.g = 1.0;
+            color.b = 0.0;
+        } else if (SurfaceType_GetFloorType(surfaceType) != 0x0 ||
+                    SurfaceType_GetWallDamage(surfaceType) != 0x0) {
+            color.r = 0.75;
+            color.g = 1.0;
+            color.b = 0.75;
+        } else if (SurfaceType_GetFloorEffect(surfaceType) == 0x1) {
+            color.r = 1.0;
+            color.g = 1.0;
+            color.b = 0.5;
+        } else {
+            color.r = 1.0;
+            color.g = 1.0;
+            color.b = 1.0;
+        }
+
+        color.r -= 0.25 * normal.y + 0.25 * normal.z;
+        color.g -= 0.25 * normal.y + 0.25 * normal.z;
+        color.b -= 0.25 * normal.y + 0.25 * normal.z;
+        color.a = 0.5;
+    } else {
+        color.r = 0.7 - 0.2 * normal.y + 0.1 * normal.z;
+        color.g = 1.0 - 0.2 * ABS(normal.y);
+        color.b = 0.7 + 0.2 * normal.y + 0.1 * normal.z;
+        color.a = 0.5;
+    }
     return (ColViewPoly){
         .vA = ColView_GetVtxPos(colPoly, 0),
         .vB = ColView_GetVtxPos(colPoly, 1),
         .vC = ColView_GetVtxPos(colPoly, 2),
         .norm = normal,
         .dist = colPoly->dist,
-        .color = {
-            .r = 0.7 - 0.1*normal.y + 0.2*normal.z,
-            .g = 1.0 - 0.2*ABS(normal.y),
-            .b = 0.7 + 0.1*normal.y + 0.2*normal.z,
-            .a = 0.5,
-        },
+        .color = color,
     };
 }
 
@@ -120,8 +160,8 @@ s32 ColView_IsPolyVisible(ColViewPoly poly) {
     // add check if cam is looking at poly
 }
 
-#define MAX_PLANE_DIST 100
-#define MAX_VERT_DIST 100
+#define MAX_PLANE_DIST 150
+#define MAX_VERT_DIST 150
 s32 ColView_IsPolyCloseToLink(ColViewPoly poly) {
     Vec3f pos = PLAYER->actor.world.pos;
     s32 planeCheck = ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) < MAX_PLANE_DIST;

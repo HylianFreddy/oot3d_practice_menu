@@ -23,11 +23,15 @@ enum RoomSelectorOptions {
 
 enum ColViewOptions {
     COLVIEW_STATIC_COLLISION,
+    COLVIEW_HIGHLIGHT_SPECIAL,
     COLVIEW_COLLIDERS,
+    COLVIEW_MAX,
 };
 
 extern Menu SceneMenu;
 extern ToggleMenu HideEntitiesMenu;
+extern ToggleMenu CollisionMenu;
+#define Scene_GetCollisionOption(option) (CollisionMenu.items[option].on)
 
 extern u8 noClip;
 extern u8 waitingButtonRelease;
