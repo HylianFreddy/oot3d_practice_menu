@@ -17,7 +17,7 @@ bool is_valid_memory_write(const MemInfo* info) {
 }
 
 bool isInGame() {
-    return gInit && gSaveContext.gameMode != 2 && gGlobalContext->state.running && PLAYER;
+    return gInit && gGlobalContext->state.main == Play_Main && gGlobalContext->state.running && PLAYER;
 }
 
 void CitraPrint(const char* message, ...) {

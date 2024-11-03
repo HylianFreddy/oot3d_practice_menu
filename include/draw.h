@@ -46,12 +46,17 @@
 #define SPACING_Y 11
 #define SPACING_X 6
 
-#define COLOR_TITLE RGB8(0x33, 0x33, 0xFF)
 #define COLOR_WHITE RGB8(0xFF, 0xFF, 0xFF)
 #define COLOR_RED   RGB8(0xFF, 0x00, 0x00)
 #define COLOR_GREEN RGB8(0x00, 0xFF, 0x00)
 #define COLOR_BLACK RGB8(0x00, 0x00, 0x00)
 #define COLOR_GRAY  RGB8(0x80, 0x80, 0x80)
+
+#define COLOR_DEFAULT_BLUE RGB8(0x33, 0x33, 0xFF)
+#define COLOR_ALT_BLUE     RGB8(0x00, 0x99, 0xFF)
+
+extern u32 sColorTitle;
+#define COLOR_TITLE sColorTitle
 
 #define DRAW_MAX_FORMATTED_STRING_SIZE  512
 

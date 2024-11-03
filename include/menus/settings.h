@@ -19,7 +19,8 @@
 #endif
 
 extern Menu SettingsMenu;
-extern ToggleMenu ToggleSettingsMenu;
+extern ToggleMenu OptionsMenu;
+#define OPTION_ENABLED(opt) (OptionsMenu.items[opt].on)
 
 extern u8 selectedProfile;
 
@@ -28,7 +29,7 @@ void Settings_InitExtSaveData(void);
 void Settings_SaveExtSaveData(void);
 void Settings_LoadExtSaveData(void);
 void Settings_Toggle(s32 selected);
-void Settings_ShowToggleSettingsMenu(void);
+void Settings_ShowOptionsMenu(void);
 void Settings_UpdateWatchAddresses(void);
 
 enum Region {
@@ -41,21 +42,19 @@ enum Region {
 };
 
 typedef enum {
+    SETTINGS_TOGGLES,
     SETTINGS_PROFILE,
     SETTINGS_SAVE,
     SETTINGS_LOAD,
-    SETTINGS_TOGGLES,
     NUMBER_OF_SETTING_OPTIONS,
 } Settings;
 
 typedef enum {
-    TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY,
-    TOGGLESETTINGS_REMEMBER_CURSOR_POSITION,
-    TOGGLESETTINGS_UPDATE_WATCHES,
-    TOGGLESETTINGS_GAME_IGNORES_COMMAND_BUTTON,
-    TOGGLESETTINGS_MAIN_HOOK,
-    NUMBER_OF_TOGGLE_SETTINGS,
-} ToggleSettings;
+    OPTION_HIDE_ALERT_DISPLAY,
+    OPTION_RESET_CURSOR,
+    OPTION_ALT_TITLE_COLOR,
+    OPTION_MAX,
+} ToggleOptions;
 
 typedef enum WatchUpdateResult {
     WATCHUPDATE_NONE,
@@ -82,10 +81,10 @@ typedef struct {
     Command  commands[32];
     Watch    watches[30];
     ExtInfo  info;
-    u8       settings[12];
+    u8       options[12];
 } ExtSaveData;
 _Static_assert(sizeof(ExtSaveData) == 0x8A8, "ExtSaveData size");
 // Non-breaking changes to this struct:
-// - last 2 unused Watch slots remapped to "info" and "settings"
+// - last 2 unused Watch slots remapped to "info" and "options"
 
 extern ExtSaveData gExtSaveData;

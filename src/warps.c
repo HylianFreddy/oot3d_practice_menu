@@ -201,7 +201,7 @@ const s32 WarpsPlacesMenuSize = 7;
 void WarpsPlacesMenuShow(void){
     static s32 selected = 0;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
         selected = 0;
     }
 

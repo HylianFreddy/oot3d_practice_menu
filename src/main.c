@@ -48,9 +48,7 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
         gStoredActorHeapAddress = gActorHeapAddress;
         Actor_Init();
         irrstInit();
-        if (ToggleSettingsMenu.items[TOGGLESETTINGS_UPDATE_WATCHES].on) {
             Settings_UpdateWatchAddresses();
-        }
         gInit = 1;
     }
 }
@@ -80,9 +78,6 @@ void before_GameState_Loop(GameState* gameState) {
 
     Input_Update();
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel)
-        return;
-
     Command_UpdateCommands(rInputCtx.cur.val);
     applyCheats();
     autoLoadSaveFile();
@@ -103,7 +98,7 @@ static void toggle_advance(void) {
 }
 
 void setAlert(char* alertMessage, u32 alertFrames) {
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0) {
+    if (OPTION_ENABLED(OPTION_HIDE_ALERT_DISPLAY)) {
         sAlertFrames = 0;
         return;
     }
@@ -139,7 +134,7 @@ static void titleScreenDisplay(void) {
 }
 
 void pauseDisplay(void) {
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_PAUSE_AND_COMMANDS_DISPLAY].on == 0)
+    if (OPTION_ENABLED(OPTION_HIDE_ALERT_DISPLAY))
         return;
 
     Draw_DrawFormattedStringTop(20, 20, COLOR_WHITE, "Paused");
@@ -153,10 +148,6 @@ void advance_main(void) {
         extDataInit();
         Settings_LoadExtSaveData();
         practice_menu_init = 1;
-    }
-
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on == 0 && !rInputCtx.cur.sel) {
-        return;
     }
 
     if(shouldDrawWatches) {

@@ -45,7 +45,9 @@
 #include "menus/commands.h"
 #include "menus/settings.h"
 
+#if GZ3D_EXTRAS
 static u32 sfxId = 0;
+AmountMenu PlaySFXMenu;
 
 void PlaySFX(s32 selected) {
 #if Version_KOR || Version_TWN
@@ -86,13 +88,13 @@ void quitGame(void) {
     gGlobalContext->state.running = 0;
     gGlobalContext->state.init = 0;
     *((u8*)0x5C6605) = 1; // break loop calling Graph_ThreadEntry
-    ToggleSettingsMenu.items[TOGGLESETTINGS_MAIN_HOOK].on = 0;
     menuOpen = false;
 }
+#endif // GZ3D_EXTRAS
 
 Menu gz3DMenu = {
     "Practice Menu (" COMMIT_STRING ")",
-    .nbItems = 12,
+    .nbItems = GZ3D_EXTRAS ? 12 : 10,
     .initialCursorPos = 0,
     {
         { "Warps", MENU, .menu = &WarpsMenu },
@@ -104,8 +106,10 @@ Menu gz3DMenu = {
         { "Watches", METHOD, .method = Watches_ShowWatchesMenu },
         { "Debug", MENU, .menu = &DebugMenu },
         { "Commands", METHOD, .method = Commands_ShowCommandsMenu },
-        { "Settings", MENU, .menu = &SettingsMenu },
+        { "Settings & Profiles", MENU, .menu = &SettingsMenu },
+#if GZ3D_EXTRAS
         { "Play SFX", METHOD, .method = showSFXMenu },
         { "Quit Game", METHOD, .method = quitGame },
+#endif // GZ3D_EXTRAS
     }
 };

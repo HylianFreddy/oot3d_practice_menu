@@ -2,6 +2,8 @@
 #include "menus/watches.h"
 #include "3ds/extdata.h"
 #include "common.h"
+#include "draw.h"
+#include "input.h"
 #include <string.h>
 
 static void Settings_AlertProfileLoad(WatchUpdateResult res);
@@ -10,37 +12,40 @@ ExtSaveData gExtSaveData;
 u8 selectedProfile = 0;
 
 Menu SettingsMenu = {
-    "Settings",
+    "Settings & Profiles",
     .nbItems = NUMBER_OF_SETTING_OPTIONS,
     .initialCursorPos = 0,
     {
+        {"Toggle Options", METHOD, .method = Settings_ShowOptionsMenu},
         {"Profile: 0", METHOD, .method = Settings_CycleProfile},
         {"Save Profile", METHOD, .method = Settings_SaveExtSaveData},
         {"Load Profile", METHOD, .method = Settings_LoadExtSaveData},
-        {"Other Toggle Settings (Not Saved)", METHOD, .method = Settings_ShowToggleSettingsMenu},
     }
 };
 
-ToggleMenu ToggleSettingsMenu = {
-    "Other Toggle Settings (Not Saved)",
-    .nbItems = NUMBER_OF_TOGGLE_SETTINGS,
+ToggleMenu OptionsMenu = {
+    "Toggle Options",
+    .nbItems = OPTION_MAX,
     .initialCursorPos = 0,
     {
-        {1, "Pause/Commands Display", METHOD, .method = Settings_Toggle},
-        {1, "Remember cursor position in all menus", METHOD, .method = Settings_Toggle},
-        {1, "Update watch addresses at profile load", METHOD, .method = Settings_Toggle},
-        {1, "Game ignores last command button", METHOD, .method = Settings_Toggle},
-        {1, "Main ASM hook (disable to test lag,\n    most features will stop working)", METHOD, .method = Settings_Toggle},
+        {0, "Hide Pause/Commands Display", METHOD, .method = Settings_Toggle},
+        {0, "Reset cursor position when leaving menu", METHOD, .method = Settings_Toggle},
+        {0, "Use light blue color in menu", METHOD, .method = Settings_Toggle},
     }
 };
 
-void Settings_ShowToggleSettingsMenu(void){
-    ToggleMenuShow(&ToggleSettingsMenu);
+void Settings_ShowOptionsMenu(void){
+    ToggleMenuShow(&OptionsMenu);
+}
+
+static void Settings_ApplyOptions(void) {
+    sColorTitle = OptionsMenu.items[OPTION_ALT_TITLE_COLOR].on ? COLOR_ALT_BLUE : COLOR_DEFAULT_BLUE;
+    setAlert("", 0);
 }
 
 void Settings_Toggle(s32 selected) {
-    ToggleSettingsMenu.items[selected].on = !ToggleSettingsMenu.items[selected].on;
-    setAlert("", 0);
+    OptionsMenu.items[selected].on = !OptionsMenu.items[selected].on;
+    Settings_ApplyOptions();
 }
 
 void Settings_CycleProfile(void) {
@@ -58,6 +63,9 @@ void Settings_InitExtSaveData(void) {
     gExtSaveData.info.memAddrs.globalCtx = gGlobalContext;
     gExtSaveData.info.memAddrs.actorHeap = gStoredActorHeapAddress;
     gExtSaveData.info.region = CURRENT_REGION;
+    for (s32 i = 0; i < OPTION_MAX; i++) {
+        gExtSaveData.options[i] = OptionsMenu.items[i].on;
+    }
 }
 
 // copies saved values to the menu structs
@@ -70,6 +78,10 @@ void Settings_ApplyExtSaveData(void) {
     }
     commandInit = 1;
     memcpy(watches, gExtSaveData.watches, sizeof(watches));
+    for (s32 i = 0; i < OPTION_MAX; i++) {
+        OptionsMenu.items[i].on = gExtSaveData.options[i];
+    }
+    Settings_ApplyOptions();
 }
 
 void Settings_SaveExtSaveData(void) {
@@ -132,7 +144,7 @@ void Settings_LoadExtSaveData(void) {
 
     Settings_ApplyExtSaveData();
 
-    if (gInit && ToggleSettingsMenu.items[TOGGLESETTINGS_UPDATE_WATCHES].on) {
+    if (gInit && !ADDITIONAL_FLAG_BUTTON) {
         Settings_UpdateWatchAddresses();
     } else {
         Settings_AlertProfileLoad(WATCHUPDATE_NONE);
