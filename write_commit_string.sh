@@ -6,7 +6,7 @@ commit_string=$(git show --no-patch --format=format:"%h")
 # If there are uncommitted changes, add a marker to the string.
 if ([[ -n $(git status --porcelain | grep -v code.ips) ]])
 then
-    commit_string="${commit_string}+?"
+    commit_string="${commit_string}*"
 fi
 
 # If the commit string doesn't change, don't rewrite the file to avoid useless rebuilds.

@@ -84,6 +84,9 @@ ASFLAGS	+=	-D _USA_=$(IS_USA) -D _EUR_=$(IS_EUR) -D _JPN_=$(IS_JPN) \
 CFLAGS	+=	-D Version_USA=$(IS_USA) -D Version_EUR=$(IS_EUR) -D Version_JPN=$(IS_JPN) \
 			-D Version_KOR=$(IS_KOR) -D Version_TWN=$(IS_TWN)
 
+GZ3D_EXTRAS ?= 0
+CFLAGS += -D GZ3D_EXTRAS=$(GZ3D_EXTRAS)
+
 citra ?= 0
 ifneq ($(citra), 0)
 	CFLAGS += -g -DCITRA
