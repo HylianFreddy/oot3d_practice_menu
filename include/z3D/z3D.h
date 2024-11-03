@@ -918,12 +918,26 @@ typedef void (*WriteDungeonSceneTable_proc)(void);
 #endif
 #define WriteDungeonSceneTable ((WriteDungeonSceneTable_proc)WriteDungeonSceneTable_addr)
 
-// typedef void (*Collider_DrawPoly_proc)(GraphicsContext* gfxCtx, Vec3f* vA, Vec3f* vB, Vec3f* vC, u8 r, u8 g, u8 b);
-// #define Collider_DrawPoly ((Collider_DrawPoly_proc)0x2c5900)
+typedef void (*Collider_DrawPolyImpl_proc)(SubMainClass_32A0* sub32A0, Vec3f* vA, Vec3f* vB, Vec3f* vC,
+                                           Color_RGBAf* rgba);
+#if Version_USA || Version_EUR
+    #define Collider_DrawPolyImpl_addr 0x2C56C4
+#elif Version_JPN
+    #define Collider_DrawPolyImpl_addr 0x2C51DC
+#else
+    #define Collider_DrawPolyImpl_addr 0
+#endif
+#define Collider_DrawPolyImpl ((Collider_DrawPolyImpl_proc)Collider_DrawPolyImpl_addr)
 
-typedef void (*Collider_DrawPolyImpl_proc)(void* unkStaticPointer /*always address 0x5C1858*/, Vec3f* vA, Vec3f* vB,
-                                           Vec3f* vC, Color_RGBAf* rgba);
-#define Collider_DrawPolyImpl ((Collider_DrawPolyImpl_proc)0x2C56C4)
+typedef void (*BgCheck_GetStaticLookupIndicesFromPos_Proc)(CollisionContext *col_ctx,Vec3f *pos,Vec3i *sector);
+#if Version_USA || Version_EUR
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF5B0
+#elif Version_JPN
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF0C8
+#else
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0
+#endif
+#define BgCheck_GetStaticLookupIndicesFromPos ((BgCheck_GetStaticLookupIndicesFromPos_Proc)BgCheck_GetStaticLookupIndicesFromPos_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);

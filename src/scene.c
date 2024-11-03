@@ -89,7 +89,6 @@ Menu SceneMenu = {
 };
 
 void Scene_CollisionMenuShow(void) {
-    CollisionMenu.items[COLVIEW_STATIC_COLLISION].on = ColView_Active;
     CollisionMenu.items[COLVIEW_COLLIDERS].on = gStaticContext.collisionDisplay;
     ToggleMenuShow(&CollisionMenu);
 }
@@ -97,9 +96,6 @@ void Scene_CollisionMenuShow(void) {
 void Scene_ToggleCollisionOption(s32 selected) {
     CollisionMenu.items[selected].on ^= 1;
     switch (selected) {
-        case COLVIEW_STATIC_COLLISION:
-            ColView_Active ^= 1;
-            break;
         case COLVIEW_COLLIDERS:
             gStaticContext.collisionDisplay ^= 1;
             break;

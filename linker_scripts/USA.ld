@@ -5,10 +5,6 @@ SECTIONS
 {
 	. = 0x100000;
 	.patch_loader 0x100000 : {}
-	.patch_collision 0x3247d4 : {}
-	.patch_collisionF 0x32dc5c : {}
-	/* .patch_color 0x2c5860 : {} */
-	/* .patch_ColTest 0x02fad2c : {} */
 	.patch_CameraUpdate 0x2D84C8 : {}
 	.patch_InstantTextFirstLine 0x2E049C : {}
 	.patch_InstantTextBoxBreak 0x2E0664 : {}

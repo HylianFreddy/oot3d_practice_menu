@@ -79,16 +79,3 @@ loader_patch:
 
 .section .patch_GameButtonInputs
     bl hook_GameButtonInputs
-
-.section .patch_collision
-    bl hook_collision
-    @ mov r0,#0x0
-
-.section .patch_collisionF
-    bl hook_collisionF
-
-.section .patch_color
-    mov r1,#0x1
-
-.section .patch_ColTest
-    bx lr
