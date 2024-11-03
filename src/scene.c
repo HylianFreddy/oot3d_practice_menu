@@ -21,7 +21,10 @@ ToggleMenu CollisionMenu = {
     .initialCursorPos = 0,
     {
         {0, "Show Static Collision (WIP)", .method = Scene_ToggleCollisionOption},
-        {1, "  Highlight special polygons", .method = Scene_ToggleCollisionOption},
+        {1, "  Translucent", .method = Scene_ToggleCollisionOption},
+        {0, "  Polygon Class", .method = Scene_ToggleCollisionOption},
+        {1, "  Shaded", .method = Scene_ToggleCollisionOption},
+        {0, "  Reduced", .method = Scene_ToggleCollisionOption},
         {0, "Show Colliders", .method = Scene_ToggleCollisionOption},
     }
 };

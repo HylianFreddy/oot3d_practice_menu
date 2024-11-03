@@ -100,7 +100,14 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
     SurfaceType surfaceType = gGlobalContext->colCtx.stat.colHeader->surfaceTypeList[colPoly->type];
     Vec3f normal = ColView_GetNormal(colPoly);
     Color_RGBAf color;
-    if (Scene_GetCollisionOption(COLVIEW_HIGHLIGHT_SPECIAL)) {
+
+    color.a = Scene_GetCollisionOption(COLVIEW_TRANSLUCENT) ? 0.5 : 1.0;
+
+    if (Scene_GetCollisionOption(COLVIEW_POLYGON_CLASS)) {
+        color.r = 1.0 * (normal.y < -0.8);
+        color.g = 1.0 * (normal.y >= -0.8 && normal.y <= 0.5);
+        color.b = 1.0 * (normal.y > 0.5);
+    } else {
         if (SurfaceType_CanHookshot(surfaceType)) {
             color.r = 0.5;
             color.g = 0.5;
@@ -131,16 +138,16 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
             color.r = 1.0;
             color.g = 1.0;
             color.b = 1.0;
+            if (Scene_GetCollisionOption(COLVIEW_REDUCED)) {
+                color.a = 0.0;
+            }
         }
-    } else {
-        color.r = 1.0 * (normal.y < -0.8);
-        color.g = 1.0 * (normal.y >= -0.8 && normal.y <= 0.5);
-        color.b = 1.0 * (normal.y > 0.5);
     }
-    if (color.r >= 0.5) color.r -= 0.25 * normal.y + 0.25 * normal.z;
-    if (color.g >= 0.5) color.g -= 0.25 * normal.y + 0.25 * normal.z;
-    if (color.b >= 0.5) color.b -= 0.25 * normal.y + 0.25 * normal.z;
-    color.a = 0.5;
+    if (Scene_GetCollisionOption(COLVIEW_SHADED)) {
+        if (color.r >= 0.5) color.r -= 0.25 * normal.y + 0.25 * normal.z;
+        if (color.g >= 0.5) color.g -= 0.25 * normal.y + 0.25 * normal.z;
+        if (color.b >= 0.5) color.b -= 0.25 * normal.y + 0.25 * normal.z;
+    }
 
     return (ColViewPoly){
         .vA = ColView_GetVtxPos(colPoly, 0),
@@ -306,7 +313,7 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
 
 void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
     ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
-    if (ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
+    if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
         ColView_DrawPoly(viewPoly);
     }
     if (invSeam) {
