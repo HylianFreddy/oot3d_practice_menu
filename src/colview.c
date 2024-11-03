@@ -132,17 +132,16 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
             color.g = 1.0;
             color.b = 1.0;
         }
-
-        color.r -= 0.25 * normal.y + 0.25 * normal.z;
-        color.g -= 0.25 * normal.y + 0.25 * normal.z;
-        color.b -= 0.25 * normal.y + 0.25 * normal.z;
-        color.a = 0.5;
     } else {
-        color.r = 0.7 - 0.2 * normal.y + 0.1 * normal.z;
-        color.g = 1.0 - 0.2 * ABS(normal.y);
-        color.b = 0.7 + 0.2 * normal.y + 0.1 * normal.z;
-        color.a = 0.5;
+        color.r = 1.0 * (normal.y < -0.8);
+        color.g = 1.0 * (normal.y >= -0.8 && normal.y <= 0.5);
+        color.b = 1.0 * (normal.y > 0.5);
     }
+    if (color.r >= 0.5) color.r -= 0.25 * normal.y + 0.25 * normal.z;
+    if (color.g >= 0.5) color.g -= 0.25 * normal.y + 0.25 * normal.z;
+    if (color.b >= 0.5) color.b -= 0.25 * normal.y + 0.25 * normal.z;
+    color.a = 0.5;
+
     return (ColViewPoly){
         .vA = ColView_GetVtxPos(colPoly, 0),
         .vB = ColView_GetVtxPos(colPoly, 1),
