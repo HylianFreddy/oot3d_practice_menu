@@ -765,6 +765,20 @@ typedef void (*Play_Init_proc)(GameState*);
 #endif
 #define Play_Init ((Play_Init_proc)Play_Init_addr)
 
+typedef void (*Play_Main_proc)(GameState*);
+#if Version_EUR
+    #define Play_Main_addr 0x4523AC
+#elif Version_JPN
+    #define Play_Main_addr 0x452364
+#elif Version_KOR
+    #define Play_Main_addr 0x13A1E8
+#elif Version_TWN
+    #define Play_Main_addr 0x13A2C0
+#else // Version_USA
+    #define Play_Main_addr 0x45238C
+#endif
+#define Play_Main ((Play_Main_proc)Play_Main_addr)
+
 typedef void (*FileSelect_LoadGame_proc)(GameState* gameState, s32 fileNum);
 #if Version_EUR
     #define FileSelect_LoadGame_addr 0x44737C
