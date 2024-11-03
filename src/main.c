@@ -48,7 +48,7 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
         gStoredActorHeapAddress = gActorHeapAddress;
         Actor_Init();
         irrstInit();
-            Settings_UpdateWatchAddresses();
+        Settings_UpdateWatchAddresses();
         gInit = 1;
     }
 }
