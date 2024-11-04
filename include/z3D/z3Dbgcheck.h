@@ -9,7 +9,7 @@ struct Actor;
 
 typedef struct ScaleRotPos {
     /* 0x00 */ Vec3f scale;
-    /* 0x0C */ Vec3s rot;
+    /* 0x0C */ Vec3f rot;
     /* 0x14 */ Vec3f pos;
 } ScaleRotPos; // size = 0x20
 
@@ -92,9 +92,11 @@ typedef struct BgActor {
     /* 0x04 */ CollisionHeader* colHeader;
     /* 0x08 */ DynaLookup dynaLookup;
     /* 0x10 */ u16 vtxStartIndex;
-    /* 0x14 */ ScaleRotPos prevTransform;
-    /* 0x34 */ ScaleRotPos curTransform;
-    /* 0x54 */ char unk_54[0x18];
+    /* 0x12 */ ScaleRotPos prevTransform;
+    /* 0x36 */ ScaleRotPos curTransform;
+    /* 0x5A */ Sphere16 boundingSphere;
+    /* 0x64 */ f32 minY;
+    /* 0x68 */ f32 maxY;
 } BgActor; // size = 0x6C
 _Static_assert(sizeof(BgActor) == 0x6C, "BgActor size");
 
@@ -113,7 +115,7 @@ typedef struct StaticCollisionContext {
 _Static_assert(sizeof(StaticCollisionContext) == 0x50, "StaticCollisionContext size");
 
 typedef struct DynaCollisionContext {
-    /* 0x0000 */ char   unk_00[0x04];
+    /* 0x0000 */ char unk_00[0x04];
     /* 0x0004 */ BgActor bgActors[BG_ACTOR_MAX];
     /* 0x151C */ u16 bgActorFlags[BG_ACTOR_MAX];
     /* 0x1580 */ CollisionPoly* polyList;
