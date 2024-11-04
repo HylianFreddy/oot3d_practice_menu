@@ -81,9 +81,9 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
         }
     }
     if (Scene_GetCollisionOption(COLVIEW_SHADED)) {
-        if (color.r >= 0.5) color.r -= 0.25 * normal.y + 0.25 * normal.z;
-        if (color.g >= 0.5) color.g -= 0.25 * normal.y + 0.25 * normal.z;
-        if (color.b >= 0.5) color.b -= 0.25 * normal.y + 0.25 * normal.z;
+        color.r -= color.r * (0.25 * normal.y + 0.25 * normal.z);
+        color.g -= color.g * (0.25 * normal.y + 0.25 * normal.z);
+        color.b -= color.b * (0.25 * normal.y + 0.25 * normal.z);
     }
 
     return (ColViewPoly){
