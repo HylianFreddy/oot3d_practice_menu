@@ -17,10 +17,12 @@ Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
         .z=(f32)(vtxList[vtxIdx].z),
     };
     if (!gStaticContext.renderGeometryDisable) {
-        // try to avoid z-fighting issues
-        pos.x += ((colPoly->norm.x > 0) ? 0.002 : -0.002);
-        pos.y += ((colPoly->norm.y > 0) ? 0.002 : -0.002);
-        pos.z += ((colPoly->norm.z > 0) ? 0.002 : -0.002);
+        // Try to avoid z-fighting issues by considering each
+        // vertex closer to the view point than it really is.
+        Vec3f eye = gGlobalContext->view.eye;
+        pos.x = (pos.x * 49 + eye.x) / 50;
+        pos.y = (pos.y * 49 + eye.y) / 50;
+        pos.z = (pos.z * 49 + eye.z) / 50;
     }
     return pos;
 }
