@@ -7,6 +7,7 @@
 #include "z3Dcutscene.h"
 #include "z3Ditem.h"
 #include "z3Dmath.h"
+#include "z3Dbgcheck.h"
 #include "color.h"
 
 // #include "hid.h"
@@ -255,81 +256,6 @@ typedef struct Camera {
     /* 0x1B2 */ char unk_1B2[0x00A];
 } Camera; // size = 0x1BC
 _Static_assert(sizeof(Camera) == 0x1BC, "Camera size");
-
-typedef struct SurfaceType {
-    u32 data[2];
-} SurfaceType;
-_Static_assert(sizeof(SurfaceType) == 0x8, "SurfaceType size");
-
-#define SurfaceType_CanHookshot(surfaceType) ((surfaceType.data[1] >> 17) & 1)
-#define SurfaceType_GetWallType(surfaceType) ((surfaceType.data[0] >> 21) & 0x1F)
-#define SurfaceType_GetFloorProperty(surfaceType) ((surfaceType.data[0] >> 26) & 0xF)
-#define SurfaceType_GetExitIndex(surfaceType) ((surfaceType.data[0] >> 8) & 0x1F)
-#define SurfaceType_GetFloorType(surfaceType) ((surfaceType.data[0] >> 13) & 0x1F)
-#define SurfaceType_GetWallDamage(surfaceType) ((surfaceType.data[1] >> 27) & 0x1)
-#define SurfaceType_GetFloorEffect(surfaceType) ((surfaceType.data[1] >> 4) & 0x3)
-
-typedef struct {
-    /* 0x00 */ Vec3s minBounds; // minimum coordinates of poly bounding box
-    /* 0x06 */ Vec3s maxBounds; // maximum coordinates of poly bounding box
-    /* 0x0C */ u16 numVertices;
-    /* 0x0E */ u16 numPolygons;
-    /* 0x10 */ u16 numSurfaceTypes;
-    /* 0x12 */ u16 numBgCams;
-    /* 0x14 */ u16 numWaterBoxes;
-    /* 0x18 */ Vec3s* vtxList;
-    /* 0x1C */ CollisionPoly* polyList;
-    /* 0x20 */ SurfaceType* surfaceTypeList;
-    /* 0x24 */ void* bgCamList; // BgCamInfo*
-    /* 0x28 */ void* waterBoxes; // WaterBox*
-} CollisionHeader; // original name: BGDataInfo
-_Static_assert(sizeof(CollisionHeader) == 0x2C, "CollisionHeader size");
-
-typedef struct {
-    s16 polyId;
-    u16 next; // next SSNode index
-} SSNode;
-
-typedef struct {
-    u16 head; // first SSNode index
-} SSList;
-
-typedef struct {
-    /* 0x00 */ u16 max;          // original name: short_slist_node_size
-    /* 0x02 */ u16 count;        // original name: short_slist_node_last_index
-    /* 0x04 */ SSNode* tbl;      // original name: short_slist_node_tbl
-    /* 0x08 */ u8* polyCheckTbl; // points to an array of bytes, one per static poly. Zero initialized when starting a
-                                 // bg check, and set to 1 if that poly has already been tested.
-} SSNodeList;
-
-typedef struct {
-    SSList floor;
-    SSList wall;
-    SSList ceiling;
-} StaticLookup;
-
-typedef struct {
-    /* 0x00 */ CollisionHeader* colHeader; // scene's static collision
-    /* 0x04 */ Vec3f minBounds;            // minimum coordinates of collision bounding box
-    /* 0x10 */ Vec3f maxBounds;            // maximum coordinates of collision bounding box
-    /* 0x1C */ Vec3i subdivAmount;         // x, y, z subdivisions of the scene's static collision
-    /* 0x28 */ Vec3f subdivLength;         // x, y, z subdivision worldspace lengths
-    /* 0x34 */ Vec3f subdivLengthInv;      // inverse of subdivision length
-    /* 0x40 */ StaticLookup* lookupTbl;    // 3d array of length subdivAmount
-    /* 0x44 */ SSNodeList polyNodes;
-} StaticCollisionContext; // size = 0x50
-
-typedef struct {
-    /* 0x0000 */ char   unk_00[0x04];
-    /* 0x0004 */ ActorMesh actorMeshArr[50];
-    /* 0x151C */ u16    flags[50];
-    /* 0x1580 */ char   unk_13F0[0x24];
-} DynaCollisionContext; // size = 0x15A4
-
-typedef struct {
-    /* 0x0000 */ StaticCollisionContext stat;
-    /* 0x0050 */ DynaCollisionContext   dyna;
-} CollisionContext; // size = 0x15F4
 
 typedef struct {
     /* 0x00 */ u8*  texture;
