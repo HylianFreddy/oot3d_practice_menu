@@ -7,6 +7,10 @@
 #include "menus/scene.h"
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define POLY_MAX_COUNT 64
+
+static CollisionPoly* sExtraPolys[POLY_MAX_COUNT] = { 0 };
+static u8 sExtraPolysCounter = 0;
 
 Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     Vec3s* vtxList = gGlobalContext->colCtx.stat.colHeader->vtxList;
@@ -225,10 +229,14 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     }
 }
 
-void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
+void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam, s32 firstPass) {
     ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
-    if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
-        ColView_DrawPoly(viewPoly);
+    if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly)) {
+        if (!firstPass || ColView_IsPolyCloseToLink(viewPoly)) {
+            ColView_DrawPoly(viewPoly);
+        } else if (firstPass && sExtraPolysCounter < POLY_MAX_COUNT) {
+            sExtraPolys[sExtraPolysCounter++] = colPoly;
+        }
     }
     if (invSeam) {
         ColView_DrawPolyForInvisibleSeam(colPoly);
@@ -238,7 +246,7 @@ void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
 void ColView_DrawAllFromNode(u16 nodeId) {
     while (nodeId != 0xFFFF) {
         SSNode node = gGlobalContext->colCtx.stat.polyNodes.tbl[nodeId];
-        ColView_DrawFromCollPoly(&gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId], 0);
+        ColView_DrawFromCollPoly(&gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId], FALSE, TRUE);
         nodeId = node.next;
     }
 }
@@ -267,5 +275,11 @@ void ColView_DrawCollision(void) {
     StaticLookup* lookup = &ctx.lookupTbl[lookupId];
     ColView_DrawAllFromLookup(lookup);
 
-    // CitraPrint("%X: %d / %d", lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
+    while ((gMainClass->sub32A0.polyCounter < gMainClass->sub32A0.polyMax) && sExtraPolysCounter > 0) {
+        ColView_DrawFromCollPoly(sExtraPolys[--sExtraPolysCounter], FALSE, FALSE);
+    }
+
+    sExtraPolysCounter = 0;
+
+    CitraPrint("%X: %d / %d", lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
 }
