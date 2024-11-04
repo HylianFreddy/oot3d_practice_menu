@@ -53,8 +53,6 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
     }
 }
 
-extern StaticLookup* ColView_Lookup;
-
 // Called between the `PlayState` update and draw functions.
 void after_GlobalContext_Update(GlobalContext* globalCtx) {
     if (waitingButtonRelease) {
@@ -67,8 +65,6 @@ void after_GlobalContext_Update(GlobalContext* globalCtx) {
 // Called after the `PlayState` draw function.
 void after_Play_Draw() {
     ColView_DrawCollision();
-    ColView_Lookup = 0;
-    // gMainClass->sub180.saModelsList1[1].saModel->unk_14->cmbManager = 0;
 }
 
 // Called once for every update on any GameState, before all the functions in the Graph_ThreadEntry loop.

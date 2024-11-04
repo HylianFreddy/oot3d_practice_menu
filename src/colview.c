@@ -252,7 +252,6 @@ void ColView_DrawAllFromLookup(StaticLookup* lookup) {
     ColView_DrawAllFromNode(lookup->ceiling.head);
 }
 
-StaticLookup* ColView_Lookup;
 void ColView_DrawCollision(void) {
     if (!Scene_GetCollisionOption(COLVIEW_STATIC_COLLISION) || Version_KOR || Version_TWN) {
         return;
