@@ -16,7 +16,6 @@ static BgActor* sBgActor;
 
 Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF;
-    CitraPrint("polyVtxId %X, vtxIdx %X, posX %f", polyVtxId, vtxIdx, sVtxList[vtxIdx + sBgActor->vtxStartIndex].x);
     Vec3f pos = {
         .x=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].x),
         .y=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].y),
@@ -106,6 +105,7 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
 
 s32 ColView_IsPolyVisible(ColViewPoly poly) {
     Vec3f eye = gGlobalContext->view.eye;
+    CitraPrint("%f, %f, %f, %f", poly.dist, poly.norm.x, poly.norm.y, poly.norm.z);
     return poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist > 0;
 
     // add check if cam is looking at poly
@@ -154,8 +154,8 @@ s32 ColView_IsPolyCloseToLink(ColViewPoly poly) {
         distCheckZ = 1;
     }
 
-    // CitraPrint("%X, %X, %X, %X", planeCheck, distCheckX, distCheckY, distCheckZ);
-    return planeCheck && distCheckX && distCheckY && distCheckZ;
+    CitraPrint("%X, %X, %X, %X", planeCheck, distCheckX, distCheckY, distCheckZ);
+    return distCheckX && distCheckY && distCheckZ;
 }
 
 static void ColView_DrawPoly(ColViewPoly poly) {
@@ -233,23 +233,10 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     // }
 }
 
-#include "menus/debug.h"
 void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
-    CitraPrint("%f, %X, %X, %X", colPoly->dist, colPoly->vtxData[0], colPoly->vtxData[1], colPoly->vtxData[2]);
-    // memoryEditorAddress = (u32)colPoly;
-    // menuOpen = 1;
-    // menuShow(&gz3DMenu);
     ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
-    // CitraPrint("%f, %f, %f", viewPoly.vA.x, viewPoly.vA.y, viewPoly.vA.z);
-    // CitraPrint(" ");
-    // CitraPrint("%f, %f, %f", viewPoly.vB.x, viewPoly.vB.y, viewPoly.vB.z);
-    // CitraPrint(" ");
-    // CitraPrint("%f, %f, %f", viewPoly.vC.x, viewPoly.vC.y, viewPoly.vC.z);
-    // CitraPrint(" ");
-    // CitraPrint(" ");
-    // CitraPrint(" ");
+    // CitraPrint("norm: %f, %f, %f", viewPoly.norm.x, viewPoly.norm.y, viewPoly.norm.z);
     if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
-        CitraPrint("drawing");
         ColView_DrawPoly(viewPoly);
     }
     if (invSeam) {
@@ -258,15 +245,11 @@ void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
 }
 
 void ColView_DrawAllFromNode(u16 nodeId) {
-    s32 i = 0;
     while (nodeId != 0xFFFF) {
         SSNode node = sNodeTbl[nodeId];
-        CitraPrint("node.polyId: 0x%X (%d)", node.polyId, node.polyId);
         ColView_DrawFromCollPoly(&sPolyList[node.polyId - sBgActor->dynaLookup.polyStartIndex], FALSE);
         nodeId = node.next;
-        i++;
     }
-    CitraPrint("i: %d", i);
 }
 
 void ColView_DrawAllFromStaticLookup(StaticLookup* statLookup) {
@@ -297,14 +280,6 @@ void ColView_DrawCollision(void) {
     sNodeTbl = dyna->polyNodes.tbl;
     // sPolyList = dyna->polyList;
 
-    memoryEditorAddress = (u32)gGlobalContext->colCtx.dyna.vtxList;
-
-    // static s32 vtxcounter = 0;
-    // Vec3f v = sVtxList[++vtxcounter];
-    // CitraPrint("sVtxList[%X/%X] %f, %f, %f", vtxcounter, dyna->vtxListMax, v.x , v.y, v.z);
-    // CitraPrint("vtxListMax = %X", dyna->vtxListMax);
-    // return;
-
     for (s32 i = 0; i < BG_ACTOR_MAX; i++) {
         if (!(dyna->bgActorFlags[i] & BGACTOR_IN_USE) ||
             dyna->bgActors[i].actor->xzDistToPlayer > 100 ||
@@ -312,13 +287,9 @@ void ColView_DrawCollision(void) {
             continue;
         }
 
-        memoryEditorAddress = (u32)&dyna->bgActors[i];
-        // menuOpen = 1;
-        // menuShow(&gz3DMenu);
         sSurfaceTypeList = dyna->bgActors[i].colHeader->surfaceTypeList;
         sPolyList = dyna->bgActors[i].colHeader->polyList;
         // sVtxList = dyna->bgActors[i].colHeader->vtxList;
-        CitraPrint("__________ bgActor #%X", i);
         sBgActor = &dyna->bgActors[i];
         ColView_DrawAllFromDynaLookup(&dyna->bgActors[i].dynaLookup);
     }
