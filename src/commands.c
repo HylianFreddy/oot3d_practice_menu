@@ -185,6 +185,9 @@ static void Command_HitboxView(void){
 
 static void Command_ToggleWatches(void){
     shouldDrawWatches = !shouldDrawWatches;
+    if (advance_ctx.advance_state == PAUSED) {
+        Watches_DrawWatches(shouldDrawWatches ? COLOR_WHITE : COLOR_BLACK);
+    }
 }
 
 static void Command_FreeCam(void){

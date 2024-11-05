@@ -41,4 +41,4 @@ extern Watch watches[WATCHES_MAX];
 extern bool shouldDrawWatches;
 
 void Watches_ShowWatchesMenu(void);
-void Watches_DrawWatches(void);
+void Watches_DrawWatches(u32 color);
