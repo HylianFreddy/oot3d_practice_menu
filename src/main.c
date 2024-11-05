@@ -141,7 +141,7 @@ void advance_main(void) {
     }
 
     if(shouldDrawWatches) {
-        Watches_DrawWatches();
+        Watches_DrawWatches(COLOR_WHITE);
     }
 
     if(gSaveContext.entranceIndex == 0x0629 && gSaveContext.cutsceneIndex == 0xFFF3 && gSaveContext.gameMode != 2){
