@@ -22,6 +22,16 @@ typedef struct CollisionPoly {
 } CollisionPoly; // size = 0x14
 _Static_assert(sizeof(CollisionPoly) == 0x14, "CollisionPoly size");
 
+typedef struct DynaCollisionPoly {
+    /* 0x00 */ u16    type;
+    /* 0x02 */ u16    vtxData[3]; // id for each vertex in the vtxList
+    /* 0x08 */ char   unk_08[0x2];
+    /* 0x0A */ Vec3s  norm;  // Normal vector
+    /* 0x10 */ f32    dist; // Plane distance from origin
+    /* 0x14 */ Vec3f  normF32; // Normal vector with floats
+} DynaCollisionPoly; // size = 0x20
+_Static_assert(sizeof(DynaCollisionPoly) == 0x20, "DynaCollisionPoly size");
+
 typedef struct SurfaceType {
     u32 data[2];
 } SurfaceType;
@@ -118,7 +128,7 @@ typedef struct DynaCollisionContext {
     /* 0x0000 */ char unk_00[0x04];
     /* 0x0004 */ BgActor bgActors[BG_ACTOR_MAX];
     /* 0x151C */ u16 bgActorFlags[BG_ACTOR_MAX];
-    /* 0x1580 */ CollisionPoly* polyList;
+    /* 0x1580 */ DynaCollisionPoly* polyList;
     /* 0x1584 */ Vec3f* vtxList;
     /* 0x1588 */ DynaSSNodeList polyNodes;
     /* 0x1594 */ s32 polyNodesMax;

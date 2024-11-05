@@ -933,8 +933,7 @@ void MemoryEditor_GoToPreset(void) {
         "colCtx",
         "mainclassfield",
         "colCtx.stat",
-        "lookupTbl",
-        "polyNodes.tbl",
+        "colCtx.dyna.polyList",
     };
     const void* const addresses[] = {
         &gSaveContext,
@@ -952,8 +951,7 @@ void MemoryEditor_GoToPreset(void) {
         &gGlobalContext->colCtx.stat,
         (void*)0x5C1858,
         &gGlobalContext->colCtx.stat,
-        gGlobalContext->colCtx.stat.lookupTbl,
-        gGlobalContext->colCtx.stat.polyNodes.tbl,
+        &gGlobalContext->colCtx.dyna.polyList,
     };
     const s32 addressesCount = sizeof(addresses)/sizeof(addresses[0]);
 

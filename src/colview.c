@@ -11,15 +11,20 @@
 static Vec3f* sVtxList;
 static SSNode* sNodeTbl;
 static CollisionPoly* sPolyList;
+static DynaCollisionPoly* sDynaPolyList;
 static SurfaceType* sSurfaceTypeList;
 static BgActor* sBgActor;
 
 Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF;
+    // sVtxList[vtxIdx + sBgActor->vtxStartIndex].x = 0;
+    // sVtxList[vtxIdx + sBgActor->vtxStartIndex].y = 0;
+    // sVtxList[vtxIdx + sBgActor->vtxStartIndex].z = 0;
+    // CitraPrint("vtxIdx: %X", vtxIdx);
     Vec3f pos = {
-        .x=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].x),
-        .y=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].y),
-        .z=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].z),
+        .x=(f32)(sVtxList[vtxIdx].x),
+        .y=(f32)(sVtxList[vtxIdx].y),
+        .z=(f32)(sVtxList[vtxIdx].z),
     };
     if (!gStaticContext.renderGeometryDisable) {
         // Try to avoid z-fighting issues by considering each
@@ -40,9 +45,10 @@ Vec3f ColView_GetNormal(CollisionPoly* colPoly) {
     };
 }
 
-ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
+ColViewPoly ColView_GetColViewPoly(DynaCollisionPoly* dynaPoly) {
+    CollisionPoly* colPoly = (CollisionPoly*)dynaPoly;
     SurfaceType surfaceType = sSurfaceTypeList[colPoly->type];
-    Vec3f normal = ColView_GetNormal(colPoly);
+    Vec3f normal = dynaPoly->normF32;//ColView_GetNormal(colPoly);
     Color_RGBAf color;
 
     color.a = Scene_GetCollisionOption(COLVIEW_TRANSLUCENT) ? 0.5 : 1.0;
@@ -93,19 +99,24 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly) {
         color.b -= color.b * ABS(0.30 * normal.y + 0.25 * normal.z);
     }
 
-    return (ColViewPoly){
+    ColViewPoly viewPoly = (ColViewPoly){
         .vA = ColView_GetVtxPos(colPoly, 0),
         .vB = ColView_GetVtxPos(colPoly, 1),
         .vC = ColView_GetVtxPos(colPoly, 2),
         .norm = normal,
-        .dist = colPoly->dist,
+        .dist = dynaPoly->dist,
         .color = color,
     };
+
+    // calculate poly dist because the base one is wrong for dynapoly
+    viewPoly.dist = -(viewPoly.norm.x * viewPoly.vA.x + viewPoly.norm.y * viewPoly.vA.y + viewPoly.norm.z * viewPoly.vA.z);
+
+    return viewPoly;
 }
 
 s32 ColView_IsPolyVisible(ColViewPoly poly) {
     Vec3f eye = gGlobalContext->view.eye;
-    CitraPrint("%f, %f, %f, %f", poly.dist, poly.norm.x, poly.norm.y, poly.norm.z);
+    // CitraPrint("%f, %f, %f, %f", poly.dist, poly.norm.x, poly.norm.y, poly.norm.z);
     return poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist > 0;
 
     // add check if cam is looking at poly
@@ -154,8 +165,8 @@ s32 ColView_IsPolyCloseToLink(ColViewPoly poly) {
         distCheckZ = 1;
     }
 
-    CitraPrint("%X, %X, %X, %X", planeCheck, distCheckX, distCheckY, distCheckZ);
-    return distCheckX && distCheckY && distCheckZ;
+    // CitraPrint("%X, %X, %X, %X", planeCheck, distCheckX, distCheckY, distCheckZ);
+    return planeCheck && distCheckX && distCheckY && distCheckZ;
 }
 
 static void ColView_DrawPoly(ColViewPoly poly) {
@@ -233,21 +244,22 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     // }
 }
 
-void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
+void ColView_DrawFromCollPoly(DynaCollisionPoly* colPoly, s32 invSeam) {
     ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
     // CitraPrint("norm: %f, %f, %f", viewPoly.norm.x, viewPoly.norm.y, viewPoly.norm.z);
+    // CitraPrint("va: %f, %f, %f", viewPoly.vA.x, viewPoly.vA.y, viewPoly.vA.z);
     if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
         ColView_DrawPoly(viewPoly);
     }
     if (invSeam) {
-        ColView_DrawPolyForInvisibleSeam(colPoly);
+        ColView_DrawPolyForInvisibleSeam((CollisionPoly*)colPoly);
     }
 }
 
 void ColView_DrawAllFromNode(u16 nodeId) {
     while (nodeId != 0xFFFF) {
         SSNode node = sNodeTbl[nodeId];
-        ColView_DrawFromCollPoly(&sPolyList[node.polyId - sBgActor->dynaLookup.polyStartIndex], FALSE);
+        ColView_DrawFromCollPoly(&sDynaPolyList[node.polyId ], FALSE);
         nodeId = node.next;
     }
 }
@@ -270,6 +282,7 @@ void ColView_DrawAllFromDynaLookup(DynaLookup* dynaLookup) {
     ColView_DrawAllFromNode(dynaLookup->ceiling.head);
 }
 
+#define MAX_BGACTOR_DIST 1000
 void ColView_DrawCollision(void) {
     if (!Scene_GetCollisionOption(COLVIEW_STATIC_COLLISION) || Version_KOR || Version_TWN) {
         return;
@@ -278,20 +291,26 @@ void ColView_DrawCollision(void) {
     DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
     sVtxList = dyna->vtxList;
     sNodeTbl = dyna->polyNodes.tbl;
-    // sPolyList = dyna->polyList;
+    sDynaPolyList = dyna->polyList;
 
     for (s32 i = 0; i < BG_ACTOR_MAX; i++) {
-        if (!(dyna->bgActorFlags[i] & BGACTOR_IN_USE) ||
-            dyna->bgActors[i].actor->xzDistToPlayer > 100 ||
-            dyna->bgActors[i].actor->yDistToPlayer > 100) {
+        if (!(dyna->bgActorFlags[i] & BGACTOR_IN_USE)
+            // || dyna->bgActors[i].actor->xzDistToPlayer > MAX_BGACTOR_DIST
+            // || dyna->bgActors[i].actor->yDistToPlayer > MAX_BGACTOR_DIST
+            ) {
             continue;
         }
 
         sSurfaceTypeList = dyna->bgActors[i].colHeader->surfaceTypeList;
         sPolyList = dyna->bgActors[i].colHeader->polyList;
-        // sVtxList = dyna->bgActors[i].colHeader->vtxList;
+        // sVtxList = dyna->bgActors[i].colHeader->vtxList; NO, S16
         sBgActor = &dyna->bgActors[i];
         ColView_DrawAllFromDynaLookup(&dyna->bgActors[i].dynaLookup);
+        // memoryEditorAddress = (u32)&dyna->polyList[dyna->bgActors[i].dynaLookup.polyStartIndex];
+        // memoryEditorAddress = (u32)&dyna->bgActors[i].colHeader->polyList[0];
+        // menuOpen=1;
+        // menuShow(&gz3DMenu);
+        // CitraPrint("%X, %X", dyna->polyList, dyna->bgActors[i].colHeader->polyList);
     }
 
     // StaticCollisionContext stat = gGlobalContext->colCtx.stat;
