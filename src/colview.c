@@ -8,17 +8,19 @@
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
-static Vec3s* sVtxList;
+static Vec3f* sVtxList;
 static SSNode* sNodeTbl;
 static CollisionPoly* sPolyList;
 static SurfaceType* sSurfaceTypeList;
+static BgActor* sBgActor;
 
 Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF;
+    CitraPrint("polyVtxId %X, vtxIdx %X, posX %f", polyVtxId, vtxIdx, sVtxList[vtxIdx + sBgActor->vtxStartIndex].x);
     Vec3f pos = {
-        .x=(f32)(sVtxList[vtxIdx].x),
-        .y=(f32)(sVtxList[vtxIdx].y),
-        .z=(f32)(sVtxList[vtxIdx].z),
+        .x=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].x),
+        .y=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].y),
+        .z=(f32)(sVtxList[vtxIdx + sBgActor->vtxStartIndex].z),
     };
     if (!gStaticContext.renderGeometryDisable) {
         // Try to avoid z-fighting issues by considering each
@@ -152,6 +154,7 @@ s32 ColView_IsPolyCloseToLink(ColViewPoly poly) {
         distCheckZ = 1;
     }
 
+    // CitraPrint("%X, %X, %X, %X", planeCheck, distCheckX, distCheckY, distCheckZ);
     return planeCheck && distCheckX && distCheckY && distCheckZ;
 }
 
@@ -161,78 +164,92 @@ static void ColView_DrawPoly(ColViewPoly poly) {
 }
 
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
-    const f32 EPSILON_OOT3D = 0.00008;
-    const f32 EPSILON_OOT = 0.008;
+    // const f32 EPSILON_OOT3D = 0.00008;
+    // const f32 EPSILON_OOT = 0.008;
 
-    Vec3f normal = ColView_GetNormal(colPoly);
+    // Vec3f normal = ColView_GetNormal(colPoly);
 
-    if (normal.y > EPSILON_OOT3D && normal.y < EPSILON_OOT) {
-        u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
-        for (s32 p = 0; p < 3; p++) {
-            u8* pair = pairs[p];
-            Vec3s vtx1 = sVtxList[colPoly->vtxData[pair[0] & 0x1FFF]];
-            Vec3s vtx2 = sVtxList[colPoly->vtxData[pair[1] & 0x1FFF]];
+    // if (normal.y > EPSILON_OOT3D && normal.y < EPSILON_OOT) {
+    //     u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
+    //     for (s32 p = 0; p < 3; p++) {
+    //         u8* pair = pairs[p];
+    //         Vec3s vtx1 = sVtxList[colPoly->vtxData[pair[0] & 0x1FFF]];
+    //         Vec3s vtx2 = sVtxList[colPoly->vtxData[pair[1] & 0x1FFF]];
 
-            s32 edge_d_z = vtx2.z - vtx1.z;
-            s32 edge_d_x = vtx2.x - vtx1.x;
+    //         s32 edge_d_z = vtx2.z - vtx1.z;
+    //         s32 edge_d_x = vtx2.x - vtx1.x;
 
-            if (edge_d_z != 0 && edge_d_x != 0) {
-                f32 extend_1_y = -((normal.x * vtx1.x) + (normal.z * vtx1.z) + colPoly->dist) / normal.y;
-                f32 extend_2_y = -((normal.x * vtx2.x) + (normal.z * vtx2.z) + colPoly->dist) / normal.y;
+    //         if (edge_d_z != 0 && edge_d_x != 0) {
+    //             f32 extend_1_y = -((normal.x * vtx1.x) + (normal.z * vtx1.z) + colPoly->dist) / normal.y;
+    //             f32 extend_2_y = -((normal.x * vtx2.x) + (normal.z * vtx2.z) + colPoly->dist) / normal.y;
 
-                Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
-                Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
-                Vec3f v1ext = (Vec3f){
-                    .x = v1.x,
-                    .y = extend_1_y,
-                    .z = v1.z,
-                };
-                Vec3f v2ext = (Vec3f){
-                    .x = v2.x,
-                    .y = extend_2_y,
-                    .z = v2.z,
-                };
+    //             Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
+    //             Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
+    //             Vec3f v1ext = (Vec3f){
+    //                 .x = v1.x,
+    //                 .y = extend_1_y,
+    //                 .z = v1.z,
+    //             };
+    //             Vec3f v2ext = (Vec3f){
+    //                 .x = v2.x,
+    //                 .y = extend_2_y,
+    //                 .z = v2.z,
+    //             };
 
-                // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
+    //             // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
 
-                // Don't draw seams that extend downwards or only a few units above the poly
-                if (extend_1_y < v1.y + 50.0 && extend_2_y < v2.y + 50.0) {
-                    continue;
-                }
+    //             // Don't draw seams that extend downwards or only a few units above the poly
+    //             if (extend_1_y < v1.y + 50.0 && extend_2_y < v2.y + 50.0) {
+    //                 continue;
+    //             }
 
-                ColView_DrawPoly((ColViewPoly){
-                    .vA = v1,
-                    .vB = v2,
-                    .vC = v1ext,
-                    .norm = ColView_GetNormal(colPoly),
-                    .color = {
-                        .r = 1.0f,
-                        .g = 0.0f,
-                        .b = 1.0f,
-                        .a = 0.50f,
-                    },
-                });
+    //             ColView_DrawPoly((ColViewPoly){
+    //                 .vA = v1,
+    //                 .vB = v2,
+    //                 .vC = v1ext,
+    //                 .norm = ColView_GetNormal(colPoly),
+    //                 .color = {
+    //                     .r = 1.0f,
+    //                     .g = 0.0f,
+    //                     .b = 1.0f,
+    //                     .a = 0.50f,
+    //                 },
+    //             });
 
-                ColView_DrawPoly((ColViewPoly){
-                    .vA = v2,
-                    .vB = v1ext,
-                    .vC = v2ext,
-                    .norm = ColView_GetNormal(colPoly),
-                    .color = {
-                        .r = 1.0f,
-                        .g = 0.0f,
-                        .b = 1.0f,
-                        .a = 0.50f,
-                    },
-                });
-            }
-        }
-    }
+    //             ColView_DrawPoly((ColViewPoly){
+    //                 .vA = v2,
+    //                 .vB = v1ext,
+    //                 .vC = v2ext,
+    //                 .norm = ColView_GetNormal(colPoly),
+    //                 .color = {
+    //                     .r = 1.0f,
+    //                     .g = 0.0f,
+    //                     .b = 1.0f,
+    //                     .a = 0.50f,
+    //                 },
+    //             });
+    //         }
+    //     }
+    // }
 }
 
+#include "menus/debug.h"
 void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
+    CitraPrint("%f, %X, %X, %X", colPoly->dist, colPoly->vtxData[0], colPoly->vtxData[1], colPoly->vtxData[2]);
+    // memoryEditorAddress = (u32)colPoly;
+    // menuOpen = 1;
+    // menuShow(&gz3DMenu);
     ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
+    // CitraPrint("%f, %f, %f", viewPoly.vA.x, viewPoly.vA.y, viewPoly.vA.z);
+    // CitraPrint(" ");
+    // CitraPrint("%f, %f, %f", viewPoly.vB.x, viewPoly.vB.y, viewPoly.vB.z);
+    // CitraPrint(" ");
+    // CitraPrint("%f, %f, %f", viewPoly.vC.x, viewPoly.vC.y, viewPoly.vC.z);
+    // CitraPrint(" ");
+    // CitraPrint(" ");
+    // CitraPrint(" ");
     if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
+        CitraPrint("drawing");
         ColView_DrawPoly(viewPoly);
     }
     if (invSeam) {
@@ -241,11 +258,15 @@ void ColView_DrawFromCollPoly(CollisionPoly* colPoly, s32 invSeam) {
 }
 
 void ColView_DrawAllFromNode(u16 nodeId) {
+    s32 i = 0;
     while (nodeId != 0xFFFF) {
         SSNode node = sNodeTbl[nodeId];
-        ColView_DrawFromCollPoly(&sPolyList[node.polyId], FALSE);
+        CitraPrint("node.polyId: 0x%X (%d)", node.polyId, node.polyId);
+        ColView_DrawFromCollPoly(&sPolyList[node.polyId - sBgActor->dynaLookup.polyStartIndex], FALSE);
         nodeId = node.next;
+        i++;
     }
+    CitraPrint("i: %d", i);
 }
 
 void ColView_DrawAllFromStaticLookup(StaticLookup* statLookup) {
@@ -271,35 +292,50 @@ void ColView_DrawCollision(void) {
         return;
     }
 
-    DynaCollisionContext dyna = gGlobalContext->colCtx.dyna;
-    sVtxList = dyna.vtxList;
-    sNodeTbl = dyna.polyNodes.tbl;
-    sPolyList = dyna.polyList;
+    DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
+    sVtxList = dyna->vtxList;
+    sNodeTbl = dyna->polyNodes.tbl;
+    // sPolyList = dyna->polyList;
+
+    memoryEditorAddress = (u32)gGlobalContext->colCtx.dyna.vtxList;
+
+    // static s32 vtxcounter = 0;
+    // Vec3f v = sVtxList[++vtxcounter];
+    // CitraPrint("sVtxList[%X/%X] %f, %f, %f", vtxcounter, dyna->vtxListMax, v.x , v.y, v.z);
+    // CitraPrint("vtxListMax = %X", dyna->vtxListMax);
+    // return;
 
     for (s32 i = 0; i < BG_ACTOR_MAX; i++) {
-        if (!(dyna.bgActorFlags[i] & BGACTOR_IN_USE) ||
-            dyna.bgActors[i].actor->xzDistToPlayer > 100 ||
-            dyna.bgActors[i].actor->yDistToPlayer > 100) {
+        if (!(dyna->bgActorFlags[i] & BGACTOR_IN_USE) ||
+            dyna->bgActors[i].actor->xzDistToPlayer > 100 ||
+            dyna->bgActors[i].actor->yDistToPlayer > 100) {
             continue;
         }
 
-        sSurfaceTypeList = dyna.bgActors[i].colHeader->surfaceTypeList;
-        ColView_DrawAllFromDynaLookup(&dyna.bgActors[i].dynaLookup);
+        memoryEditorAddress = (u32)&dyna->bgActors[i];
+        // menuOpen = 1;
+        // menuShow(&gz3DMenu);
+        sSurfaceTypeList = dyna->bgActors[i].colHeader->surfaceTypeList;
+        sPolyList = dyna->bgActors[i].colHeader->polyList;
+        // sVtxList = dyna->bgActors[i].colHeader->vtxList;
+        CitraPrint("__________ bgActor #%X", i);
+        sBgActor = &dyna->bgActors[i];
+        ColView_DrawAllFromDynaLookup(&dyna->bgActors[i].dynaLookup);
     }
 
-    StaticCollisionContext stat = gGlobalContext->colCtx.stat;
-    sVtxList = stat.colHeader->vtxList;
-    sNodeTbl = stat.polyNodes.tbl;
-    sPolyList = stat.colHeader->polyList;
-    sSurfaceTypeList = stat.colHeader->surfaceTypeList;
-    Vec3i sector = { 0 };
-    BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
-    s32 lookupId =
-        sector.x +
-        (sector.y * stat.subdivAmount.x) +
-        (sector.z * stat.subdivAmount.x * stat.subdivAmount.y);
-    StaticLookup* lookup = &stat.lookupTbl[lookupId];
-    ColView_DrawAllFromStaticLookup(lookup);
+    // StaticCollisionContext stat = gGlobalContext->colCtx.stat;
+    // sVtxList = stat.colHeader->vtxList;
+    // sNodeTbl = stat.polyNodes.tbl;
+    // sPolyList = stat.colHeader->polyList;
+    // sSurfaceTypeList = stat.colHeader->surfaceTypeList;
+    // Vec3i sector = { 0 };
+    // BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
+    // s32 lookupId =
+    //     sector.x +
+    //     (sector.y * stat.subdivAmount.x) +
+    //     (sector.z * stat.subdivAmount.x * stat.subdivAmount.y);
+    // StaticLookup* lookup = &stat.lookupTbl[lookupId];
+    // ColView_DrawAllFromStaticLookup(lookup);
 
     // CitraPrint("%X: %d / %d", lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
 }

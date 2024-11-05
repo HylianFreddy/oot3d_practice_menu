@@ -119,7 +119,7 @@ typedef struct DynaCollisionContext {
     /* 0x0004 */ BgActor bgActors[BG_ACTOR_MAX];
     /* 0x151C */ u16 bgActorFlags[BG_ACTOR_MAX];
     /* 0x1580 */ CollisionPoly* polyList;
-    /* 0x1584 */ Vec3s* vtxList;
+    /* 0x1584 */ Vec3f* vtxList;
     /* 0x1588 */ DynaSSNodeList polyNodes;
     /* 0x1594 */ s32 polyNodesMax;
     /* 0x1598 */ s32 polyListMax;
