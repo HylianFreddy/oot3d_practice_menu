@@ -47,7 +47,7 @@ static void Watches_EditPos(s32 watchId) {
 
     do {
         Draw_Lock();
-        Watches_DrawWatches();
+        Watches_DrawWatches(COLOR_WHITE);
         Watches_DrawWatch(watches[watchId], COLOR_GREEN);
         Draw_DrawString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "Hold X: Move fast    Start: Reset position");
         Draw_FlushFramebuffer();
@@ -339,9 +339,9 @@ static void Watches_DrawWatch(Watch watch, u32 color) {
     #undef DrawThisWatchWithFormat
 }
 
-void Watches_DrawWatches(void) {
+void Watches_DrawWatches(u32 color) {
     for(u32 i = 0; i < WATCHES_MAX; ++i) {
-        Watches_DrawWatch(watches[i], COLOR_WHITE);
+        Watches_DrawWatch(watches[i], color);
     }
     Draw_FlushFramebuffer();
 }
