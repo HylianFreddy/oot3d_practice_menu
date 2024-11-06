@@ -42,8 +42,8 @@ ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfac
                                 .y = colPoly->norm.y / 32767.0,
                                 .z = colPoly->norm.z / 32767.0,
                             };
-    Color_RGBAf color;
 
+    Color_RGBAf color;
     color.a = Scene_GetCollisionOption(COLVIEW_TRANSLUCENT) ? 0.5 : 1.0;
 
     if (Scene_GetCollisionOption(COLVIEW_POLYGON_CLASS)) {
@@ -93,9 +93,11 @@ ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfac
     }
 
     return (ColViewPoly){
-        .vA = ColView_GetVtxPos(colPoly->vtxData[0], isDyna),
-        .vB = ColView_GetVtxPos(colPoly->vtxData[1], isDyna),
-        .vC = ColView_GetVtxPos(colPoly->vtxData[2], isDyna),
+        .verts = {
+            ColView_GetVtxPos(colPoly->vtxData[0], isDyna),
+            ColView_GetVtxPos(colPoly->vtxData[1], isDyna),
+            ColView_GetVtxPos(colPoly->vtxData[2], isDyna),
+        },
         .norm = normal,
         .dist = colPoly->dist,
         .color = color,
@@ -105,56 +107,39 @@ ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfac
 #define MAX_PLANE_DIST 150
 #define MAX_VERT_DIST 150
 s32 ColView_ShouldDrawPoly(ColViewPoly poly) {
+    // Check if poly is invisible
     if (poly.color.a == 0.0) {
-        // Poly is invisible
         return FALSE;
     }
 
+    // Check if view point is behind the poly (back-face culling)
     Vec3f eye = gGlobalContext->view.eye;
     if (poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist <= 0) {
-        // View point is behind the poly (back-face culling)
         return FALSE;
     }
 
     // TODO: check if camera is looking at poly
 
+    // Check if player is far from the poly's plane
     Vec3f pos = PLAYER->actor.world.pos;
     if (ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) > MAX_PLANE_DIST) {
-        // Player is far from the poly's plane
         return FALSE;
     }
 
-    f32 vAxDiff = poly.vA.x - PLAYER->actor.world.pos.x;
-    f32 vBxDiff = poly.vB.x - PLAYER->actor.world.pos.x;
-    f32 vCxDiff = poly.vC.x - PLAYER->actor.world.pos.x;
+    // Check if player is far from the closest point of the poly, for each axis
+    // TODO: improve this
+    f32(*playerCoords)[3] = (f32(*)[3])&PLAYER->actor.world.pos;
+    f32(*polyVertsCoords)[3][3] = (f32(*)[3][3])&poly.verts;
+    for (s32 i = 0; i < 3; i++) {
+        f32 vADist = (*polyVertsCoords)[0][i] - (*playerCoords)[i];
+        f32 vBDist = (*polyVertsCoords)[1][i] - (*playerCoords)[i];
+        f32 vCDist = (*polyVertsCoords)[2][i] - (*playerCoords)[i];
 
-    if (((vAxDiff < 0 && vBxDiff < 0 && vCxDiff < 0) ||
-        (vAxDiff > 0 && vBxDiff > 0 && vCxDiff > 0)) &&
-        (MIN(MIN(ABS(vAxDiff), ABS(vBxDiff)), ABS(vCxDiff)) > MAX_VERT_DIST)) {
-        // Player is far from the closest point of the poly, on the X axis
-        return FALSE;
-    }
-
-    f32 vAyDiff = poly.vA.y - PLAYER->actor.world.pos.y;
-    f32 vByDiff = poly.vB.y - PLAYER->actor.world.pos.y;
-    f32 vCyDiff = poly.vC.y - PLAYER->actor.world.pos.y;
-
-    if (((vAyDiff < 0 && vByDiff < 0 && vCyDiff < 0) ||
-        (vAyDiff > 0 && vByDiff > 0 && vCyDiff > 0)) &&
-        (MIN(MIN(ABS(vAyDiff), ABS(vByDiff)), ABS(vCyDiff)) > MAX_VERT_DIST)) {
-        // Player is far from the closest point of the poly, on the Y axis
-        return FALSE;
-    }
-
-    f32 vAzDiff = poly.vA.z - PLAYER->actor.world.pos.z;
-    f32 vBzDiff = poly.vB.z - PLAYER->actor.world.pos.z;
-    f32 vCzDiff = poly.vC.z - PLAYER->actor.world.pos.z;
-
-    if (((vAzDiff < 0 && vBzDiff < 0 && vCzDiff < 0) ||
-        (vAzDiff > 0 && vBzDiff > 0 && vCzDiff > 0)) &&
-        (MIN(MIN(ABS(vAzDiff), ABS(vBzDiff)), ABS(vCzDiff)) > MAX_VERT_DIST)) {
-        // Player is far from the closest point of the poly, on the Z axis
-        return FALSE;
+        if (((vADist < 0 && vBDist < 0 && vCDist < 0) ||
+            (vADist > 0 && vBDist > 0 && vCDist > 0)) &&
+            (MIN(MIN(ABS(vADist), ABS(vBDist)), ABS(vCDist)) > MAX_VERT_DIST)) {
+            return FALSE;
+        }
     }
 
     return TRUE;
@@ -162,7 +147,7 @@ s32 ColView_ShouldDrawPoly(ColViewPoly poly) {
 
 static void ColView_DrawPoly(ColViewPoly poly) {
     // max count is 64 polys
-    Collider_DrawPolyImpl(&gMainClass->sub32A0, &poly.vA, &poly.vB, &poly.vC, &poly.color);
+    Collider_DrawPolyImpl(&gMainClass->sub32A0, &poly.verts[0], &poly.verts[1], &poly.verts[2], &poly.color);
 }
 
 void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
@@ -291,5 +276,5 @@ void ColView_DrawCollision(void) {
         ColView_DrawAllFromNode(staticLookup->ceiling.head, statNodeTbl, statSurfaceTypeList, FALSE);
     }
 
-    // CitraPrint("%X: %d / %d", lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
+    CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
 }
