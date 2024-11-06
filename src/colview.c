@@ -8,12 +8,12 @@
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
-static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, s32 isDyna);
-static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, s32 isDyna);
+static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna);
+static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static void ColView_DrawPoly(ColViewPoly poly);
-static s32 ColView_ShouldDrawPoly(ColViewPoly poly);
-static Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna);
-static void ColView_DrawPolyForInvisibleSeam(ColViewPoly* poly);
+static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
+static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
+static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
 void ColView_DrawCollision(void) {
     if (!Scene_GetCollisionOption(COLVIEW_SHOW_COLLISION) || Version_KOR || Version_TWN) {
@@ -60,7 +60,7 @@ void ColView_DrawCollision(void) {
     CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
 }
 
-static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, s32 isDyna) {
+static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna) {
     while (nodeId != 0xFFFF) {
         SSNode node = nodeTbl[nodeId];
         CollisionPoly* colPoly = isDyna ? &gGlobalContext->colCtx.dyna.polyList[node.polyId].colPoly
@@ -70,13 +70,13 @@ static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* su
             ColView_DrawPoly(viewPoly);
         }
         if (Scene_GetCollisionOption(COLVIEW_INVISIBLE_SEAMS)) {
-            ColView_DrawPolyForInvisibleSeam(&viewPoly);
+            ColView_DrawPolyForInvisibleSeam(colPoly, viewPoly.norm, viewPoly.color.a, isDyna);
         }
         nodeId = node.next;
     }
 }
 
-static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, s32 isDyna) {
+static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna) {
     SurfaceType surfaceType = surfaceTypeList[colPoly->type];
     Vec3f normal = isDyna ? ((DynaCollisionPoly*)colPoly)->normF32
                           : (Vec3f){
@@ -134,11 +134,14 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
         color.b -= color.b * ABS(0.30 * normal.y + 0.25 * normal.z);
     }
 
+    u8 preventZFighting = (!isDyna && !gStaticContext.renderGeometryDisable) ||
+                           (isDyna && !HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on);
+
     return (ColViewPoly){
         .verts = {
-            ColView_GetVtxPos(colPoly->vtxData[0], isDyna),
-            ColView_GetVtxPos(colPoly->vtxData[1], isDyna),
-            ColView_GetVtxPos(colPoly->vtxData[2], isDyna),
+            ColView_GetVtxPos(colPoly->vtxData[0], isDyna, preventZFighting),
+            ColView_GetVtxPos(colPoly->vtxData[1], isDyna, preventZFighting),
+            ColView_GetVtxPos(colPoly->vtxData[2], isDyna, preventZFighting),
         },
         .norm = normal,
         .dist = colPoly->dist,
@@ -153,7 +156,7 @@ static void ColView_DrawPoly(ColViewPoly poly) {
 
 #define MAX_PLANE_DIST 150
 #define MAX_VERT_DIST 150
-static s32 ColView_ShouldDrawPoly(ColViewPoly poly) {
+static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
     // Check if poly is invisible
     if (poly.color.a == 0.0) {
         return FALSE;
@@ -192,7 +195,7 @@ static s32 ColView_ShouldDrawPoly(ColViewPoly poly) {
     return TRUE;
 }
 
-static Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna) {
+static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting) {
     vtxIdx &= 0x1FFF; // First 3 bits are flags
     Vec3f pos;
     if (isDyna) {
@@ -206,8 +209,7 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna) {
         pos.y = (f32)(vtxListS16[vtxIdx].y);
         pos.z = (f32)(vtxListS16[vtxIdx].z);
     }
-    if ((!isDyna && !gStaticContext.renderGeometryDisable) ||
-        (isDyna && !HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on)) {
+    if (preventZFighting) {
         // Try to avoid z-fighting issues by considering each
         // vertex closer to the view point than it really is.
         Vec3f eye = gGlobalContext->view.eye;
@@ -218,25 +220,22 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna) {
     return pos;
 }
 
-static void ColView_DrawPolyForInvisibleSeam(ColViewPoly* poly) {
-    const f32 EPSILON_OOT3D = 0.00008;
-    const f32 EPSILON_OOT = 0.008;
-
-    Vec3f norm = poly->norm;
-
-    if (norm.y > EPSILON_OOT3D && norm.y < EPSILON_OOT) { // change check
+#define EPSILON_OOT3D 0.00008f
+#define EPSILON_OOT 0.008f
+static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna) {
+    if (ABS(norm.y) > EPSILON_OOT3D) {
         u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
         for (s32 p = 0; p < 3; p++) {
             u8* pair = pairs[p];
-            Vec3f v1 = poly->verts[pair[0]];
-            Vec3f v2 = poly->verts[pair[1]];
+            Vec3f v1 = ColView_GetVtxPos(colPoly->vtxData[pair[0]], isDyna, FALSE);
+            Vec3f v2 = ColView_GetVtxPos(colPoly->vtxData[pair[1]], isDyna, FALSE);
 
             s32 edge_d_z = v2.z - v1.z;
             s32 edge_d_x = v2.x - v1.x;
 
             if (edge_d_z != 0 && edge_d_x != 0) {
-                f32 extend_1_y = -((norm.x * v1.x) + (norm.z * v1.z) + poly->dist) / norm.y;
-                f32 extend_2_y = -((norm.x * v2.x) + (norm.z * v2.z) + poly->dist) / norm.y;
+                f32 extend_1_y = -((norm.x * v1.x) + (norm.z * v1.z) + colPoly->dist) / norm.y;
+                f32 extend_2_y = -((norm.x * v2.x) + (norm.z * v2.z) + colPoly->dist) / norm.y;
 
                 Vec3f v1ext = (Vec3f){
                     .x = v1.x,
@@ -267,7 +266,7 @@ static void ColView_DrawPolyForInvisibleSeam(ColViewPoly* poly) {
                         .r = 1.0f,
                         .g = 0.0f,
                         .b = 1.0f,
-                        .a = poly->color.a,
+                        .a = alpha,
                     },
                 });
 
@@ -282,7 +281,7 @@ static void ColView_DrawPolyForInvisibleSeam(ColViewPoly* poly) {
                         .r = 1.0f,
                         .g = 0.0f,
                         .b = 1.0f,
-                        .a = poly->color.a,
+                        .a = alpha,
                     },
                 });
             }
