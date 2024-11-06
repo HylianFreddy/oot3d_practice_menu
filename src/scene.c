@@ -21,8 +21,9 @@ ToggleMenu CollisionMenu = {
     .initialCursorPos = 0,
     {
         {1, "Show Collision (WIP)", .method = Scene_ToggleCollisionOption},
-        {1, " Static Collision", .method = Scene_ToggleCollisionOption},
-        {1, " Dynamic Collision", .method = Scene_ToggleCollisionOption},
+        {1, "  Draw Static Polys", .method = Scene_ToggleCollisionOption},
+        {1, "  Draw Dynamic Polys", .method = Scene_ToggleCollisionOption},
+        {1, "  Draw Invisible Seams", .method = Scene_ToggleCollisionOption},
         {1, "  Translucent", .method = Scene_ToggleCollisionOption},
         {0, "  Polygon Class", .method = Scene_ToggleCollisionOption},
         {1, "  Shaded", .method = Scene_ToggleCollisionOption},

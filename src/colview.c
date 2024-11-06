@@ -13,7 +13,7 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
 static void ColView_DrawPoly(ColViewPoly poly);
 static s32 ColView_ShouldDrawPoly(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna);
-static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly);
+static void ColView_DrawPolyForInvisibleSeam(ColViewPoly* poly);
 
 void ColView_DrawCollision(void) {
     if (!Scene_GetCollisionOption(COLVIEW_SHOW_COLLISION) || Version_KOR || Version_TWN) {
@@ -68,6 +68,9 @@ static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* su
         ColViewPoly viewPoly = ColView_BuildColViewPoly(colPoly, surfaceTypeList, isDyna);
         if (ColView_ShouldDrawPoly(viewPoly)) {
             ColView_DrawPoly(viewPoly);
+        }
+        if (Scene_GetCollisionOption(COLVIEW_INVISIBLE_SEAMS)) {
+            ColView_DrawPolyForInvisibleSeam(&viewPoly);
         }
         nodeId = node.next;
     }
@@ -215,72 +218,74 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna) {
     return pos;
 }
 
-static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
-    // const f32 EPSILON_OOT3D = 0.00008;
-    // const f32 EPSILON_OOT = 0.008;
+static void ColView_DrawPolyForInvisibleSeam(ColViewPoly* poly) {
+    const f32 EPSILON_OOT3D = 0.00008;
+    const f32 EPSILON_OOT = 0.008;
 
-    // Vec3f normal = ColView_GetNormal(colPoly);
+    Vec3f norm = poly->norm;
 
-    // if (normal.y > EPSILON_OOT3D && normal.y < EPSILON_OOT) {
-    //     u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
-    //     for (s32 p = 0; p < 3; p++) {
-    //         u8* pair = pairs[p];
-    //         Vec3s vtx1 = sVtxList[colPoly->vtxData[pair[0] & 0x1FFF]];
-    //         Vec3s vtx2 = sVtxList[colPoly->vtxData[pair[1] & 0x1FFF]];
+    if (norm.y > EPSILON_OOT3D && norm.y < EPSILON_OOT) { // change check
+        u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
+        for (s32 p = 0; p < 3; p++) {
+            u8* pair = pairs[p];
+            Vec3f v1 = poly->verts[pair[0]];
+            Vec3f v2 = poly->verts[pair[1]];
 
-    //         s32 edge_d_z = vtx2.z - vtx1.z;
-    //         s32 edge_d_x = vtx2.x - vtx1.x;
+            s32 edge_d_z = v2.z - v1.z;
+            s32 edge_d_x = v2.x - v1.x;
 
-    //         if (edge_d_z != 0 && edge_d_x != 0) {
-    //             f32 extend_1_y = -((normal.x * vtx1.x) + (normal.z * vtx1.z) + colPoly->dist) / normal.y;
-    //             f32 extend_2_y = -((normal.x * vtx2.x) + (normal.z * vtx2.z) + colPoly->dist) / normal.y;
+            if (edge_d_z != 0 && edge_d_x != 0) {
+                f32 extend_1_y = -((norm.x * v1.x) + (norm.z * v1.z) + poly->dist) / norm.y;
+                f32 extend_2_y = -((norm.x * v2.x) + (norm.z * v2.z) + poly->dist) / norm.y;
 
-    //             Vec3f v1 = ColView_GetVtxPos(colPoly, pair[0]);
-    //             Vec3f v2 = ColView_GetVtxPos(colPoly, pair[1]);
-    //             Vec3f v1ext = (Vec3f){
-    //                 .x = v1.x,
-    //                 .y = extend_1_y,
-    //                 .z = v1.z,
-    //             };
-    //             Vec3f v2ext = (Vec3f){
-    //                 .x = v2.x,
-    //                 .y = extend_2_y,
-    //                 .z = v2.z,
-    //             };
+                Vec3f v1ext = (Vec3f){
+                    .x = v1.x,
+                    .y = extend_1_y,
+                    .z = v1.z,
+                };
+                Vec3f v2ext = (Vec3f){
+                    .x = v2.x,
+                    .y = extend_2_y,
+                    .z = v2.z,
+                };
 
-    //             // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
+                // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
 
-    //             // Don't draw seams that extend downwards or only a few units above the poly
-    //             if (extend_1_y < v1.y + 50.0 && extend_2_y < v2.y + 50.0) {
-    //                 continue;
-    //             }
+                // Don't draw seams that extend downwards or only a few units above the poly
+                if (extend_1_y < v1.y + 50.0 && extend_2_y < v2.y + 50.0) {
+                    continue;
+                }
 
-    //             ColView_DrawPoly((ColViewPoly){
-    //                 .vA = v1,
-    //                 .vB = v2,
-    //                 .vC = v1ext,
-    //                 .norm = ColView_GetNormal(colPoly),
-    //                 .color = {
-    //                     .r = 1.0f,
-    //                     .g = 0.0f,
-    //                     .b = 1.0f,
-    //                     .a = 0.50f,
-    //                 },
-    //             });
+                ColView_DrawPoly((ColViewPoly){
+                    .verts = {
+                        v1,
+                        v2,
+                        v1ext,
+                    },
+                    .norm = norm,
+                    .color = {
+                        .r = 1.0f,
+                        .g = 0.0f,
+                        .b = 1.0f,
+                        .a = poly->color.a,
+                    },
+                });
 
-    //             ColView_DrawPoly((ColViewPoly){
-    //                 .vA = v2,
-    //                 .vB = v1ext,
-    //                 .vC = v2ext,
-    //                 .norm = ColView_GetNormal(colPoly),
-    //                 .color = {
-    //                     .r = 1.0f,
-    //                     .g = 0.0f,
-    //                     .b = 1.0f,
-    //                     .a = 0.50f,
-    //                 },
-    //             });
-    //         }
-    //     }
-    // }
+                ColView_DrawPoly((ColViewPoly){
+                    .verts = {
+                        v2,
+                        v1ext,
+                        v2ext,
+                    },
+                    .norm = norm,
+                    .color = {
+                        .r = 1.0f,
+                        .g = 0.0f,
+                        .b = 1.0f,
+                        .a = poly->color.a,
+                    },
+                });
+            }
+        }
+    }
 }
