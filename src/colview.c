@@ -33,14 +33,6 @@ Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId, s32 isDyna) {
     return pos;
 }
 
-Vec3f ColView_GetNormal(CollisionPoly* colPoly) { // remove
-    return (Vec3f){
-        .x = colPoly->norm.x / 32767.0,
-        .y = colPoly->norm.y / 32767.0,
-        .z = colPoly->norm.z / 32767.0,
-    };
-}
-
 ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, s32 isDyna) { // receive all pointers
     SurfaceType surfaceType = surfaceTypeList[colPoly->type];
     Vec3f normal = isDyna ? ((DynaCollisionPoly*)colPoly)->normF32
@@ -261,6 +253,7 @@ void ColView_DrawCollision(void) {
     }
 
     DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
+    SSNode* dynaNodeTbl = dyna->polyNodes.tbl;
 
     for (s32 i = 0; i < BG_ACTOR_MAX; i++) {
         if (!(dyna->bgActorFlags[i] & BGACTOR_IN_USE)
@@ -270,30 +263,30 @@ void ColView_DrawCollision(void) {
             continue;
         }
 
-        // sPolyList = dyna->bgActors[i].colHeader->polyList; not used for dyna
-        SSNode* nodeTbl = dyna->polyNodes.tbl;
-        // BgActor* bgActor = &dyna->bgActors[i];
         DynaLookup* dynaLookup = &dyna->bgActors[i].dynaLookup;
+        SurfaceType* dynaSurfaceTypeList = dyna->bgActors[i].colHeader->surfaceTypeList;
         if (dynaLookup != NULL) {
-            ColView_DrawAllFromNode(dynaLookup->floor.head, nodeTbl, dyna->bgActors[i].colHeader->surfaceTypeList, TRUE);
-            ColView_DrawAllFromNode(dynaLookup->wall.head, nodeTbl, dyna->bgActors[i].colHeader->surfaceTypeList, TRUE);
-            ColView_DrawAllFromNode(dynaLookup->ceiling.head, nodeTbl, dyna->bgActors[i].colHeader->surfaceTypeList, TRUE);
+            ColView_DrawAllFromNode(dynaLookup->floor.head, dynaNodeTbl, dynaSurfaceTypeList, TRUE);
+            ColView_DrawAllFromNode(dynaLookup->wall.head, dynaNodeTbl, dynaSurfaceTypeList, TRUE);
+            ColView_DrawAllFromNode(dynaLookup->ceiling.head, dynaNodeTbl, dynaSurfaceTypeList, TRUE);
         }
     }
 
-    // StaticCollisionContext stat = gGlobalContext->colCtx.stat;
-    // sVtxList = stat.colHeader->vtxList;
-    // sNodeTbl = stat.polyNodes.tbl;
-    // sPolyList = stat.colHeader->polyList;
-    // sSurfaceTypeList = stat.colHeader->surfaceTypeList;
-    // Vec3i sector = { 0 };
-    // BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
-    // s32 lookupId =
-    //     sector.x +
-    //     (sector.y * stat.subdivAmount.x) +
-    //     (sector.z * stat.subdivAmount.x * stat.subdivAmount.y);
-    // StaticLookup* lookup = &stat.lookupTbl[lookupId];
-    // ColView_DrawAllFromStaticLookup(lookup);
+    StaticCollisionContext* stat = &gGlobalContext->colCtx.stat;
+    SSNode* statNodeTbl = stat->polyNodes.tbl;
+    SurfaceType* statSurfaceTypeList = stat->colHeader->surfaceTypeList;
+    Vec3i sector = { 0 };
+    BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
+    s32 lookupId =
+        sector.x +
+        (sector.y * stat->subdivAmount.x) +
+        (sector.z * stat->subdivAmount.x * stat->subdivAmount.y);
+    StaticLookup* staticLookup = &stat->lookupTbl[lookupId];
+    if (staticLookup != NULL) {
+        ColView_DrawAllFromNode(staticLookup->floor.head, statNodeTbl, statSurfaceTypeList, FALSE);
+        ColView_DrawAllFromNode(staticLookup->wall.head, statNodeTbl, statSurfaceTypeList, FALSE);
+        ColView_DrawAllFromNode(staticLookup->ceiling.head, statNodeTbl, statSurfaceTypeList, FALSE);
+    }
 
     // CitraPrint("%X: %d / %d", lookup, gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
 }
