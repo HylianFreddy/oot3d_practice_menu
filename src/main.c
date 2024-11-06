@@ -214,10 +214,10 @@ void NoClip_Update(void) {
 
     u32 in = rInputCtx.cur.val;
     f32 amount = (in & BUTTON_X) ? NOCLIP_FAST_SPEED : NOCLIP_SLOW_SPEED;
-    if(in & BUTTON_R1) {
+    if(in & BUTTON_L1) {
         PLAYER->actor.world.pos.y += amount;
     }
-    if(in & BUTTON_L1) {
+    if(in & BUTTON_R1) {
         PLAYER->actor.world.pos.y -= amount;
     }
     if(in & (BUTTON_DOWN)) {
