@@ -8,20 +8,20 @@
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
-static Vec3f* sVtxList;
-static SSNode* sNodeTbl;
-// static CollisionPoly* sPolyList;
-static DynaCollisionPoly* sDynaPolyList;
-static SurfaceType* sSurfaceTypeList;
-static BgActor* sBgActor;
-
-Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
-    u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF;
-    Vec3f pos = {
-        .x=(f32)(sVtxList[vtxIdx].x),
-        .y=(f32)(sVtxList[vtxIdx].y),
-        .z=(f32)(sVtxList[vtxIdx].z),
-    };
+Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId, s32 isDyna) {
+    u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF; // First 3 bits are flags
+    Vec3f pos;
+    if (isDyna) {
+        Vec3f* vtxListF32 = gGlobalContext->colCtx.dyna.vtxList;
+        pos.x = vtxListF32[vtxIdx].x;
+        pos.y = vtxListF32[vtxIdx].y;
+        pos.z = vtxListF32[vtxIdx].z;
+    } else {
+        Vec3s* vtxListS16 = gGlobalContext->colCtx.stat.colHeader->vtxList;
+        pos.x = (f32)(vtxListS16[vtxIdx].x);
+        pos.y = (f32)(vtxListS16[vtxIdx].y);
+        pos.z = (f32)(vtxListS16[vtxIdx].z);
+    }
     if (!gStaticContext.renderGeometryDisable) {
         // Try to avoid z-fighting issues by considering each
         // vertex closer to the view point than it really is.
@@ -33,7 +33,7 @@ Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     return pos;
 }
 
-Vec3f ColView_GetNormal(CollisionPoly* colPoly) {
+Vec3f ColView_GetNormal(CollisionPoly* colPoly) { // remove
     return (Vec3f){
         .x = colPoly->norm.x / 32767.0,
         .y = colPoly->norm.y / 32767.0,
@@ -41,10 +41,14 @@ Vec3f ColView_GetNormal(CollisionPoly* colPoly) {
     };
 }
 
-ColViewPoly ColView_GetColViewPoly(DynaCollisionPoly* dynaPoly) {
-    CollisionPoly* colPoly = &dynaPoly->colPoly;
-    SurfaceType surfaceType = sSurfaceTypeList[colPoly->type];
-    Vec3f normal = dynaPoly->normF32;//ColView_GetNormal(colPoly);
+ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, s32 isDyna) { // receive all pointers
+    SurfaceType surfaceType = surfaceTypeList[colPoly->type];
+    Vec3f normal = isDyna ? ((DynaCollisionPoly*)colPoly)->normF32
+                          : (Vec3f){
+                                .x = colPoly->norm.x / 32767.0,
+                                .y = colPoly->norm.y / 32767.0,
+                                .z = colPoly->norm.z / 32767.0,
+                            };
     Color_RGBAf color;
 
     color.a = Scene_GetCollisionOption(COLVIEW_TRANSLUCENT) ? 0.5 : 1.0;
@@ -96,11 +100,11 @@ ColViewPoly ColView_GetColViewPoly(DynaCollisionPoly* dynaPoly) {
     }
 
     ColViewPoly viewPoly = (ColViewPoly){
-        .vA = ColView_GetVtxPos(colPoly, 0),
-        .vB = ColView_GetVtxPos(colPoly, 1),
-        .vC = ColView_GetVtxPos(colPoly, 2),
+        .vA = ColView_GetVtxPos(colPoly, 0, isDyna),
+        .vB = ColView_GetVtxPos(colPoly, 1, isDyna),
+        .vC = ColView_GetVtxPos(colPoly, 2, isDyna),
         .norm = normal,
-        .dist = dynaPoly->colPoly.dist,
+        .dist = colPoly->dist,
         .color = color,
     };
 
@@ -166,7 +170,7 @@ static void ColView_DrawPoly(ColViewPoly poly) {
     Collider_DrawPolyImpl(&gMainClass->sub32A0, &poly.vA, &poly.vB, &poly.vC, &poly.color);
 }
 
-static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
+void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     // const f32 EPSILON_OOT3D = 0.00008;
     // const f32 EPSILON_OOT = 0.008;
 
@@ -236,40 +240,18 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
     // }
 }
 
-void ColView_DrawFromCollPoly(DynaCollisionPoly* colPoly, s32 invSeam) {
-    ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
-    if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
-        ColView_DrawPoly(viewPoly);
-    }
-    if (invSeam) {
-        ColView_DrawPolyForInvisibleSeam((CollisionPoly*)colPoly);
-    }
-}
 
-void ColView_DrawAllFromNode(u16 nodeId) {
+void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, s32 isDyna) {
     while (nodeId != 0xFFFF) {
-        SSNode node = sNodeTbl[nodeId];
-        ColView_DrawFromCollPoly(&sDynaPolyList[node.polyId ], FALSE);
+        SSNode node = nodeTbl[nodeId];
+        CollisionPoly* colPoly = isDyna ? &gGlobalContext->colCtx.dyna.polyList[node.polyId].colPoly
+                                        : &gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId];
+        ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly, surfaceTypeList, isDyna);
+        if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
+            ColView_DrawPoly(viewPoly);
+        }
         nodeId = node.next;
     }
-}
-
-void ColView_DrawAllFromStaticLookup(StaticLookup* statLookup) {
-    if (statLookup == 0) {
-        return;
-    }
-    ColView_DrawAllFromNode(statLookup->floor.head);
-    ColView_DrawAllFromNode(statLookup->wall.head);
-    ColView_DrawAllFromNode(statLookup->ceiling.head);
-}
-
-void ColView_DrawAllFromDynaLookup(DynaLookup* dynaLookup) {
-    if (dynaLookup == 0) {
-        return;
-    }
-    ColView_DrawAllFromNode(dynaLookup->floor.head);
-    ColView_DrawAllFromNode(dynaLookup->wall.head);
-    ColView_DrawAllFromNode(dynaLookup->ceiling.head);
 }
 
 #define MAX_BGACTOR_DIST 1000
@@ -279,9 +261,6 @@ void ColView_DrawCollision(void) {
     }
 
     DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
-    sVtxList = dyna->vtxList;
-    sNodeTbl = dyna->polyNodes.tbl;
-    sDynaPolyList = dyna->polyList;
 
     for (s32 i = 0; i < BG_ACTOR_MAX; i++) {
         if (!(dyna->bgActorFlags[i] & BGACTOR_IN_USE)
@@ -291,10 +270,15 @@ void ColView_DrawCollision(void) {
             continue;
         }
 
-        sSurfaceTypeList = dyna->bgActors[i].colHeader->surfaceTypeList;
         // sPolyList = dyna->bgActors[i].colHeader->polyList; not used for dyna
-        sBgActor = &dyna->bgActors[i];
-        ColView_DrawAllFromDynaLookup(&dyna->bgActors[i].dynaLookup);
+        SSNode* nodeTbl = dyna->polyNodes.tbl;
+        // BgActor* bgActor = &dyna->bgActors[i];
+        DynaLookup* dynaLookup = &dyna->bgActors[i].dynaLookup;
+        if (dynaLookup != NULL) {
+            ColView_DrawAllFromNode(dynaLookup->floor.head, nodeTbl, dyna->bgActors[i].colHeader->surfaceTypeList, TRUE);
+            ColView_DrawAllFromNode(dynaLookup->wall.head, nodeTbl, dyna->bgActors[i].colHeader->surfaceTypeList, TRUE);
+            ColView_DrawAllFromNode(dynaLookup->ceiling.head, nodeTbl, dyna->bgActors[i].colHeader->surfaceTypeList, TRUE);
+        }
     }
 
     // StaticCollisionContext stat = gGlobalContext->colCtx.stat;
