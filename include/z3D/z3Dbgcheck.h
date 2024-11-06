@@ -23,11 +23,7 @@ typedef struct CollisionPoly {
 _Static_assert(sizeof(CollisionPoly) == 0x14, "CollisionPoly size");
 
 typedef struct DynaCollisionPoly {
-    /* 0x00 */ u16    type;
-    /* 0x02 */ u16    vtxData[3]; // id for each vertex in the vtxList
-    /* 0x08 */ char   unk_08[0x2];
-    /* 0x0A */ Vec3s  norm;  // Normal vector
-    /* 0x10 */ f32    dist; // Plane distance from origin
+    /* 0x00 */ CollisionPoly colPoly;
     /* 0x14 */ Vec3f  normF32; // Normal vector with floats
 } DynaCollisionPoly; // size = 0x20
 _Static_assert(sizeof(DynaCollisionPoly) == 0x20, "DynaCollisionPoly size");
@@ -91,7 +87,7 @@ typedef struct StaticLookup {
 } StaticLookup;
 
 typedef struct DynaLookup {
-    u16 polyStartIndex;
+    u16 polyStartIndex; // useful only for bgActors[i].colHeader->polyList, and not for dynaColCtx.polyList
     SSList ceiling;
     SSList wall;
     SSList floor;
@@ -101,7 +97,7 @@ typedef struct BgActor {
     /* 0x00 */ struct Actor* actor;
     /* 0x04 */ CollisionHeader* colHeader;
     /* 0x08 */ DynaLookup dynaLookup;
-    /* 0x10 */ u16 vtxStartIndex;
+    /* 0x10 */ u16 vtxStartIndex; // useful only for bgActors[i].colHeader->vtxList, and not for dynaColCtx.vtxList
     /* 0x12 */ ScaleRotPos prevTransform;
     /* 0x36 */ ScaleRotPos curTransform;
     /* 0x5A */ Sphere16 boundingSphere;
@@ -125,7 +121,7 @@ typedef struct StaticCollisionContext {
 _Static_assert(sizeof(StaticCollisionContext) == 0x50, "StaticCollisionContext size");
 
 typedef struct DynaCollisionContext {
-    /* 0x0000 */ char unk_00[0x04];
+    /* 0x0000 */ u8 bitFlag;
     /* 0x0004 */ BgActor bgActors[BG_ACTOR_MAX];
     /* 0x151C */ u16 bgActorFlags[BG_ACTOR_MAX];
     /* 0x1580 */ DynaCollisionPoly* polyList;

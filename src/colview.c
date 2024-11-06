@@ -10,17 +10,13 @@
 
 static Vec3f* sVtxList;
 static SSNode* sNodeTbl;
-static CollisionPoly* sPolyList;
+// static CollisionPoly* sPolyList;
 static DynaCollisionPoly* sDynaPolyList;
 static SurfaceType* sSurfaceTypeList;
 static BgActor* sBgActor;
 
 Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId) {
     u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF;
-    // sVtxList[vtxIdx + sBgActor->vtxStartIndex].x = 0;
-    // sVtxList[vtxIdx + sBgActor->vtxStartIndex].y = 0;
-    // sVtxList[vtxIdx + sBgActor->vtxStartIndex].z = 0;
-    // CitraPrint("vtxIdx: %X", vtxIdx);
     Vec3f pos = {
         .x=(f32)(sVtxList[vtxIdx].x),
         .y=(f32)(sVtxList[vtxIdx].y),
@@ -46,7 +42,7 @@ Vec3f ColView_GetNormal(CollisionPoly* colPoly) {
 }
 
 ColViewPoly ColView_GetColViewPoly(DynaCollisionPoly* dynaPoly) {
-    CollisionPoly* colPoly = (CollisionPoly*)dynaPoly;
+    CollisionPoly* colPoly = &dynaPoly->colPoly;
     SurfaceType surfaceType = sSurfaceTypeList[colPoly->type];
     Vec3f normal = dynaPoly->normF32;//ColView_GetNormal(colPoly);
     Color_RGBAf color;
@@ -104,19 +100,15 @@ ColViewPoly ColView_GetColViewPoly(DynaCollisionPoly* dynaPoly) {
         .vB = ColView_GetVtxPos(colPoly, 1),
         .vC = ColView_GetVtxPos(colPoly, 2),
         .norm = normal,
-        .dist = dynaPoly->dist,
+        .dist = dynaPoly->colPoly.dist,
         .color = color,
     };
-
-    // calculate poly dist because the base one is wrong for dynapoly
-    viewPoly.dist = -(viewPoly.norm.x * viewPoly.vA.x + viewPoly.norm.y * viewPoly.vA.y + viewPoly.norm.z * viewPoly.vA.z);
 
     return viewPoly;
 }
 
 s32 ColView_IsPolyVisible(ColViewPoly poly) {
     Vec3f eye = gGlobalContext->view.eye;
-    // CitraPrint("%f, %f, %f, %f", poly.dist, poly.norm.x, poly.norm.y, poly.norm.z);
     return poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist > 0;
 
     // add check if cam is looking at poly
@@ -246,8 +238,6 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly) {
 
 void ColView_DrawFromCollPoly(DynaCollisionPoly* colPoly, s32 invSeam) {
     ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly);
-    // CitraPrint("norm: %f, %f, %f", viewPoly.norm.x, viewPoly.norm.y, viewPoly.norm.z);
-    // CitraPrint("va: %f, %f, %f", viewPoly.vA.x, viewPoly.vA.y, viewPoly.vA.z);
     if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
         ColView_DrawPoly(viewPoly);
     }
@@ -302,15 +292,9 @@ void ColView_DrawCollision(void) {
         }
 
         sSurfaceTypeList = dyna->bgActors[i].colHeader->surfaceTypeList;
-        sPolyList = dyna->bgActors[i].colHeader->polyList;
-        // sVtxList = dyna->bgActors[i].colHeader->vtxList; NO, S16
+        // sPolyList = dyna->bgActors[i].colHeader->polyList; not used for dyna
         sBgActor = &dyna->bgActors[i];
         ColView_DrawAllFromDynaLookup(&dyna->bgActors[i].dynaLookup);
-        // memoryEditorAddress = (u32)&dyna->polyList[dyna->bgActors[i].dynaLookup.polyStartIndex];
-        // memoryEditorAddress = (u32)&dyna->bgActors[i].colHeader->polyList[0];
-        // menuOpen=1;
-        // menuShow(&gz3DMenu);
-        // CitraPrint("%X, %X", dyna->polyList, dyna->bgActors[i].colHeader->polyList);
     }
 
     // StaticCollisionContext stat = gGlobalContext->colCtx.stat;
