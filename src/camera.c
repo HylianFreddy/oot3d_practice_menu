@@ -52,11 +52,6 @@ void FreeCam_Toggle(void) {
         return;
     }
 
-    if (noClip) {
-        setAlert("NoClip is active!", 90);
-        return;
-    }
-
     // Clear title card
     gGlobalContext->actorCtx.titleCtx.delayTimer    = 0;
     gGlobalContext->actorCtx.titleCtx.durationTimer = 0;
