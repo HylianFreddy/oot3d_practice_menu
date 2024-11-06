@@ -4,9 +4,7 @@
 #include "z3D/z3D.h"
 
 typedef struct ColViewPoly {
-    Vec3f vA;
-    Vec3f vB;
-    Vec3f vC;
+    Vec3f verts[3];
     Vec3f norm;
     f32 dist;
     Color_RGBAf color;

@@ -5,7 +5,7 @@
 
 struct Actor;
 struct GlobalContext;
-
+struct CollisionPoly;
 struct LightMapper;
 struct ZARInfo;
 
@@ -13,15 +13,6 @@ typedef struct {
     Vec3f pos;
     Vec3s rot;
 } PosRot; // size = 0x14
-
-typedef struct {
-    /* 0x00 */ u16    type;
-    /* 0x02 */ u16    vtxData[3]; // id for each vertex in the vtxList
-    /* 0x08 */ char   unk_08[0x2];
-    /* 0x0A */ Vec3s  norm;  // Normal vector
-    /* 0x10 */ f32    dist;  // Plane distance from origin
-} CollisionPoly; // size = 0x14
-_Static_assert(sizeof(CollisionPoly) == 0x14, "CollisionPoly size");
 
 struct SkeletonAnimationModel;
 typedef void (*SkeletonAnimationModelFunc)(struct SkeletonAnimationModel*);
@@ -157,8 +148,8 @@ typedef struct Actor {
     /* 0x06C */ f32     speedXZ; // How fast the actor is traveling along the XZ plane
     /* 0x070 */ f32     gravity; // Acceleration due to gravity. Value is added to Y velocity every frame
     /* 0x074 */ f32     minVelocityY; // Sets the lower bounds cap on velocity along the Y axis
-    /* 0x078 */ CollisionPoly* wallPoly; // Wall polygon an actor is touching
-    /* 0x07C */ CollisionPoly* floorPoly; // Floor polygon directly below the actor
+    /* 0x078 */ struct CollisionPoly* wallPoly; // Wall polygon an actor is touching
+    /* 0x07C */ struct CollisionPoly* floorPoly; // Floor polygon directly below the actor
     /* 0x080 */ u8      wallBgId; // Bg ID of the wall polygon the actor is touching
     /* 0x081 */ u8      floorBgId; // Bg ID of the floor polygon directly below the actor
     /* 0x082 */ s16     wallYaw; // Y rotation of the wall polygon the actor is touching
@@ -210,18 +201,6 @@ typedef struct Actor {
    /* From here on, the structure and size varies for each actor */
 } Actor; // size = 0x1A4
 _Static_assert(sizeof(Actor) == 0x1A4, "Actor size");
-
-typedef struct {
-    /* 0x00 */ Actor* actor;
-    /* 0x04 */ char unk_04[0x10];
-    /* 0x14 */ Vec3f scale1;
-    /* 0x20 */ Vec3s rot1;
-    /* 0x28 */ Vec3f pos1;
-    /* 0x34 */ Vec3f scale2;
-    /* 0x40 */ Vec3s rot2;
-    /* 0x48 */ Vec3f pos2;
-    /* 0x54 */ char unk_54[0x18];
-} ActorMesh; // size = 0x6C
 
 typedef struct Player {
     /* 0x0000 */ Actor actor;
