@@ -8,8 +8,8 @@
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
-Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId, s32 isDyna) {
-    u16 vtxIdx = colPoly->vtxData[polyVtxId] & 0x1FFF; // First 3 bits are flags
+Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna) {
+    vtxIdx &= 0x1FFF; // First 3 bits are flags
     Vec3f pos;
     if (isDyna) {
         Vec3f* vtxListF32 = gGlobalContext->colCtx.dyna.vtxList;
@@ -33,7 +33,7 @@ Vec3f ColView_GetVtxPos(CollisionPoly* colPoly, u16 polyVtxId, s32 isDyna) {
     return pos;
 }
 
-ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, s32 isDyna) { // receive all pointers
+ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, s32 isDyna) {
     SurfaceType surfaceType = surfaceTypeList[colPoly->type];
     Vec3f normal = isDyna ? ((DynaCollisionPoly*)colPoly)->normF32
                           : (Vec3f){
@@ -91,70 +91,72 @@ ColViewPoly ColView_GetColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceT
         color.b -= color.b * ABS(0.30 * normal.y + 0.25 * normal.z);
     }
 
-    ColViewPoly viewPoly = (ColViewPoly){
-        .vA = ColView_GetVtxPos(colPoly, 0, isDyna),
-        .vB = ColView_GetVtxPos(colPoly, 1, isDyna),
-        .vC = ColView_GetVtxPos(colPoly, 2, isDyna),
+    return (ColViewPoly){
+        .vA = ColView_GetVtxPos(colPoly->vtxData[0], isDyna),
+        .vB = ColView_GetVtxPos(colPoly->vtxData[1], isDyna),
+        .vC = ColView_GetVtxPos(colPoly->vtxData[2], isDyna),
         .norm = normal,
         .dist = colPoly->dist,
         .color = color,
     };
-
-    return viewPoly;
-}
-
-s32 ColView_IsPolyVisible(ColViewPoly poly) {
-    Vec3f eye = gGlobalContext->view.eye;
-    return poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist > 0;
-
-    // add check if cam is looking at poly
 }
 
 #define MAX_PLANE_DIST 150
 #define MAX_VERT_DIST 150
-s32 ColView_IsPolyCloseToLink(ColViewPoly poly) {
-    Vec3f pos = PLAYER->actor.world.pos;
-    s32 planeCheck = ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) < MAX_PLANE_DIST;
+s32 ColView_ShouldDrawPoly(ColViewPoly poly) {
+    if (poly.color.a == 0.0) {
+        // Poly is invisible
+        return FALSE;
+    }
 
-    s32 distCheckX;
-    s32 distCheckY;
-    s32 distCheckZ;
+    Vec3f eye = gGlobalContext->view.eye;
+    if (poly.norm.x * eye.x + poly.norm.y * eye.y + poly.norm.z * eye.z + poly.dist <= 0) {
+        // View point is behind the poly (back-face culling)
+        return FALSE;
+    }
+
+    // TODO: check if camera is looking at poly
+
+    Vec3f pos = PLAYER->actor.world.pos;
+    if (ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) > MAX_PLANE_DIST) {
+        // Player is far from the poly's plane
+        return FALSE;
+    }
 
     f32 vAxDiff = poly.vA.x - PLAYER->actor.world.pos.x;
     f32 vBxDiff = poly.vB.x - PLAYER->actor.world.pos.x;
     f32 vCxDiff = poly.vC.x - PLAYER->actor.world.pos.x;
 
-    if ((vAxDiff < 0 && vBxDiff < 0 && vCxDiff < 0) ||
-        (vAxDiff > 0 && vBxDiff > 0 && vCxDiff > 0)) {
-        distCheckX = (MIN(MIN(ABS(vAxDiff), ABS(vBxDiff)), ABS(vCxDiff)) < MAX_VERT_DIST);
-    } else {
-        distCheckX = 1;
+    if (((vAxDiff < 0 && vBxDiff < 0 && vCxDiff < 0) ||
+        (vAxDiff > 0 && vBxDiff > 0 && vCxDiff > 0)) &&
+        (MIN(MIN(ABS(vAxDiff), ABS(vBxDiff)), ABS(vCxDiff)) > MAX_VERT_DIST)) {
+        // Player is far from the closest point of the poly, on the X axis
+        return FALSE;
     }
 
     f32 vAyDiff = poly.vA.y - PLAYER->actor.world.pos.y;
     f32 vByDiff = poly.vB.y - PLAYER->actor.world.pos.y;
     f32 vCyDiff = poly.vC.y - PLAYER->actor.world.pos.y;
 
-    if ((vAyDiff < 0 && vByDiff < 0 && vCyDiff < 0) ||
-        (vAyDiff > 0 && vByDiff > 0 && vCyDiff > 0)) {
-        distCheckY = (MIN(MIN(ABS(vAyDiff), ABS(vByDiff)), ABS(vCyDiff)) < MAX_VERT_DIST);
-    } else {
-        distCheckY = 1;
+    if (((vAyDiff < 0 && vByDiff < 0 && vCyDiff < 0) ||
+        (vAyDiff > 0 && vByDiff > 0 && vCyDiff > 0)) &&
+        (MIN(MIN(ABS(vAyDiff), ABS(vByDiff)), ABS(vCyDiff)) > MAX_VERT_DIST)) {
+        // Player is far from the closest point of the poly, on the Y axis
+        return FALSE;
     }
 
     f32 vAzDiff = poly.vA.z - PLAYER->actor.world.pos.z;
     f32 vBzDiff = poly.vB.z - PLAYER->actor.world.pos.z;
     f32 vCzDiff = poly.vC.z - PLAYER->actor.world.pos.z;
 
-    if ((vAzDiff < 0 && vBzDiff < 0 && vCzDiff < 0) ||
-        (vAzDiff > 0 && vBzDiff > 0 && vCzDiff > 0)) {
-        distCheckZ = (MIN(MIN(ABS(vAzDiff), ABS(vBzDiff)), ABS(vCzDiff)) < MAX_VERT_DIST);
-    } else {
-        distCheckZ = 1;
+    if (((vAzDiff < 0 && vBzDiff < 0 && vCzDiff < 0) ||
+        (vAzDiff > 0 && vBzDiff > 0 && vCzDiff > 0)) &&
+        (MIN(MIN(ABS(vAzDiff), ABS(vBzDiff)), ABS(vCzDiff)) > MAX_VERT_DIST)) {
+        // Player is far from the closest point of the poly, on the Z axis
+        return FALSE;
     }
 
-    // CitraPrint("%X, %X, %X, %X", planeCheck, distCheckX, distCheckY, distCheckZ);
-    return planeCheck && distCheckX && distCheckY && distCheckZ;
+    return TRUE;
 }
 
 static void ColView_DrawPoly(ColViewPoly poly) {
@@ -238,8 +240,8 @@ void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTy
         SSNode node = nodeTbl[nodeId];
         CollisionPoly* colPoly = isDyna ? &gGlobalContext->colCtx.dyna.polyList[node.polyId].colPoly
                                         : &gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId];
-        ColViewPoly viewPoly = ColView_GetColViewPoly(colPoly, surfaceTypeList, isDyna);
-        if (viewPoly.color.a != 0.0 && ColView_IsPolyVisible(viewPoly) && ColView_IsPolyCloseToLink(viewPoly)) {
+        ColViewPoly viewPoly = ColView_BuildColViewPoly(colPoly, surfaceTypeList, isDyna);
+        if (ColView_ShouldDrawPoly(viewPoly)) {
             ColView_DrawPoly(viewPoly);
         }
         nodeId = node.next;
