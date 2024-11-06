@@ -20,7 +20,9 @@ ToggleMenu CollisionMenu = {
     .nbItems = COLVIEW_MAX,
     .initialCursorPos = 0,
     {
-        {1, "Show Static Collision (WIP)", .method = Scene_ToggleCollisionOption},
+        {1, "Show Collision (WIP)", .method = Scene_ToggleCollisionOption},
+        {1, " Static Collision", .method = Scene_ToggleCollisionOption},
+        {1, " Dynamic Collision", .method = Scene_ToggleCollisionOption},
         {1, "  Translucent", .method = Scene_ToggleCollisionOption},
         {0, "  Polygon Class", .method = Scene_ToggleCollisionOption},
         {1, "  Shaded", .method = Scene_ToggleCollisionOption},
@@ -89,14 +91,14 @@ Menu SceneMenu = {
 };
 
 void Scene_CollisionMenuShow(void) {
-    CollisionMenu.items[COLVIEW_COLLIDERS].on = gStaticContext.collisionDisplay;
+    CollisionMenu.items[COLVIEW_SHOW_COLLIDERS].on = gStaticContext.collisionDisplay;
     ToggleMenuShow(&CollisionMenu);
 }
 
 void Scene_ToggleCollisionOption(s32 selected) {
     CollisionMenu.items[selected].on ^= 1;
     switch (selected) {
-        case COLVIEW_COLLIDERS:
+        case COLVIEW_SHOW_COLLIDERS:
             gStaticContext.collisionDisplay ^= 1;
             break;
     }
