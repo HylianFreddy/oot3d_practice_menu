@@ -210,22 +210,20 @@ void NoClip_Update(void) {
     if(in & BUTTON_L1) {
         PLAYER->actor.world.pos.y += amount;
     }
-    else if(in & BUTTON_R1) {
+    if(in & BUTTON_R1) {
         PLAYER->actor.world.pos.y -= amount;
     }
-    else {
-        if(in & (BUTTON_DOWN)) {
-            PLAYER->actor.world.pos.z += amount;
-        }
-        if(in & (BUTTON_UP)) {
-            PLAYER->actor.world.pos.z -= amount;
-        }
-        if(in & (gSaveContext.masterQuestFlag ? BUTTON_RIGHT : BUTTON_LEFT)) {
-            PLAYER->actor.world.pos.x -= amount;
-        }
-        if(in & (gSaveContext.masterQuestFlag ? BUTTON_LEFT : BUTTON_RIGHT)) {
-            PLAYER->actor.world.pos.x += amount;
-        }
+    if(in & (BUTTON_DOWN)) {
+        PLAYER->actor.world.pos.z += amount;
+    }
+    if(in & (BUTTON_UP)) {
+        PLAYER->actor.world.pos.z -= amount;
+    }
+    if(in & (gSaveContext.masterQuestFlag ? BUTTON_RIGHT : BUTTON_LEFT)) {
+        PLAYER->actor.world.pos.x -= amount;
+    }
+    if(in & (gSaveContext.masterQuestFlag ? BUTTON_LEFT : BUTTON_RIGHT)) {
+        PLAYER->actor.world.pos.x += amount;
     }
 
     s16 yaw = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir.y;
