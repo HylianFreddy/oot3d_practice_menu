@@ -22,7 +22,8 @@ Vec3f ColView_GetVtxPos(u16 vtxIdx, s32 isDyna) {
         pos.y = (f32)(vtxListS16[vtxIdx].y);
         pos.z = (f32)(vtxListS16[vtxIdx].z);
     }
-    if (!gStaticContext.renderGeometryDisable) {
+    if ((!isDyna && !gStaticContext.renderGeometryDisable) ||
+        (isDyna && !HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on)) {
         // Try to avoid z-fighting issues by considering each
         // vertex closer to the view point than it really is.
         Vec3f eye = gGlobalContext->view.eye;
