@@ -650,7 +650,7 @@ static s8 addrHistoryTop = -1;
 
 void pushHistory(u32 addr) {
     if (addrHistoryTop >= 9) {
-        for (s32 i = 0; i < 10; i++) {
+        for (s32 i = 0; i < 9; i++) {
             addrHistory[i] = addrHistory[i+1];
         }
         addrHistory[addrHistoryTop] = addr;
