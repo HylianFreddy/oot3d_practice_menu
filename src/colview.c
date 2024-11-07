@@ -5,6 +5,7 @@
 #include "input.h"
 #include "menus/debug.h"
 #include "menus/scene.h"
+#include <math.h>
 
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 
@@ -168,7 +169,21 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         return FALSE;
     }
 
-    // TODO: check if camera is looking at poly
+    // Check if camera is looking at poly
+
+    Vec3f at = gGlobalContext->view.at;
+    Vec3f viewDir = (Vec3f){
+        .x = at.x - eye.x,
+        .y = at.y - eye.y,
+        .z = at.z - eye.z,
+    };
+    // dot = x1*x2 + y1*y2      # Dot product between [x1, y1] and [x2, y2]
+    // det = x1*y2 - y1*x2      # Determinant
+    // angle = atan2(det, dot)  # atan2(y, x) or atan2(sin, cos)
+    if (arctan((viewDir.x*poly.norm.y - viewDir.y*poly.norm.x), (viewDir.x*poly.norm.x + viewDir.y*poly.norm.y)) < M_PI_4 &&
+        arctan((viewDir.x*poly.norm.z - viewDir.z*poly.norm.x), (viewDir.x*poly.norm.x + viewDir.z*poly.norm.z)) < M_PI_4) {
+        return FALSE;
+    }
 
     // Check if player is far from the poly's plane
     Vec3f pos = PLAYER->actor.world.pos;
@@ -185,8 +200,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         f32 vBDist = (*polyVertsCoords)[1][i] - (*playerCoords)[i];
         f32 vCDist = (*polyVertsCoords)[2][i] - (*playerCoords)[i];
 
-        if (((vADist < 0 && vBDist < 0 && vCDist < 0) ||
-            (vADist > 0 && vBDist > 0 && vCDist > 0)) &&
+        if (((vADist < 0 && vBDist < 0 && vCDist < 0) || (vADist > 0 && vBDist > 0 && vCDist > 0)) &&
             (MIN(MIN(ABS(vADist), ABS(vBDist)), ABS(vCDist)) > MAX_VERT_DIST)) {
             return FALSE;
         }

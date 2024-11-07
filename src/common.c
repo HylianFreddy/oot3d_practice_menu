@@ -1,5 +1,6 @@
 #include "common.h"
 #include "z3D/z3D.h"
+#include <math.h>
 
 MemInfo query_memory_permissions(u32 address) {
     MemInfo memory_info = {};
@@ -48,4 +49,21 @@ f32 sins(u16 angle) {
 
 f32 coss(u16 angle) {
     return sins(angle + 0x4000);
+}
+
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+f32 arctan(f32 y, f32 x) {
+    f32 r = y/x;
+    u8 case1 = r > 1;
+    u8 case2 = r < -1;
+    if (case1 || case2) r=1/r;
+
+    f32 res = r - (r*r*r)/3 + (r*r*r*r*r)/5 - (r*r*r*r*r*r*r)/7;
+
+    if (case1) res = M_PI_2 - res;
+    else if (case2) res = -M_PI_2 - res;
+
+    if (x < 0) res += M_PI;
+
+    return res;
 }

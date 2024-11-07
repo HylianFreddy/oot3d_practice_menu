@@ -22,6 +22,7 @@ extern void pauseDisplay();
 void CitraPrint(const char* message, ...);
 f32 sins(u16 angle);
 f32 coss(u16 angle);
+f32 arctan(f32 y, f32 x);
 
 extern u8 gInit;
 
