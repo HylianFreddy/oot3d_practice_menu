@@ -5,8 +5,7 @@
 #include "input.h"
 #include "menus/debug.h"
 #include "menus/scene.h"
-
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
+#include <math.h>
 
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna);
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
@@ -168,7 +167,15 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         return FALSE;
     }
 
-    // TODO: check if camera is looking at poly
+    // Check if camera is looking at poly
+    Vec3f viewDir = (Vec3f){
+        .x = gGlobalContext->view.at.x - eye.x,
+        .y = gGlobalContext->view.at.y - eye.y,
+        .z = gGlobalContext->view.at.z - eye.z,
+    };
+    if (ABS(getAngleBetween(viewDir, poly.norm)) < M_PI_4) {
+        return FALSE;
+    }
 
     // Check if player is far from the poly's plane
     Vec3f pos = PLAYER->actor.world.pos;
@@ -185,8 +192,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         f32 vBDist = (*polyVertsCoords)[1][i] - (*playerCoords)[i];
         f32 vCDist = (*polyVertsCoords)[2][i] - (*playerCoords)[i];
 
-        if (((vADist < 0 && vBDist < 0 && vCDist < 0) ||
-            (vADist > 0 && vBDist > 0 && vCDist > 0)) &&
+        if (((vADist < 0 && vBDist < 0 && vCDist < 0) || (vADist > 0 && vBDist > 0 && vCDist > 0)) &&
             (MIN(MIN(ABS(vADist), ABS(vBDist)), ABS(vCDist)) > MAX_VERT_DIST)) {
             return FALSE;
         }
