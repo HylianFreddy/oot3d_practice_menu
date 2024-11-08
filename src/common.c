@@ -80,13 +80,24 @@ f32 arctan(f32 x) {
     return 8*x/(3+sqrtf(25+(80*x*x/3)));
 }
 
-f32 getAngle(f32 x, f32 y) {
-    if (x == 0.0) {
-        return (y >= 0 ? M_PI_2 : -M_PI_2);
+f32 getAngleBetween(Vec3f a, Vec3f b) {
+    // |A×B| = |A| |B| SIN(θ)
+    // (A·B) = |A| |B| COS(θ)
+    Vec3f cross = (Vec3f){
+        .x = a.y*b.z - a.z*b.y,
+        .y = a.z*b.x - a.x*b.z,
+        .z = a.x*b.y - a.y*b.x,
+    };
+    f32 crossMag = sqrtf(cross.x*cross.x + cross.y*cross.y + cross.z*cross.z);
+    f32 dot = a.x*b.x + a.y*b.y + a.z*b.z;
+
+    if (dot == 0.0) {
+        return (crossMag >= 0 ? M_PI_2 : -M_PI_2);
     }
-    f32 a = arctan(y/x);
-    if (x < 0) {
-        a += M_PI;
+    // arctan(SIN(θ)/COS(θ))
+    f32 angle = arctan(crossMag/dot);
+    if (dot < 0) {
+        angle += M_PI;
     }
-    return a;
+    return angle;
 }

@@ -185,11 +185,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         .y = gGlobalContext->view.at.y - eye.y,
         .z = gGlobalContext->view.at.z - eye.z,
     };
-    // angle = arctan(determinant / dot_product)
-    if (getAngle((viewDir.x * poly.norm.x + viewDir.y * poly.norm.y),
-                 (viewDir.x * poly.norm.y - viewDir.y * poly.norm.x)) < M_PI_4 &&
-        getAngle((viewDir.x * poly.norm.x + viewDir.z * poly.norm.z),
-                 (viewDir.x * poly.norm.z - viewDir.z * poly.norm.x)) < M_PI_4) {
+    if (getAngleBetween(viewDir, poly.norm) < M_PI_4) {
         return FALSE;
     }
 
