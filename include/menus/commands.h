@@ -71,3 +71,6 @@ extern PosRot storedPosRot[STORED_POS_COUNT];
 extern u32 commandInit;
 extern u32 shouldAutoloadSavefile;
 extern u32 shouldFastForward;
+extern u32 gFastForwardCycleCounter;
+#define FAST_FORWARD_CYCLE_MAX 20
+#define FAST_FORWARD_IS_SKIPPING (shouldFastForward && gFastForwardCycleCounter != FAST_FORWARD_CYCLE_MAX - 1)
