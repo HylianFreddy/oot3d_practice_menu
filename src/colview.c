@@ -7,8 +7,6 @@
 #include "menus/scene.h"
 #include <math.h>
 
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
-
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna);
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static void ColView_DrawPoly(ColViewPoly poly);

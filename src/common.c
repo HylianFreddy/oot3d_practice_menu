@@ -30,6 +30,21 @@ void CitraPrint(const char* message, ...) {
     va_end(args);
 }
 
+f32 sqrtf(f32 x) {
+    f32 n = (1 + x) * 0.5;
+
+    while (n * n < x * 0.999f || n * n > x * 1.001f) {
+        n = (n + x / n) * 0.5;
+    }
+
+    return n;
+}
+
+f32 distXYZ(Vec3f a, Vec3f b) {
+    f32 x = a.x - b.x, y = a.y - b.y, z = a.z - b.z;
+    return sqrtf(x * x + y * y + z * z);
+}
+
 f32 sins(u16 angle) {
     // Taylor expansion up to x^7. Use symmetries for larger angles.
     if (angle <= 0x4000) {
@@ -51,7 +66,6 @@ f32 coss(u16 angle) {
     return sins(angle + 0x4000);
 }
 
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
 f32 arctan(f32 y, f32 x) {
     f32 r = y/x;
     u8 case1 = r > 1;

@@ -9,21 +9,6 @@
 
 FreeCam freeCam = { 0 };
 
-f32 sqrtf(f32 x) {
-    f32 n = (1 + x) * 0.5;
-
-    while (n * n < x * 0.999f || n * n > x * 1.001f) {
-        n = (n + x / n) * 0.5;
-    }
-
-    return n;
-}
-
-f32 distXYZ(Vec3f a, Vec3f b) {
-    f32 x = a.x - b.x, y = a.y - b.y, z = a.z - b.z;
-    return sqrtf(x * x + y * y + z * z);
-}
-
 s16 Clamp(s16 val) {
     if (val >= 0x3F00)
         return 0x3F00;
