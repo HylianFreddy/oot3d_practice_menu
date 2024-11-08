@@ -6,15 +6,15 @@ extern Menu DebugMenu;
 
 extern u32 memoryEditorAddress;
 
-extern void DebugActors_ShowActors();
-extern void Debug_ShowObjects();
-extern void Debug_FlagsEditor();
-extern void Debug_PlayerStatesMenuShow();
-extern void Debug_MemoryEditor();
-extern void MemoryEditor_EditAddress();
-extern void MemoryEditor_EditValue();
-extern bool MemoryEditor_ConfirmPermissionOverride();
-extern void pushHistory(u32 addr);
+void DebugActors_ShowActors();
+void Debug_ShowObjects();
+void Debug_FlagsEditor();
+void Debug_PlayerStatesMenuShow();
+void Debug_MemoryEditor();
+void MemoryEditor_EditAddress();
+void MemoryEditor_EditValue();
+bool MemoryEditor_ConfirmPermissionOverride();
+void pushHistory(u32 addr);
 void MemoryEditor_GoToPreset(void);
 void MemoryEditor_FollowPointer(void);
 void MemoryEditor_TableSettings(void);
