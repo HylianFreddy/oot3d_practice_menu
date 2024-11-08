@@ -77,27 +77,29 @@ f32 coss(u16 angle) {
 
 f32 arctan(f32 x) {
     // arctan approximation function
-    return 8*x/(3+sqrtf(25+(80*x*x/3)));
+    return 8 * x / (3 + sqrtf(25 + (80 * x * x / 3)));
 }
 
 f32 getAngleBetween(Vec3f a, Vec3f b) {
     // |A×B| = |A| |B| SIN(θ)
     // (A·B) = |A| |B| COS(θ)
     Vec3f cross = (Vec3f){
-        .x = a.y*b.z - a.z*b.y,
-        .y = a.z*b.x - a.x*b.z,
-        .z = a.x*b.y - a.y*b.x,
+        .x = a.y * b.z - a.z * b.y,
+        .y = a.z * b.x - a.x * b.z,
+        .z = a.x * b.y - a.y * b.x,
     };
-    f32 crossMag = sqrtf(cross.x*cross.x + cross.y*cross.y + cross.z*cross.z);
-    f32 dot = a.x*b.x + a.y*b.y + a.z*b.z;
+    f32 crossMag = sqrtf(cross.x * cross.x + cross.y * cross.y + cross.z * cross.z);
+    f32 dot      = a.x * b.x + a.y * b.y + a.z * b.z;
 
+    // If dot product is zero, the angle is right
     if (dot == 0.0) {
         return (crossMag >= 0 ? M_PI_2 : -M_PI_2);
     }
-    // arctan(SIN(θ)/COS(θ))
-    f32 angle = arctan(crossMag/dot);
+    // Calculate arctan(SIN(θ)/COS(θ))
+    f32 angle = arctan(crossMag / dot);
+    // If dot product is negative, the angle is obtuse
     if (dot < 0) {
-        angle += M_PI;
+        angle += (angle < 0 ? M_PI : -M_PI);
     }
     return angle;
 }

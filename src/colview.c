@@ -11,10 +11,6 @@ static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* su
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static void ColView_DrawPoly(ColViewPoly poly);
 static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
-// static u8 ColView_CheckCameraPos(ColViewPoly poly);
-// static u8 ColView_CheckCameraDist(ColViewPoly poly);
-// static u8 ColView_CheckPlayerDistPlane(ColViewPoly poly);
-// static u8 ColView_CheckPlayerDistPoints(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
@@ -22,14 +18,6 @@ void ColView_DrawCollision(void) {
     if (!Scene_GetCollisionOption(COLVIEW_SHOW_COLLISION) || Version_KOR || Version_TWN) {
         return;
     }
-
-    // if (!PLAYER->actor.floorPoly) return;
-
-    // ColViewPoly viewPoly = ColView_BuildColViewPoly(PLAYER->actor.floorPoly, gGlobalContext->colCtx.stat.colHeader->surfaceTypeList, 0);
-    // if (ColView_ShouldDrawPoly(viewPoly)) {
-    //     ColView_DrawPoly(viewPoly);
-    // }
-    // return;
 
     if (Scene_GetCollisionOption(COLVIEW_DYNAMIC)) {
         DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
@@ -185,7 +173,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         .y = gGlobalContext->view.at.y - eye.y,
         .z = gGlobalContext->view.at.z - eye.z,
     };
-    if (getAngleBetween(viewDir, poly.norm) < M_PI_4) {
+    if (ABS(getAngleBetween(viewDir, poly.norm)) < M_PI_4) {
         return FALSE;
     }
 
