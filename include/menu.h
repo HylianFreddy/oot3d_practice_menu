@@ -104,33 +104,6 @@ typedef struct AmountMenu {
     AmountMenuItem items[0x40];
 } AmountMenu;
 
-static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
-    { // S8
-        .min = -128,
-        .max = 127,
-    },
-    { // U8
-        .min = 0,
-        .max = 255,
-    },
-    { // S16
-        .min = -32768,
-        .max = 32767,
-    },
-    { // U16
-        .min = 0,
-        .max = 65535,
-    },
-    { // S32
-        .min = -2147483648,
-        .max = 2147483647,
-    },
-    { // U32
-        .min = 0,
-        .max = 4294967295,
-    },
-};
-
 #define TOGGLE_MENU_MAX_SHOW 18
 #define AMOUNT_MENU_MAX_SHOW 18
 
@@ -139,8 +112,7 @@ void ToggleMenuShow(ToggleMenu *menu);
 void AmountMenuShow(AmountMenu *menu);
 void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max,
                      s32 digitCount, bool isHex, void (*method)(s32), s32 amountMenuIndex);
-
 u32 KeyboardFill(char* buf, u32 len);
+bool onMenuLoop();
 
-extern bool onMenuLoop();
 extern bool menuOpen;
