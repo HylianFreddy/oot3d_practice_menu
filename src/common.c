@@ -2,6 +2,8 @@
 #include "z3D/z3D.h"
 #include <math.h>
 
+#define ABS(x) ((x) >= 0 ? (x) : -(x))
+
 MemInfo query_memory_permissions(u32 address) {
     MemInfo memory_info = {};
     PageInfo page_info = {};
@@ -40,9 +42,16 @@ f32 sqrtf(f32 x) {
     return n;
 }
 
+f32 vecLen(Vec3f v) {
+    return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
 f32 distXYZ(Vec3f a, Vec3f b) {
-    f32 x = a.x - b.x, y = a.y - b.y, z = a.z - b.z;
-    return sqrtf(x * x + y * y + z * z);
+    return vecLen((Vec3f){
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z,
+    });
 }
 
 f32 sins(u16 angle) {

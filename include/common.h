@@ -24,6 +24,7 @@ void CitraPrint(const char* message, ...);
 // Math stuff
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 f32 sqrtf(f32 x);
+f32 vecLen(Vec3f v);
 f32 distXYZ(Vec3f a, Vec3f b);
 f32 sins(u16 angle);
 f32 coss(u16 angle);

@@ -11,6 +11,10 @@ static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* su
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static void ColView_DrawPoly(ColViewPoly poly);
 static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
+// static u8 ColView_CheckCameraPos(ColViewPoly poly);
+// static u8 ColView_CheckCameraDist(ColViewPoly poly);
+// static u8 ColView_CheckPlayerDistPlane(ColViewPoly poly);
+// static u8 ColView_CheckPlayerDistPoints(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
@@ -18,6 +22,14 @@ void ColView_DrawCollision(void) {
     if (!Scene_GetCollisionOption(COLVIEW_SHOW_COLLISION) || Version_KOR || Version_TWN) {
         return;
     }
+
+    // if (!PLAYER->actor.floorPoly) return;
+
+    // ColViewPoly viewPoly = ColView_BuildColViewPoly(PLAYER->actor.floorPoly, gGlobalContext->colCtx.stat.colHeader->surfaceTypeList, 0);
+    // if (ColView_ShouldDrawPoly(viewPoly)) {
+    //     ColView_DrawPoly(viewPoly);
+    // }
+    // return;
 
     if (Scene_GetCollisionOption(COLVIEW_DYNAMIC)) {
         DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
@@ -168,18 +180,29 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
     }
 
     // Check if camera is looking at poly
-
-    Vec3f at = gGlobalContext->view.at;
     Vec3f viewDir = (Vec3f){
-        .x = at.x - eye.x,
-        .y = at.y - eye.y,
-        .z = at.z - eye.z,
+        .x = gGlobalContext->view.at.x - eye.x,
+        .y = gGlobalContext->view.at.y - eye.y,
+        .z = gGlobalContext->view.at.z - eye.z,
     };
-    // dot = x1*x2 + y1*y2      # Dot product between [x1, y1] and [x2, y2]
-    // det = x1*y2 - y1*x2      # Determinant
-    // angle = atan2(det, dot)  # atan2(y, x) or atan2(sin, cos)
-    if (arctan((viewDir.x*poly.norm.y - viewDir.y*poly.norm.x), (viewDir.x*poly.norm.x + viewDir.y*poly.norm.y)) < M_PI_4 &&
-        arctan((viewDir.x*poly.norm.z - viewDir.z*poly.norm.x), (viewDir.x*poly.norm.x + viewDir.z*poly.norm.z)) < M_PI_4) {
+    // Normalize vector
+    f32 len = vecLen(viewDir);
+    viewDir.x /= len;
+    viewDir.y /= len;
+    viewDir.z /= len;
+    // ABS(Determinant) == area of parallelogram
+    f32 detXY = ABS(viewDir.x * poly.norm.y - viewDir.y * poly.norm.x);
+    f32 detXZ = ABS(viewDir.x * poly.norm.z - viewDir.z * poly.norm.x);
+    f32 detYZ = ABS(viewDir.y * poly.norm.z - viewDir.z * poly.norm.y);
+    // Cases where the area is small but the vectors are facing the opposite way on some axis
+    u8 oppositeX = ABS(viewDir.x) > 0.5 && viewDir.x * poly.norm.x < 0;
+    u8 oppositeY = ABS(viewDir.y) > 0.5 && viewDir.y * poly.norm.y < 0;
+    u8 oppositeZ = ABS(viewDir.z) > 0.5 && viewDir.z * poly.norm.z < 0;
+    // If the vectors are not opposite and the area between them is smaller than the threshold,
+    // then they're close enough that we can consider the camera to be looking away from the poly.
+    u8 lookingAway = !oppositeX && !oppositeY && !oppositeZ && (detXY + detXZ + detYZ < 0.5);
+    // CitraPrint("%X, detXY %f, detXZ %f, detYZ %f, sum %f, oppX %X, oppY %X, oppZ %X", lookingAway, detXY, detXZ, detYZ, detXY+detXZ+detYZ, oppositeX, oppositeY, oppositeZ);
+    if (lookingAway) {
         return FALSE;
     }
 
