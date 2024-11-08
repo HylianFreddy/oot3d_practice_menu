@@ -27,6 +27,7 @@ SECTIONS
 		*(.text.*)
 		__text_end  = . ;
 		*(.rodata)
+		*(.rodata.*)
 		*(.eh_frame)
 		*(.data)
 		*(.bss)
