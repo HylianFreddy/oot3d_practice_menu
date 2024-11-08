@@ -28,7 +28,8 @@ f32 vecLen(Vec3f v);
 f32 distXYZ(Vec3f a, Vec3f b);
 f32 sins(u16 angle);
 f32 coss(u16 angle);
-f32 arctan(f32 y, f32 x);
+f32 arctan(f32 x);
+f32 getAngle(f32 x, f32 y);
 
 extern u8 gInit;
 

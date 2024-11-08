@@ -185,24 +185,11 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         .y = gGlobalContext->view.at.y - eye.y,
         .z = gGlobalContext->view.at.z - eye.z,
     };
-    // Normalize vector
-    f32 len = vecLen(viewDir);
-    viewDir.x /= len;
-    viewDir.y /= len;
-    viewDir.z /= len;
-    // ABS(Determinant) == area of parallelogram
-    f32 detXY = ABS(viewDir.x * poly.norm.y - viewDir.y * poly.norm.x);
-    f32 detXZ = ABS(viewDir.x * poly.norm.z - viewDir.z * poly.norm.x);
-    f32 detYZ = ABS(viewDir.y * poly.norm.z - viewDir.z * poly.norm.y);
-    // Cases where the area is small but the vectors are facing the opposite way on some axis
-    u8 oppositeX = ABS(viewDir.x) > 0.5 && viewDir.x * poly.norm.x < 0;
-    u8 oppositeY = ABS(viewDir.y) > 0.5 && viewDir.y * poly.norm.y < 0;
-    u8 oppositeZ = ABS(viewDir.z) > 0.5 && viewDir.z * poly.norm.z < 0;
-    // If the vectors are not opposite and the area between them is smaller than the threshold,
-    // then they're close enough that we can consider the camera to be looking away from the poly.
-    u8 lookingAway = !oppositeX && !oppositeY && !oppositeZ && (detXY + detXZ + detYZ < 0.5);
-    // CitraPrint("%X, detXY %f, detXZ %f, detYZ %f, sum %f, oppX %X, oppY %X, oppZ %X", lookingAway, detXY, detXZ, detYZ, detXY+detXZ+detYZ, oppositeX, oppositeY, oppositeZ);
-    if (lookingAway) {
+    // angle = arctan(determinant / dot_product)
+    if (getAngle((viewDir.x * poly.norm.x + viewDir.y * poly.norm.y),
+                 (viewDir.x * poly.norm.y - viewDir.y * poly.norm.x)) < M_PI_4 &&
+        getAngle((viewDir.x * poly.norm.x + viewDir.z * poly.norm.z),
+                 (viewDir.x * poly.norm.z - viewDir.z * poly.norm.x)) < M_PI_4) {
         return FALSE;
     }
 

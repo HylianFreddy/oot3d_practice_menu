@@ -75,18 +75,18 @@ f32 coss(u16 angle) {
     return sins(angle + 0x4000);
 }
 
-f32 arctan(f32 y, f32 x) {
-    f32 r = y/x;
-    u8 case1 = r > 1;
-    u8 case2 = r < -1;
-    if (case1 || case2) r=1/r;
+f32 arctan(f32 x) {
+    // arctan approximation function
+    return 8*x/(3+sqrtf(25+(80*x*x/3)));
+}
 
-    f32 res = r - (r*r*r)/3 + (r*r*r*r*r)/5 - (r*r*r*r*r*r*r)/7;
-
-    if (case1) res = M_PI_2 - res;
-    else if (case2) res = -M_PI_2 - res;
-
-    if (x < 0) res += M_PI;
-
-    return res;
+f32 getAngle(f32 x, f32 y) {
+    if (x == 0.0) {
+        return (y >= 0 ? M_PI_2 : -M_PI_2);
+    }
+    f32 a = arctan(y/x);
+    if (x < 0) {
+        a += M_PI;
+    }
+    return a;
 }
