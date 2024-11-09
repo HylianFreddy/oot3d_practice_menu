@@ -24,8 +24,8 @@ SECTIONS
 	.patch_ItemUsability_AnyAction 0x42E568 : {}
 	.patch_LoadGame 0x4473A0 : {}
 	.patch_OverrideSceneSetup 0x4487D8 : {}
-	.patch_before_GlobalContext_Update 0x4523B0 : {}
-	.patch_after_GlobalContext_Update 0x452454 : {}
+	.patch_before_Play_Update 0x4523B0 : {}
+	.patch_after_Play_Update 0x452454 : {}
 	.patch_ItemUsability_AnyArea 0x4762E4 : {}
 	.patch_TurboTextAdvance 0x480948 : {}
 	.patch_SetBGMDayNight 0x483CA8 : {}

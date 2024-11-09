@@ -8,10 +8,10 @@ hook_into_Gfx_Update:
     pop {r0-r12, lr}
     pop {r4-r8, pc}
 
-.global hook_before_GlobalContext_Update
-hook_before_GlobalContext_Update:
+.global hook_before_Play_Update
+hook_before_Play_Update:
     push {r0-r12, lr}
-    bl before_GlobalContext_Update
+    bl before_Play_Update
     pop {r0-r12, lr}
 .if (_KOR_ || _TWN_)
     cpy r8,r0
@@ -20,10 +20,10 @@ hook_before_GlobalContext_Update:
 .endif
     bx lr
 
-.global hook_after_GlobalContext_Update
-hook_after_GlobalContext_Update:
+.global hook_after_Play_Update
+hook_after_Play_Update:
     push {r0-r12, lr}
-    bl after_GlobalContext_Update
+    bl after_Play_Update
     pop {r0-r12, lr}
 .if (_USA_ || _EUR_)
     b 0x2E25F0
