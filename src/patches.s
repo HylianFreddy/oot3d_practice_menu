@@ -8,11 +8,11 @@ loader_patch:
 .section .patch_Gfx_Update
     b hook_into_Gfx_Update
 
-.section .patch_before_GlobalContext_Update
-    bl hook_before_GlobalContext_Update
+.section .patch_before_Play_Update
+    bl hook_before_Play_Update
 
-.section .patch_after_GlobalContext_Update
-    b hook_after_GlobalContext_Update
+.section .patch_after_Play_Update
+    b hook_after_Play_Update
 
 .section .patch_PlaySound
     b hook_PlaySound
