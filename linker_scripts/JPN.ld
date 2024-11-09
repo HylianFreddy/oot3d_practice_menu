@@ -24,8 +24,8 @@ SECTIONS
 	.patch_ItemUsability_AnyAction 0x42E51C : {}
 	.patch_LoadGame 0x447358 : {}
 	.patch_OverrideSceneSetup 0x448790 : {}
-	.patch_before_GlobalContext_Update 0x452368 : {}
-	.patch_after_GlobalContext_Update 0x45240C : {}
+	.patch_before_Play_Update 0x452368 : {}
+	.patch_after_Play_Update 0x45240C : {}
 	.patch_ItemUsability_AnyArea 0x47629C : {}
 	.patch_TurboTextAdvance 0x480900 : {}
 	.patch_SetBGMDayNight 0x483C60 : {}
@@ -45,10 +45,13 @@ SECTIONS
 		__text_end  = . ;
 		*(.rodata)
 		*(.rodata.*)
-		*(.eh_frame)
 		*(.data)
 		*(.bss)
 		*(COMMON)
+	}
+
+	/DISCARD/ : {
+		*(.eh_frame)
 	}
 }
 PROVIDE(_LD_SYMBOL_TEXT_SIZE = __text_end - __text_start);

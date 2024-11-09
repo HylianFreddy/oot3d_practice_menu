@@ -8,8 +8,8 @@ SECTIONS
 	.patch_before_GameState_Loop 0x100444 : {}
 	.patch_after_GameState_Update 0x1004A0 : {}
 	.patch_GameButtonInputs 0x104DE4 : {}
-	.patch_before_GlobalContext_Update 0x13A2C8 : {}
-	.patch_after_GlobalContext_Update 0x13A320 : {}
+	.patch_before_Play_Update 0x13A2C8 : {}
+	.patch_after_Play_Update 0x13A320 : {}
 	.patch_ActorDrawContext 0x2FC894: {}
 	.patch_HaltActors 0x2FDD24 : {}
 	.patch_Gfx_Update 0x311CA8 : {}
@@ -28,10 +28,13 @@ SECTIONS
 		__text_end  = . ;
 		*(.rodata)
 		*(.rodata.*)
-		*(.eh_frame)
 		*(.data)
 		*(.bss)
 		*(COMMON)
+	}
+
+	/DISCARD/ : {
+		*(.eh_frame)
 	}
 }
 PROVIDE(_LD_SYMBOL_TEXT_SIZE = __text_end - __text_start);
