@@ -20,15 +20,18 @@ ToggleMenu CollisionMenu = {
     .nbItems = COLVIEW_MAX,
     .initialCursorPos = 0,
     {
-        {1, "Show Collision Polygons", .method = Scene_ToggleCollisionOption},
-        {1, "  Draw Static Polys", .method = Scene_ToggleCollisionOption},
-        {1, "  Draw Dynamic Polys", .method = Scene_ToggleCollisionOption},
-        {0, "  Draw Invisible Seams", .method = Scene_ToggleCollisionOption},
+        {0, "Show Collision Polygons", .method = Scene_ToggleCollisionOption},
+        {1, "  Static Polys", .method = Scene_ToggleCollisionOption},
+        {1, "  Dynamic Polys", .method = Scene_ToggleCollisionOption},
+        {0, "  Invisible Seams", .method = Scene_ToggleCollisionOption},
         {1, "  Translucent", .method = Scene_ToggleCollisionOption},
         {0, "  Polygon Class", .method = Scene_ToggleCollisionOption},
         {1, "  Shaded", .method = Scene_ToggleCollisionOption},
         {0, "  Reduced", .method = Scene_ToggleCollisionOption},
         {0, "Show Colliders/Hitboxes", .method = Scene_ToggleCollisionOption},
+        {0, "  Hit  (AT)", .method = Scene_ToggleCollisionOption},
+        {0, "  Hurt (AC)", .method = Scene_ToggleCollisionOption},
+        {0, "  Bump (OC)", .method = Scene_ToggleCollisionOption},
     }
 };
 
@@ -92,7 +95,10 @@ Menu SceneMenu = {
 };
 
 void Scene_CollisionMenuShow(void) {
-    CollisionMenu.items[COLVIEW_SHOW_COLLIDERS].on = gStaticContext.collisionDisplay;
+    CollisionMenu.items[COLVIEW_SHOW_COLLIDERS].on = gStaticContext.showColliders;
+    CollisionMenu.items[COLVIEW_AT].on = gStaticContext.showAT;
+    CollisionMenu.items[COLVIEW_AC].on = gStaticContext.showAC;
+    CollisionMenu.items[COLVIEW_OC].on = gStaticContext.showOC;
     ToggleMenuShow(&CollisionMenu);
 }
 
@@ -100,7 +106,16 @@ void Scene_ToggleCollisionOption(s32 selected) {
     CollisionMenu.items[selected].on ^= 1;
     switch (selected) {
         case COLVIEW_SHOW_COLLIDERS:
-            gStaticContext.collisionDisplay ^= 1;
+            gStaticContext.showColliders ^= 1;
+            break;
+        case COLVIEW_AT:
+            gStaticContext.showAT ^= 1;
+            break;
+        case COLVIEW_AC:
+            gStaticContext.showAC ^= 1;
+            break;
+        case COLVIEW_OC:
+            gStaticContext.showOC ^= 1;
             break;
     }
 }
@@ -304,12 +319,12 @@ void Scene_ToggleFreeCamSetting(s32 selected) {
 }
 
 void Scene_HideEntitiesMenuShow() {
-    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on = gStaticContext.renderGeometryDisable;
+    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on = gStaticContext.disableRoomDraw;
     ToggleMenuShow(&HideEntitiesMenu);
 }
 
 void Scene_HideRoomsToggle(s32 selected) {
-    gStaticContext.renderGeometryDisable ^= 1;
+    gStaticContext.disableRoomDraw ^= 1;
     HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on ^= 1;
 }
 

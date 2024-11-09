@@ -31,9 +31,9 @@ void Actor_rDrawContext(GlobalContext *globalCtx,ActorContext *actorCtx) {
     // Collision display is normally handled in Actor_DrawContext, but in order to draw its models even
     // when "Hide Actors" is enabled, we disable it and then call CollisionCheck_DrawCollision manually
     u8 shouldHideActors = HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on;
-    u8 delayCollDisplay = shouldHideActors && gStaticContext.collisionDisplay;
+    u8 delayCollDisplay = shouldHideActors && gStaticContext.showColliders;
     if (delayCollDisplay) {
-        gStaticContext.collisionDisplay = 0;
+        gStaticContext.showColliders = 0;
     }
 
     s32 tempSaModelsCount1 = gMainClass->sub180.saModelsCount1;
@@ -47,7 +47,7 @@ void Actor_rDrawContext(GlobalContext *globalCtx,ActorContext *actorCtx) {
     }
 
     if (delayCollDisplay) {
-        gStaticContext.collisionDisplay = 1;
+        gStaticContext.showColliders = 1;
         CollisionCheck_DrawCollision(globalCtx,&globalCtx->colChkCtx);
     }
 

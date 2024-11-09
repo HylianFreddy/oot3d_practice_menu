@@ -31,6 +31,9 @@ enum ColViewOptions {
     COLVIEW_SHADED,
     COLVIEW_REDUCED,
     COLVIEW_SHOW_COLLIDERS,
+    COLVIEW_AT,
+    COLVIEW_AC,
+    COLVIEW_OC,
     COLVIEW_MAX,
 };
 

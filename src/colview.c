@@ -134,7 +134,7 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
         color.b -= color.b * ABS(0.30 * normal.y + 0.25 * normal.z);
     }
 
-    u8 preventZFighting = (!isDyna && !gStaticContext.renderGeometryDisable) ||
+    u8 preventZFighting = (!isDyna && !gStaticContext.disableRoomDraw) ||
                            (isDyna && !HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on);
 
     return (ColViewPoly){

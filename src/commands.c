@@ -185,7 +185,7 @@ static void Command_CollisionView(void) {
 }
 
 static void Command_HitboxView(void){
-    gStaticContext.collisionDisplay = !gStaticContext.collisionDisplay;
+    gStaticContext.showColliders ^= 1;
 }
 
 static void Command_ToggleWatches(void){

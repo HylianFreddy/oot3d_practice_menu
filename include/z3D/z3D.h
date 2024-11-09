@@ -533,12 +533,16 @@ typedef struct GlobalContext {
 _Static_assert(sizeof(GlobalContext) == 0x8038, "Global Context size");
 
 typedef struct StaticContext {
-    /* 0x0000 */ char unk_0[0x0E60];
+    /* 0x0000 */ char unk_000[0x0E60];
     /* 0x0E60 */ u16  spawnOnEpona;
-    /* 0x0E62 */ char unk_E72[0x0010];
-    /* 0x0E72 */ u16  collisionDisplay; // add flags for AT,AC,OC colliders
-    /* 0x0E74 */ char unk_E74[0x015C];
-    /* 0x0FD0 */ u16  renderGeometryDisable;
+    /* 0x0E62 */ char unk_E62[0x0010];
+    /* 0x0E72 */ u16  showColliders;
+    /* 0x0E74 */ char unk_E74[0x000A];
+    /* 0x0E7E */ u16  showAT;
+    /* 0x0E80 */ u16  showAC;
+    /* 0x0E82 */ u16  showOC;
+    /* 0x0E84 */ char unk_E84[0x014C];
+    /* 0x0FD0 */ u16  disableRoomDraw;
     /* 0x0FD2 */ char unk_FD2[0x0602];
 } StaticContext; //size 0x15D4
 _Static_assert(sizeof(StaticContext) == 0x15D4, "Static Context size");
