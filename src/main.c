@@ -41,7 +41,7 @@ void autoLoadSaveFile(void);
 void NoClip_Update(void);
 
 // Called once for every update on the `PlayState` GameState.
-void before_GlobalContext_Update(GlobalContext* globalCtx) {
+void before_Play_Update(GlobalContext* globalCtx) {
     if (!gInit) {
         gGlobalContext = globalCtx;
         gStoredActorHeapAddress = gActorHeapAddress;
@@ -53,7 +53,7 @@ void before_GlobalContext_Update(GlobalContext* globalCtx) {
 }
 
 // Called between the `PlayState` update and draw functions.
-void after_GlobalContext_Update(GlobalContext* globalCtx) {
+void after_Play_Update(GlobalContext* globalCtx) {
     if (waitingButtonRelease) {
         waitingButtonRelease = (rInputCtx.cur.val != 0);
     }
