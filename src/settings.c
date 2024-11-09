@@ -195,9 +195,7 @@ void Settings_UpdateWatchAddresses(void) {
         #undef watchAddr
     }
 
-    if (updated) {
-        Settings_AlertProfileLoad(WATCHUPDATE_SUCCESS);
-    }
+    Settings_AlertProfileLoad(updated ? WATCHUPDATE_SUCCESS : WATCHUPDATE_NONE);
 }
 
 static void Settings_AlertProfileLoad(WatchUpdateResult res) {
