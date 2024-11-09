@@ -26,6 +26,7 @@ hook_after_Play_Update:
     push {r0-r12}
     bl after_Play_Update
     pop {r0-r12}
+    @ Call Play_Draw
 .if (_USA_ || _EUR_)
     bl 0x2E25F0
 .endif
