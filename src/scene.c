@@ -20,7 +20,7 @@ ToggleMenu CollisionMenu = {
     .nbItems = COLVIEW_MAX,
     .initialCursorPos = 0,
     {
-        {1, "Show Collision (WIP)", .method = Scene_ToggleCollisionOption},
+        {1, "Show Collision Polygons", .method = Scene_ToggleCollisionOption},
         {1, "  Draw Static Polys", .method = Scene_ToggleCollisionOption},
         {1, "  Draw Dynamic Polys", .method = Scene_ToggleCollisionOption},
         {0, "  Draw Invisible Seams", .method = Scene_ToggleCollisionOption},
@@ -28,7 +28,7 @@ ToggleMenu CollisionMenu = {
         {0, "  Polygon Class", .method = Scene_ToggleCollisionOption},
         {1, "  Shaded", .method = Scene_ToggleCollisionOption},
         {0, "  Reduced", .method = Scene_ToggleCollisionOption},
-        {0, "Show Colliders", .method = Scene_ToggleCollisionOption},
+        {0, "Show Colliders/Hitboxes", .method = Scene_ToggleCollisionOption},
     }
 };
 
