@@ -222,6 +222,7 @@ void File_SetTimerStateAndValue(s32 selected) {
         case FILE_TIMER1VALUE: varToSet = &gSaveContext.timer1Value; break;
         case FILE_TIMER2STATE: varToSet = &gSaveContext.timer2State; break;
         case FILE_TIMER2VALUE: varToSet = &gSaveContext.timer2Value; break;
+        default: return;
     }
     *(varToSet) = TimersMenu.items[selected].amount;
     //reset toggle in menu
