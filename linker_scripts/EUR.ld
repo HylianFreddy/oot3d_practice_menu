@@ -45,10 +45,13 @@ SECTIONS
 		__text_end  = . ;
 		*(.rodata)
 		*(.rodata.*)
-		*(.eh_frame)
 		*(.data)
 		*(.bss)
 		*(COMMON)
+	}
+
+	/DISCARD/ : {
+		*(.eh_frame)
 	}
 }
 PROVIDE(_LD_SYMBOL_TEXT_SIZE = __text_end - __text_start);
