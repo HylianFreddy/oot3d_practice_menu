@@ -18,7 +18,7 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
 s16 gColViewPolyMax = 64;
-u8 gColViewDisplayCountInfo = 0;
+u8 gColViewDisplayCountInfo = 1;
 u8 gColViewDrawAllStatic = 0;
 
 ToggleMenu CollisionMenu = {
@@ -69,6 +69,7 @@ static void ColView_ToggleCollisionOption(s32 selected) {
 }
 
 static void ColView_PolyCountMenuShow(s32 ignoredParam) {
+#define OPT_H 90
     static s32 selected = 0;
 
     Draw_Lock();
@@ -79,17 +80,20 @@ static void ColView_PolyCountMenuShow(s32 ignoredParam) {
     do {
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Poly Count Options");
-        Draw_DrawString(30, 30, COLOR_WHITE,
-                        "These settings apply on scene reload,\n"
-                        "causing slow-down.");
-        Draw_DrawFormattedString(30, 60 + 0 * SPACING_Y, COLOR_WHITE, "%04d: Maximum ColView poly count",
+        Draw_DrawString(10, 30, COLOR_WHITE,
+                        "You can choose to allocate more memory for the\n"
+                        "collision view polygons on each scene load.");
+        Draw_DrawString(10, 55, COLOR_RED,
+                        "WARNING! High values will slow down the load and\n"
+                        "may even cause the game to crash!");
+        Draw_DrawFormattedString(30, OPT_H + 0 * SPACING_Y, COLOR_WHITE, "%04d: Maximum ColView poly count",
                                  gColViewPolyMax);
-        Draw_DrawFormattedString(30, 60 + 1 * SPACING_Y, COLOR_WHITE, "(%c)   Display current ColView poly count",
-                                 gColViewDisplayCountInfo ? 'x' : ' ');
-        Draw_DrawFormattedString(30, 60 + 2 * SPACING_Y, COLOR_WHITE, "(%c)   Draw all static polys at once",
+        Draw_DrawFormattedString(30, OPT_H + 1 * SPACING_Y, COLOR_WHITE, "(%c)   Draw all static polys at once (TODO)",
                                  gColViewDrawAllStatic ? 'x' : ' ');
+        Draw_DrawFormattedString(30, OPT_H + 2 * SPACING_Y, COLOR_WHITE, "(%c)   Display current ColView poly count",
+                                 gColViewDisplayCountInfo ? 'x' : ' ');
         for (s32 i = 0; i < 3; i++) {
-            Draw_DrawCharacter(10, 60 + i * SPACING_Y, COLOR_TITLE, i == selected ? '>' : ' ');
+            Draw_DrawCharacter(10, OPT_H + i * SPACING_Y, COLOR_TITLE, i == selected ? '>' : ' ');
         }
         Draw_FlushFramebuffer();
         Draw_Unlock();
@@ -102,13 +106,13 @@ static void ColView_PolyCountMenuShow(s32 ignoredParam) {
         if (pressed & BUTTON_A) {
             switch (selected) {
                 case 0:
-                    Menu_EditAmount(24, 60, &gColViewPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
+                    Menu_EditAmount(24, OPT_H, &gColViewPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
                     break;
                 case 1:
-                    gColViewDisplayCountInfo ^= 1;
+                    gColViewDrawAllStatic ^= 1;
                     break;
                 case 2:
-                    gColViewDrawAllStatic ^= 1;
+                    gColViewDisplayCountInfo ^= 1;
                     break;
             }
         }
@@ -119,9 +123,9 @@ static void ColView_PolyCountMenuShow(s32 ignoredParam) {
             selected = (selected + 3 - 1) % 3;
         }
     } while (onMenuLoop());
+#undef OPT_H
 }
 
-#define SystemArena_GetSizes ((void(*)(u32 *outMaxFree,u32 *outFree,u32 *outAlloc))0x301954)
 void ColView_DrawCollision(void) {
     if (!CollisionOption(COLVIEW_SHOW_COLLISION) || FAST_FORWARD_IS_SKIPPING || Version_KOR || Version_TWN) {
         return;
@@ -164,11 +168,12 @@ void ColView_DrawCollision(void) {
         }
     }
 
-    CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
+    // CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
 
-    u32 outMaxFree, outFree, outAlloc;
-    SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);
-    CitraPrint("%X %X %X", outMaxFree, outFree, outAlloc);
+    // #define SystemArena_GetSizes ((void(*)(u32 *outMaxFree,u32 *outFree,u32 *outAlloc))0x301954)
+    // u32 outMaxFree, outFree, outAlloc;
+    // SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);
+    // CitraPrint("%X %X %X", outMaxFree, outFree, outAlloc);
 }
 
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna) {
@@ -410,15 +415,11 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
 #define SystemArena_Malloc ((void*(*)(u32 size))0x35010c)
 
 void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
-    sub32A0->polyMax = gColViewPolyMax; // 0x50, vanilla 0x40
-    void* buf = SystemArena_Malloc(0xA40 + 8*gColViewPolyMax); // 0xCC0, vanilla 0xC40
+    sub32A0->polyMax          = gColViewPolyMax;                                 // vanilla 0x40
+    void* buf                 = SystemArena_Malloc(0xA40 + 8 * gColViewPolyMax); // vanilla 0xC40
     sub32A0->bufferPointer_1C = buf;
     sub32A0->bufferPointer_00 = buf;
-    sub32A0->array_10 = buf + 0xA40;
+    sub32A0->array_10         = buf + 0xA40;
     sub32A0->bufferPointer_18 = buf + 0x140;
-    sub32A0->array_14 = buf + 0xA40 + 4*gColViewPolyMax; // 0xB80, vanilla 0xB40
-
-    u32 outMaxFree, outFree, outAlloc;
-    SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);
-    CitraPrint("%X %X %X", outMaxFree, outFree, outAlloc);
+    sub32A0->array_14         = buf + 0xA40 + 4 * gColViewPolyMax; // vanilla 0xB40
 }
