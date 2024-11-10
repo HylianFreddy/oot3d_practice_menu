@@ -30,6 +30,10 @@ SECTIONS
 	.patch_TurboTextAdvance 0x480928 : {}
 	.patch_SetBGMDayNight 0x483C88 : {}
 	.patch_TurboTextClose 0x488214 : {}
+	.patch_TestPolyMax1 0x4644fc : {}
+	.patch_TestPolyMax2 0x464504 : {}
+	/* .patch_TestPolyMax3 0x464518 : {} */
+	.patch_TestPolyMax4 0x464524 : {}
 
 	. = 0x4C99A8;
 	. = ALIGN(4);
