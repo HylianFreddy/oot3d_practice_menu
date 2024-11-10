@@ -15,39 +15,6 @@ u8 haltActors = 0;
 
 static s32 selectedRoomNumber = -1;
 
-static void Scene_ColViewPolyCountMenuShow(void);
-static void Scene_TogglePolyCountOption(s32 selected);
-
-ToggleMenu CollisionMenu = {
-    "Collision",
-    .nbItems = COLVIEW_MAX,
-    .initialCursorPos = 0,
-    {
-        {0, "Show Collision Polygons", .method = Scene_ToggleCollisionOption},
-        {1, "  Static Polys", .method = Scene_ToggleCollisionOption},
-        {1, "  Dynamic Polys", .method = Scene_ToggleCollisionOption},
-        {0, "  Invisible Seams", .method = Scene_ToggleCollisionOption},
-        {1, "  Translucent", .method = Scene_ToggleCollisionOption},
-        {0, "  Polygon Class", .method = Scene_ToggleCollisionOption},
-        {1, "  Shaded", .method = Scene_ToggleCollisionOption},
-        {0, "  Reduced", .method = Scene_ToggleCollisionOption},
-        {0, "  Poly Count Options (Menu)", .method = Scene_ColViewPolyCountMenuShow},
-        {0, "Show Colliders/Hitboxes", .method = Scene_ToggleCollisionOption},
-        {0, "  Hit  (AT)", .method = Scene_ToggleCollisionOption},
-        {0, "  Hurt (AC)", .method = Scene_ToggleCollisionOption},
-        {0, "  Bump (OC)", .method = Scene_ToggleCollisionOption},
-    }
-};
-
-Menu ColViewPolyCountMenu = {
-    "Collision something",
-    .nbItems = COLVIEW_MAX,
-    .initialCursorPos = 0,
-    {
-        {0, "Display poly count info", .method = Scene_TogglePolyCountOption},
-    }
-};
-
 static Menu RoomSelectorMenu = {
     "Room Selector",
     .nbItems = 2,
@@ -101,44 +68,11 @@ Menu SceneMenu = {
         {"Set Flags", METHOD, .method = Scene_SetFlags},
         {"Clear Flags", METHOD, .method = Scene_ClearFlags},
         {"Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow},
-        {"Collision", METHOD, .method = Scene_CollisionMenuShow},
+        {"Collision", METHOD, .method = ColView_CollisionMenuShow},
         {"Free Camera", MENU, .menu = &FreeCamMenu},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
     }
 };
-
-void Scene_CollisionMenuShow(void) {
-    CollisionMenu.items[COLVIEW_SHOW_COLLIDERS].on = gStaticContext.showColliders;
-    CollisionMenu.items[COLVIEW_AT].on = gStaticContext.showAT;
-    CollisionMenu.items[COLVIEW_AC].on = gStaticContext.showAC;
-    CollisionMenu.items[COLVIEW_OC].on = gStaticContext.showOC;
-    ToggleMenuShow(&CollisionMenu);
-}
-
-void Scene_ToggleCollisionOption(s32 selected) {
-    CollisionMenu.items[selected].on ^= 1;
-    switch (selected) {
-        case COLVIEW_SHOW_COLLIDERS:
-            gStaticContext.showColliders ^= 1;
-            break;
-        case COLVIEW_AT:
-            gStaticContext.showAT ^= 1;
-            break;
-        case COLVIEW_AC:
-            gStaticContext.showAC ^= 1;
-            break;
-        case COLVIEW_OC:
-            gStaticContext.showOC ^= 1;
-            break;
-    }
-}
-
-static void Scene_ColViewPolyCountMenuShow(void) {
-    menuShow(&ColViewPolyCountMenu);
-}
-
-static void Scene_TogglePolyCountOption(s32 selected) {
-}
 
 void Scene_SetEntrancePoint(void) {
     gSaveContext.respawn[0] = (RespawnData){

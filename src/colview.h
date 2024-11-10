@@ -2,6 +2,24 @@
 #define _COLVIEW_H_
 
 #include "z3D/z3D.h"
+#include "menu.h"
+
+enum ColViewOptions {
+    COLVIEW_SHOW_COLLISION,
+    COLVIEW_STATIC,
+    COLVIEW_DYNAMIC,
+    COLVIEW_INVISIBLE_SEAMS,
+    COLVIEW_TRANSLUCENT,
+    COLVIEW_POLYGON_CLASS,
+    COLVIEW_SHADED,
+    COLVIEW_REDUCED,
+    COLVIEW_POLY_COUNT_MENU,
+    COLVIEW_SHOW_COLLIDERS,
+    COLVIEW_AT,
+    COLVIEW_AC,
+    COLVIEW_OC,
+    COLVIEW_MAX,
+};
 
 typedef struct ColViewPoly {
     Vec3f verts[3];
@@ -10,10 +28,13 @@ typedef struct ColViewPoly {
     Color_RGBAf color;
 } ColViewPoly;
 
-s16 gColViewPolyMax;
-u8 gColViewDisplayCountInfo;
-u8 gColViewDrawAllStatic;
+extern s16 gColViewPolyMax;
+extern u8 gColViewDisplayCountInfo;
+extern u8 gColViewDrawAllStatic;
+extern ToggleMenu CollisionMenu;
+#define CollisionOption(option) (CollisionMenu.items[option].on)
 
+void ColView_CollisionMenuShow(void);
 void ColView_DrawCollision(void);
 
 #endif // _COLVIEW_H_
