@@ -297,7 +297,7 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
 }
 
 #define SystemArena_Malloc ((void*(*)(u32 size))0x35010c)
-u32 ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
+void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
     sub32A0->polyMax = 0x50; // 0x50, vanilla 0x40
     void* buf = SystemArena_Malloc(0xCC0); // 0xCC0, vanilla 0xC40
     sub32A0->bufferPointer_1C = buf;
@@ -305,5 +305,4 @@ u32 ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
     sub32A0->array_10 = buf + 0xA40;
     sub32A0->bufferPointer_18 = buf + 0x140;
     sub32A0->array_14 = buf + 0xB80; // 0xB80, vanilla 0xB40
-    return 0x55a21c;
 }

@@ -81,9 +81,9 @@ loader_patch:
     bl hook_GameButtonInputs
 
 .section .patch_InitSubMainClass32A0
-    push {r1-r12, lr}
+    ldr r7,[pc,#0x1D4] @ real offset -8
+    push {r0-r12, lr}
     cpy r0,r4 @ sub32A0 struct
     bl ColView_InitSubMainClass32A0
-    pop {r1-r12, lr}
-    cpy r7,r0
+    pop {r0-r12, lr}
     b 0x464530
