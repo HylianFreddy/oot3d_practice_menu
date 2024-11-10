@@ -157,6 +157,13 @@ void advance_main(void) {
     // Draw_DrawFormattedString(70, 40, COLOR_WHITE, "%4.4X", gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir.y);
     drawAlert();
 
+    if (gColViewDisplayCountInfo && isInGame()) {
+        s16 polyMax = gMainClass->sub32A0.polyMax;
+        s16 polyCounter = gMainClass->sub32A0.polyCounter;
+        Draw_DrawFormattedString(0, SCREEN_BOT_HEIGHT - SPACING_Y, polyCounter >= polyMax ? COLOR_RED : COLOR_WHITE,
+                                 "%d/%d", polyCounter, polyMax);
+    }
+
     if(menuOpen) {
         menuShow(&gz3DMenu);
 

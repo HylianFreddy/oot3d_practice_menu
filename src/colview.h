@@ -10,6 +10,10 @@ typedef struct ColViewPoly {
     Color_RGBAf color;
 } ColViewPoly;
 
+s16 gColViewPolyMax;
+u8 gColViewDisplayCountInfo;
+u8 gColViewDrawAllStatic;
+
 void ColView_DrawCollision(void);
 
 #endif // _COLVIEW_H_

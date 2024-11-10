@@ -8,6 +8,10 @@
 #include "menus/commands.h"
 #include <math.h>
 
+s16 gColViewPolyMax = 64;
+u8 gColViewDisplayCountInfo = 0;
+u8 gColViewDrawAllStatic = 0;
+
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna);
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static void ColView_DrawPoly(ColViewPoly poly);
@@ -303,15 +307,14 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
 
 #define SystemArena_Malloc ((void*(*)(u32 size))0x35010c)
 
-#define POLY_MAX 0xC8
 void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
-    sub32A0->polyMax = POLY_MAX; // 0x50, vanilla 0x40
-    void* buf = SystemArena_Malloc(0xA40 + 8*POLY_MAX); // 0xCC0, vanilla 0xC40
+    sub32A0->polyMax = gColViewPolyMax; // 0x50, vanilla 0x40
+    void* buf = SystemArena_Malloc(0xA40 + 8*gColViewPolyMax); // 0xCC0, vanilla 0xC40
     sub32A0->bufferPointer_1C = buf;
     sub32A0->bufferPointer_00 = buf;
     sub32A0->array_10 = buf + 0xA40;
     sub32A0->bufferPointer_18 = buf + 0x140;
-    sub32A0->array_14 = buf + 0xA40 + 4*POLY_MAX; // 0xB80, vanilla 0xB40
+    sub32A0->array_14 = buf + 0xA40 + 4*gColViewPolyMax; // 0xB80, vanilla 0xB40
 
     u32 outMaxFree, outFree, outAlloc;
     SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);

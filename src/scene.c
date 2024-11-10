@@ -15,6 +15,9 @@ u8 haltActors = 0;
 
 static s32 selectedRoomNumber = -1;
 
+static void Scene_ColViewPolyCountMenuShow(void);
+static void Scene_TogglePolyCountOption(s32 selected);
+
 ToggleMenu CollisionMenu = {
     "Collision",
     .nbItems = COLVIEW_MAX,
@@ -28,10 +31,20 @@ ToggleMenu CollisionMenu = {
         {0, "  Polygon Class", .method = Scene_ToggleCollisionOption},
         {1, "  Shaded", .method = Scene_ToggleCollisionOption},
         {0, "  Reduced", .method = Scene_ToggleCollisionOption},
+        {0, "  Poly Count Options (Menu)", .method = Scene_ColViewPolyCountMenuShow},
         {0, "Show Colliders/Hitboxes", .method = Scene_ToggleCollisionOption},
         {0, "  Hit  (AT)", .method = Scene_ToggleCollisionOption},
         {0, "  Hurt (AC)", .method = Scene_ToggleCollisionOption},
         {0, "  Bump (OC)", .method = Scene_ToggleCollisionOption},
+    }
+};
+
+Menu ColViewPolyCountMenu = {
+    "Collision something",
+    .nbItems = COLVIEW_MAX,
+    .initialCursorPos = 0,
+    {
+        {0, "Display poly count info", .method = Scene_TogglePolyCountOption},
     }
 };
 
@@ -118,6 +131,13 @@ void Scene_ToggleCollisionOption(s32 selected) {
             gStaticContext.showOC ^= 1;
             break;
     }
+}
+
+static void Scene_ColViewPolyCountMenuShow(void) {
+    menuShow(&ColViewPolyCountMenu);
+}
+
+static void Scene_TogglePolyCountOption(s32 selected) {
 }
 
 void Scene_SetEntrancePoint(void) {
