@@ -80,14 +80,10 @@ loader_patch:
 .section .patch_GameButtonInputs
     bl hook_GameButtonInputs
 
-.section .patch_TestPolyMax1
-    mov r0,#0x50
-
-.section .patch_TestPolyMax2
-    mov r0,#0xCC0
-
-@ .section .patch_TestPolyMax3
-@     add r0,r0,#0xA40
-
-.section .patch_TestPolyMax4
-    add r0,r1,#0xA40
+.section .patch_InitSubMainClass32A0
+    push {r1-r12, lr}
+    cpy r0,r4 @ sub32A0 struct
+    bl ColView_InitSubMainClass32A0
+    pop {r1-r12, lr}
+    cpy r7,r0
+    b 0x464530
