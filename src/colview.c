@@ -15,6 +15,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
+#define SystemArena_GetSizes ((void(*)(u32 *outMaxFree,u32 *outFree,u32 *outAlloc))0x301954)
 void ColView_DrawCollision(void) {
     if (!Scene_GetCollisionOption(COLVIEW_SHOW_COLLISION) || FAST_FORWARD_IS_SKIPPING || Version_KOR || Version_TWN) {
         return;
@@ -58,6 +59,10 @@ void ColView_DrawCollision(void) {
     }
 
     CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
+
+    u32 outMaxFree, outFree, outAlloc;
+    SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);
+    CitraPrint("%X %X %X", outMaxFree, outFree, outAlloc);
 }
 
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna) {
@@ -297,12 +302,18 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
 }
 
 #define SystemArena_Malloc ((void*(*)(u32 size))0x35010c)
+
+#define POLY_MAX 0xC8
 void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
-    sub32A0->polyMax = 0x50; // 0x50, vanilla 0x40
-    void* buf = SystemArena_Malloc(0xCC0); // 0xCC0, vanilla 0xC40
+    sub32A0->polyMax = POLY_MAX; // 0x50, vanilla 0x40
+    void* buf = SystemArena_Malloc(0xA40 + 8*POLY_MAX); // 0xCC0, vanilla 0xC40
     sub32A0->bufferPointer_1C = buf;
     sub32A0->bufferPointer_00 = buf;
     sub32A0->array_10 = buf + 0xA40;
     sub32A0->bufferPointer_18 = buf + 0x140;
-    sub32A0->array_14 = buf + 0xB80; // 0xB80, vanilla 0xB40
+    sub32A0->array_14 = buf + 0xA40 + 4*POLY_MAX; // 0xB80, vanilla 0xB40
+
+    u32 outMaxFree, outFree, outAlloc;
+    SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);
+    CitraPrint("%X %X %X", outMaxFree, outFree, outAlloc);
 }
