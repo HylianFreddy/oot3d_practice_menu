@@ -26,6 +26,7 @@ SECTIONS
 	.patch_OverrideSceneSetup 0x448790 : {}
 	.patch_before_Play_Update 0x452368 : {}
 	.patch_after_Play_Update 0x45240C : {}
+	.patch_InitSubMainClass32A0 0x4644D4 : {}
 	.patch_ItemUsability_AnyArea 0x47629C : {}
 	.patch_TurboTextAdvance 0x480900 : {}
 	.patch_SetBGMDayNight 0x483C60 : {}

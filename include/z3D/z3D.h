@@ -586,15 +586,16 @@ typedef struct SubMainClass_180 {
 
 // This struct contains data related to the built-in Collision Display
 typedef struct SubMainClass_32A0 {
-    /* 0x00 */ char unk_00[0x4];
+    /* 0x00 */ void* bufferPointer_00; // Start of 0xC40 buffer
     /* 0x04 */ s16 saModelCount; // 3D sphere and cylinder models
     /* 0x06 */ s16 saModelMax;
-    /* 0x08 */ char unk_08[0x4];
+    /* 0x08 */ void* cmbMan;
     /* 0x0C */ s16 polyCounter; // 2D quad models
     /* 0x0E */ s16 polyMax;
-    /* 0x10 */ void*(*arr_10)[]; // pointer to array of pointers
-    /* 0x14 */ void*(*arr_14)[]; // pointer to array of pointers
-    /* 0x18 */ char unk_18[0x8];
+    /* 0x10 */ void*(*array_10)[]; // pointer to array of pointers, offset 0xA40 in 0xC40 buffer (size 0x100?)
+    /* 0x14 */ void*(*array_14)[]; // pointer to array of pointers, offset 0xB40 in 0xC40 buffer (size 0x100?)
+    /* 0x18 */ void* bufferPointer_18; // Offset 0x140 in 0xC40 buffer
+    /* 0x1C */ void* bufferPointer_1C; // Start of 0xC40 buffer
 } SubMainClass_32A0;
 _Static_assert(sizeof(SubMainClass_32A0) == 0x20, "SubMainClass_32A0 size");
 
@@ -868,6 +869,16 @@ typedef void (*BgCheck_GetStaticLookupIndicesFromPos_Proc)(CollisionContext *col
     #define BgCheck_GetStaticLookupIndicesFromPos_addr 0
 #endif
 #define BgCheck_GetStaticLookupIndicesFromPos ((BgCheck_GetStaticLookupIndicesFromPos_Proc)BgCheck_GetStaticLookupIndicesFromPos_addr)
+
+typedef void* (*SystemArena_Malloc_Proc)(u32 size);
+#if Version_USA || Version_EUR
+    #define SystemArena_Malloc_addr 0x35010C
+#elif Version_JPN
+    #define SystemArena_Malloc_addr 0x34FC24
+#else
+    #define SystemArena_Malloc_addr 0
+#endif
+#define SystemArena_Malloc ((SystemArena_Malloc_Proc)SystemArena_Malloc_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);

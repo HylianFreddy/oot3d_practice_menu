@@ -1,26 +1,165 @@
 #include "colview.h"
 #include "common.h"
 #include "menu.h"
-#include "menus.h"
+#include "draw.h"
 #include "input.h"
 #include "menus/debug.h"
 #include "menus/scene.h"
 #include "menus/commands.h"
 #include <math.h>
 
+static void ColView_ToggleCollisionOption(s32 selected);
+static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam);
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna);
+static void ColView_DrawFromColPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static void ColView_DrawPoly(ColViewPoly poly);
 static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
+static s16 gColViewPolyMax = 64;
+static u16 gColViewDistanceMax = 150;
+static u8 gColViewDrawAllStatic = 0;
+u8 gColViewDisplayCountInfo = 1;
+
+ToggleMenu CollisionMenu = {
+    "Collision Viewer",
+    .nbItems = COLVIEW_MAX,
+    .initialCursorPos = 0,
+    {
+        {0, "Show Collision Polygons", .method = ColView_ToggleCollisionOption},
+        {1, "  Static Polys", .method = ColView_ToggleCollisionOption},
+        {1, "  Dynamic Polys", .method = ColView_ToggleCollisionOption},
+        {0, "  Invisible Seams", .method = ColView_ToggleCollisionOption},
+        {1, "  Translucent", .method = ColView_ToggleCollisionOption},
+        {0, "  Polygon Class", .method = ColView_ToggleCollisionOption},
+        {1, "  Shaded", .method = ColView_ToggleCollisionOption},
+        {0, "  Reduced", .method = ColView_ToggleCollisionOption},
+        {0, "Show Colliders/Hitboxes", .method = ColView_ToggleCollisionOption},
+        {0, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
+        {0, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
+        {0, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
+        {0, "Advanced Performance Options Menu", .method = ColView_AdvancedOptionsMenuShow},
+    }
+};
+
+void ColView_CollisionMenuShow(void) {
+    CollisionMenu.items[COLVIEW_SHOW_COLLIDERS].on = gStaticContext.showColliders;
+    CollisionMenu.items[COLVIEW_AT].on = gStaticContext.showAT;
+    CollisionMenu.items[COLVIEW_AC].on = gStaticContext.showAC;
+    CollisionMenu.items[COLVIEW_OC].on = gStaticContext.showOC;
+    ToggleMenuShow(&CollisionMenu);
+}
+
+static void ColView_ToggleCollisionOption(s32 selected) {
+    CollisionMenu.items[selected].on ^= 1;
+    switch (selected) {
+        case COLVIEW_SHOW_COLLIDERS:
+            gStaticContext.showColliders ^= 1;
+            break;
+        case COLVIEW_AT:
+            gStaticContext.showAT ^= 1;
+            break;
+        case COLVIEW_AC:
+            gStaticContext.showAC ^= 1;
+            break;
+        case COLVIEW_OC:
+            gStaticContext.showOC ^= 1;
+            break;
+    }
+}
+
+static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
+#define OPT_HEIGHT 60
+    enum ColViewAdvancedOptions {
+        OPT_POLY_COUNT_MAX,
+        OPT_DISTANCE_MAX,
+        OPT_ALL_STATIC,
+        OPT_DISPLAY_COUNT,
+        OPT_MAX,
+    };
+
+    static s32 selected = 0;
+
+    Draw_Lock();
+    Draw_ClearFramebuffer();
+    Draw_FlushFramebuffer();
+    Draw_Unlock();
+
+    do {
+        Draw_Lock();
+        Draw_DrawString(10, 10, COLOR_TITLE, "Collision Viewer: Advanced Performance Options");
+        Draw_DrawString(10, 30, COLOR_RED,
+                        "WARNING: Changing these settings may cause lag,\n"
+                        "slow loading times and even crashes!");
+        Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_POLY_COUNT_MAX * SPACING_Y, COLOR_WHITE,
+                                 "%04d Max poly count (applies on scene load)", gColViewPolyMax);
+        Draw_DrawFormattedString(24, OPT_HEIGHT + OPT_DISTANCE_MAX * SPACING_Y, COLOR_WHITE,
+                                 "%05d Draw polys within this distance from Link", gColViewDistanceMax);
+        Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_ALL_STATIC * SPACING_Y, COLOR_WHITE,
+                                 "(%c)  Parse all static polys instead of 1 sector", gColViewDrawAllStatic ? 'x' : ' ');
+        Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_DISPLAY_COUNT * SPACING_Y, COLOR_WHITE,
+                                 "(%c)  Display current poly count", gColViewDisplayCountInfo ? 'x' : ' ');
+        for (s32 i = 0; i < 4; i++) {
+            Draw_DrawCharacter(10, OPT_HEIGHT + i * SPACING_Y, COLOR_TITLE, i == selected ? '>' : ' ');
+        }
+
+        if (isInGame()) {
+            Draw_DrawFormattedString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE,
+                                     "Current scene contains %d static polygons",
+                                     gGlobalContext->colCtx.stat.colHeader->numPolygons);
+        }
+        Draw_FlushFramebuffer();
+        Draw_Unlock();
+
+        u32 pressed = Input_WaitWithTimeout(1000);
+
+        if (pressed & BUTTON_B) {
+            break;
+        }
+        if (pressed & BUTTON_A) {
+            switch (selected) {
+                case OPT_POLY_COUNT_MAX:
+                    Menu_EditAmount(24, OPT_HEIGHT, &gColViewPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
+                    break;
+                case OPT_DISTANCE_MAX:
+                    Menu_EditAmount(18, OPT_HEIGHT + SPACING_Y, &gColViewDistanceMax, VARTYPE_U16, 0, 0, 5, FALSE, NULL, 0);
+                    break;
+                case OPT_ALL_STATIC:
+                    gColViewDrawAllStatic ^= 1;
+                    break;
+                case OPT_DISPLAY_COUNT:
+                    gColViewDisplayCountInfo ^= 1;
+                    break;
+            }
+        }
+        if (pressed & PAD_DOWN) {
+            selected = (selected + 1) % OPT_MAX;
+        }
+        if (pressed & PAD_UP) {
+            selected = (selected + OPT_MAX - 1) % OPT_MAX;
+        }
+    } while (onMenuLoop());
+#undef OPT_HEIGHT
+}
+
+void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
+    sub32A0->polyMax          = gColViewPolyMax;                                 // vanilla 0x40
+    void* buf                 = SystemArena_Malloc(0xA40 + 8 * gColViewPolyMax); // vanilla 0xC40
+    sub32A0->bufferPointer_1C = buf;
+    sub32A0->bufferPointer_00 = buf;
+    sub32A0->array_10         = buf + 0xA40;
+    sub32A0->bufferPointer_18 = buf + 0x140;
+    sub32A0->array_14         = buf + 0xA40 + 4 * gColViewPolyMax; // vanilla 0xB40
+}
+
 void ColView_DrawCollision(void) {
-    if (!Scene_GetCollisionOption(COLVIEW_SHOW_COLLISION) || FAST_FORWARD_IS_SKIPPING || Version_KOR || Version_TWN) {
+    if (!CollisionOption(COLVIEW_SHOW_COLLISION) || FAST_FORWARD_IS_SKIPPING || Version_KOR || Version_TWN) {
         return;
     }
 
-    if (Scene_GetCollisionOption(COLVIEW_DYNAMIC)) {
+    if (CollisionOption(COLVIEW_DYNAMIC)) {
         DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
         SSNode* dynaNodeTbl = dyna->polyNodes.tbl;
 
@@ -39,25 +178,38 @@ void ColView_DrawCollision(void) {
         }
     }
 
-    if (Scene_GetCollisionOption(COLVIEW_STATIC)) {
+    if (CollisionOption(COLVIEW_STATIC)) {
         StaticCollisionContext* stat = &gGlobalContext->colCtx.stat;
-        SSNode* statNodeTbl = stat->polyNodes.tbl;
         SurfaceType* statSurfaceTypeList = stat->colHeader->surfaceTypeList;
-        Vec3i sector = { 0 };
-        BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
-        s32 lookupId =
-            sector.x +
-            (sector.y * stat->subdivAmount.x) +
-            (sector.z * stat->subdivAmount.x * stat->subdivAmount.y);
-        StaticLookup* staticLookup = &stat->lookupTbl[lookupId];
-        if (staticLookup != NULL) {
-            ColView_DrawAllFromNode(staticLookup->floor.head, statNodeTbl, statSurfaceTypeList, FALSE);
-            ColView_DrawAllFromNode(staticLookup->wall.head, statNodeTbl, statSurfaceTypeList, FALSE);
-            ColView_DrawAllFromNode(staticLookup->ceiling.head, statNodeTbl, statSurfaceTypeList, FALSE);
+        if (gColViewDrawAllStatic) {
+            for (s32 i = 0; i < stat->colHeader->numPolygons; i++) {
+                ColView_DrawFromColPoly(&stat->colHeader->polyList[i], statSurfaceTypeList, FALSE);
+            }
+        } else {
+            SSNode* statNodeTbl = stat->polyNodes.tbl;
+            Vec3i sector = { 0 };
+            BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
+            s32 lookupId =
+                sector.x +
+                (sector.y * stat->subdivAmount.x) +
+                (sector.z * stat->subdivAmount.x * stat->subdivAmount.y);
+            StaticLookup* staticLookup = &stat->lookupTbl[lookupId];
+
+            if (staticLookup != NULL) {
+                ColView_DrawAllFromNode(staticLookup->floor.head, statNodeTbl, statSurfaceTypeList, FALSE);
+                ColView_DrawAllFromNode(staticLookup->wall.head, statNodeTbl, statSurfaceTypeList, FALSE);
+                ColView_DrawAllFromNode(staticLookup->ceiling.head, statNodeTbl, statSurfaceTypeList, FALSE);
+            }
         }
     }
 
-    CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
+    // CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
+    // CitraPrint("%d / %X", gGlobalContext->colCtx.stat.colHeader->numPolygons);
+
+    // #define SystemArena_GetSizes ((void(*)(u32 *outMaxFree,u32 *outFree,u32 *outAlloc))0x301954)
+    // u32 outMaxFree, outFree, outAlloc;
+    // SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);
+    // CitraPrint("%X %X %X", outMaxFree, outFree, outAlloc);
 }
 
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna) {
@@ -65,14 +217,18 @@ static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* su
         SSNode node = nodeTbl[nodeId];
         CollisionPoly* colPoly = isDyna ? &gGlobalContext->colCtx.dyna.polyList[node.polyId].colPoly
                                         : &gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId];
-        ColViewPoly viewPoly = ColView_BuildColViewPoly(colPoly, surfaceTypeList, isDyna);
-        if (ColView_ShouldDrawPoly(viewPoly)) {
-            ColView_DrawPoly(viewPoly);
-        }
-        if (Scene_GetCollisionOption(COLVIEW_INVISIBLE_SEAMS)) {
-            ColView_DrawPolyForInvisibleSeam(colPoly, viewPoly.norm, viewPoly.color.a, isDyna);
-        }
+        ColView_DrawFromColPoly(colPoly, surfaceTypeList, isDyna);
         nodeId = node.next;
+    }
+}
+
+static void ColView_DrawFromColPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna) {
+    ColViewPoly viewPoly = ColView_BuildColViewPoly(colPoly, surfaceTypeList, isDyna);
+    if (ColView_ShouldDrawPoly(viewPoly)) {
+        ColView_DrawPoly(viewPoly);
+    }
+    if (CollisionOption(COLVIEW_INVISIBLE_SEAMS)) {
+        ColView_DrawPolyForInvisibleSeam(colPoly, viewPoly.norm, viewPoly.color.a, isDyna);
     }
 }
 
@@ -86,9 +242,9 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
                             };
 
     Color_RGBAf color;
-    color.a = Scene_GetCollisionOption(COLVIEW_TRANSLUCENT) ? 0.5 : 1.0;
+    color.a = CollisionOption(COLVIEW_TRANSLUCENT) ? 0.5 : 1.0;
 
-    if (Scene_GetCollisionOption(COLVIEW_POLYGON_CLASS)) {
+    if (CollisionOption(COLVIEW_POLYGON_CLASS)) {
         color.r = 1.0 * (normal.y < -0.8);
         color.g = 1.0 * (normal.y >= -0.8 && normal.y <= 0.5);
         color.b = 1.0 * (normal.y > 0.5);
@@ -123,12 +279,12 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
             color.r = 1.0;
             color.g = 1.0;
             color.b = 1.0;
-            if (Scene_GetCollisionOption(COLVIEW_REDUCED)) {
+            if (CollisionOption(COLVIEW_REDUCED)) {
                 color.a = 0.0;
             }
         }
     }
-    if (Scene_GetCollisionOption(COLVIEW_SHADED)) {
+    if (CollisionOption(COLVIEW_SHADED)) {
         color.r -= color.r * ABS(0.30 * normal.y + 0.25 * normal.z);
         color.g -= color.g * ABS(0.30 * normal.y + 0.25 * normal.z);
         color.b -= color.b * ABS(0.30 * normal.y + 0.25 * normal.z);
@@ -154,8 +310,6 @@ static void ColView_DrawPoly(ColViewPoly poly) {
     Collider_DrawPolyImpl(&gMainClass->sub32A0, &poly.verts[0], &poly.verts[1], &poly.verts[2], &poly.color);
 }
 
-#define MAX_PLANE_DIST 150
-#define MAX_VERT_DIST 150
 static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
     // Check if poly is invisible
     if (poly.color.a == 0.0) {
@@ -180,7 +334,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
 
     // Check if player is far from the poly's plane
     Vec3f pos = PLAYER->actor.world.pos;
-    if (ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) > MAX_PLANE_DIST) {
+    if (ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) > (f32)gColViewDistanceMax) {
         return FALSE;
     }
 
@@ -194,7 +348,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         f32 vCDist = (*polyVertsCoords)[2][i] - (*playerCoords)[i];
 
         if (((vADist < 0 && vBDist < 0 && vCDist < 0) || (vADist > 0 && vBDist > 0 && vCDist > 0)) &&
-            (MIN(MIN(ABS(vADist), ABS(vBDist)), ABS(vCDist)) > MAX_VERT_DIST)) {
+            (MIN(MIN(ABS(vADist), ABS(vBDist)), ABS(vCDist)) > (f32)gColViewDistanceMax)) {
             return FALSE;
         }
     }

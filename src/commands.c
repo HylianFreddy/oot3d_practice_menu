@@ -10,6 +10,7 @@
 #include "draw.h"
 #include "advance.h"
 #include "camera.h"
+#include "colview.h"
 
 #include <string.h>
 

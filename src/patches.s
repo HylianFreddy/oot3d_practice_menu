@@ -79,3 +79,12 @@ loader_patch:
 
 .section .patch_GameButtonInputs
     bl hook_GameButtonInputs
+
+.section .patch_InitSubMainClass32A0
+@ pc points to current instruction +8
+    ldr r7,[pc,#0x1D4] @ 0x4646D8 on USA
+    push {r0-r12, lr}
+    cpy r0,r4 @ sub32A0 struct
+    bl ColView_InitSubMainClass32A0
+    pop {r0-r12, lr}
+    add pc,pc,#0x18 @ 0x464530 on USA
