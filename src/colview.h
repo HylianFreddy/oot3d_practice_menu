@@ -28,9 +28,7 @@ typedef struct ColViewPoly {
     Color_RGBAf color;
 } ColViewPoly;
 
-extern s16 gColViewPolyMax;
 extern u8 gColViewDisplayCountInfo;
-extern u8 gColViewDrawAllStatic;
 extern ToggleMenu CollisionMenu;
 #define CollisionOption(option) (CollisionMenu.items[option].on)
 
