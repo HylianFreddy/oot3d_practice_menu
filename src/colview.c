@@ -36,11 +36,11 @@ ToggleMenu CollisionMenu = {
         {0, "  Polygon Class", .method = ColView_ToggleCollisionOption},
         {1, "  Shaded", .method = ColView_ToggleCollisionOption},
         {0, "  Reduced", .method = ColView_ToggleCollisionOption},
-        {0, "  Advanced ColView Options Menu", .method = ColView_PolyCountMenuShow},
         {0, "Show Colliders/Hitboxes", .method = ColView_ToggleCollisionOption},
         {0, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
         {0, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
         {0, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
+        {0, "Advanced Performance Options Menu", .method = ColView_PolyCountMenuShow},
     }
 };
 
@@ -82,17 +82,17 @@ static void ColView_PolyCountMenuShow(s32 ignoredParam) {
 
     do {
         Draw_Lock();
-        Draw_DrawString(10, 10, COLOR_TITLE, "Advanced ColView Options");
+        Draw_DrawString(10, 10, COLOR_TITLE, "Collision Viewer: Advanced Performance Options");
         Draw_DrawString(10, 30, COLOR_RED,
                         "WARNING: Changing these settings may cause lag,\n"
                         "slow loading times and even crashes!");
-        Draw_DrawFormattedString(30, OPT_H + 0 * SPACING_Y, COLOR_WHITE, "%04d Max ColView poly count",
+        Draw_DrawFormattedString(30, OPT_H + 0 * SPACING_Y, COLOR_WHITE, "%04d Max poly count (applies on scene load)",
                                  gColViewPolyMax);
-        Draw_DrawFormattedString(24, OPT_H + 1 * SPACING_Y, COLOR_WHITE, "%05d Max distance from Link",
+        Draw_DrawFormattedString(24, OPT_H + 1 * SPACING_Y, COLOR_WHITE, "%05d Draw polys within this distance from Link",
                                  gColViewDistanceMax);
         Draw_DrawFormattedString(30, OPT_H + 2 * SPACING_Y, COLOR_WHITE, "(%c)  Parse all static polys instead of 1 sector",
                                  gColViewDrawAllStatic ? 'x' : ' ');
-        Draw_DrawFormattedString(30, OPT_H + 3 * SPACING_Y, COLOR_WHITE, "(%c)  Display current ColView poly count",
+        Draw_DrawFormattedString(30, OPT_H + 3 * SPACING_Y, COLOR_WHITE, "(%c)  Display current poly count",
                                  gColViewDisplayCountInfo ? 'x' : ' ');
         for (s32 i = 0; i < 4; i++) {
             Draw_DrawCharacter(10, OPT_H + i * SPACING_Y, COLOR_TITLE, i == selected ? '>' : ' ');
