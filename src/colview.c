@@ -9,7 +9,7 @@
 #include <math.h>
 
 static void ColView_ToggleCollisionOption(s32 selected);
-static void ColView_PolyCountMenuShow(s32 ignoredParam);
+static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam);
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna);
 static void ColView_DrawFromColPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna);
@@ -40,7 +40,7 @@ ToggleMenu CollisionMenu = {
         {0, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
         {0, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
         {0, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
-        {0, "Advanced Performance Options Menu", .method = ColView_PolyCountMenuShow},
+        {0, "Advanced Performance Options Menu", .method = ColView_AdvancedOptionsMenuShow},
     }
 };
 
@@ -70,9 +70,16 @@ static void ColView_ToggleCollisionOption(s32 selected) {
     }
 }
 
-static void ColView_PolyCountMenuShow(s32 ignoredParam) {
-#define OPT_H 60
-#define OPT_MAX 4
+enum ColViewAdvancedOptions {
+    OPT_POLY_COUNT_MAX,
+    OPT_DISTANCE_MAX,
+    OPT_ALL_STATIC,
+    OPT_DISPLAY_COUNT,
+    OPT_MAX,
+};
+#define OPT_HEIGHT 60
+
+static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
     static s32 selected = 0;
 
     Draw_Lock();
@@ -86,16 +93,16 @@ static void ColView_PolyCountMenuShow(s32 ignoredParam) {
         Draw_DrawString(10, 30, COLOR_RED,
                         "WARNING: Changing these settings may cause lag,\n"
                         "slow loading times and even crashes!");
-        Draw_DrawFormattedString(30, OPT_H + 0 * SPACING_Y, COLOR_WHITE, "%04d Max poly count (applies on scene load)",
-                                 gColViewPolyMax);
-        Draw_DrawFormattedString(24, OPT_H + 1 * SPACING_Y, COLOR_WHITE, "%05d Draw polys within this distance from Link",
-                                 gColViewDistanceMax);
-        Draw_DrawFormattedString(30, OPT_H + 2 * SPACING_Y, COLOR_WHITE, "(%c)  Parse all static polys instead of 1 sector",
-                                 gColViewDrawAllStatic ? 'x' : ' ');
-        Draw_DrawFormattedString(30, OPT_H + 3 * SPACING_Y, COLOR_WHITE, "(%c)  Display current poly count",
-                                 gColViewDisplayCountInfo ? 'x' : ' ');
+        Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_POLY_COUNT_MAX * SPACING_Y, COLOR_WHITE,
+                                 "%04d Max poly count (applies on scene load)", gColViewPolyMax);
+        Draw_DrawFormattedString(24, OPT_HEIGHT + OPT_DISTANCE_MAX * SPACING_Y, COLOR_WHITE,
+                                 "%05d Draw polys within this distance from Link", gColViewDistanceMax);
+        Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_ALL_STATIC * SPACING_Y, COLOR_WHITE,
+                                 "(%c)  Parse all static polys instead of 1 sector", gColViewDrawAllStatic ? 'x' : ' ');
+        Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_DISPLAY_COUNT * SPACING_Y, COLOR_WHITE,
+                                 "(%c)  Display current poly count", gColViewDisplayCountInfo ? 'x' : ' ');
         for (s32 i = 0; i < 4; i++) {
-            Draw_DrawCharacter(10, OPT_H + i * SPACING_Y, COLOR_TITLE, i == selected ? '>' : ' ');
+            Draw_DrawCharacter(10, OPT_HEIGHT + i * SPACING_Y, COLOR_TITLE, i == selected ? '>' : ' ');
         }
 
         if (isInGame()) {
@@ -113,16 +120,16 @@ static void ColView_PolyCountMenuShow(s32 ignoredParam) {
         }
         if (pressed & BUTTON_A) {
             switch (selected) {
-                case 0:
-                    Menu_EditAmount(24, OPT_H, &gColViewPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
+                case OPT_POLY_COUNT_MAX:
+                    Menu_EditAmount(24, OPT_HEIGHT, &gColViewPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
                     break;
-                case 1:
-                    Menu_EditAmount(18, OPT_H + SPACING_Y, &gColViewDistanceMax, VARTYPE_U16, 0, 0, 5, FALSE, NULL, 0);
+                case OPT_DISTANCE_MAX:
+                    Menu_EditAmount(18, OPT_HEIGHT + SPACING_Y, &gColViewDistanceMax, VARTYPE_U16, 0, 0, 5, FALSE, NULL, 0);
                     break;
-                case 2:
+                case OPT_ALL_STATIC:
                     gColViewDrawAllStatic ^= 1;
                     break;
-                case 3:
+                case OPT_DISPLAY_COUNT:
                     gColViewDisplayCountInfo ^= 1;
                     break;
             }
@@ -134,7 +141,6 @@ static void ColView_PolyCountMenuShow(s32 ignoredParam) {
             selected = (selected + OPT_MAX - 1) % OPT_MAX;
         }
     } while (onMenuLoop());
-#undef OPT_H
 }
 
 void ColView_DrawCollision(void) {
