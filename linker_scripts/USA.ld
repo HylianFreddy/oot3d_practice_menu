@@ -26,11 +26,11 @@ SECTIONS
 	.patch_OverrideSceneSetup 0x4487B8 : {}
 	.patch_before_Play_Update 0x452390 : {}
 	.patch_after_Play_Update 0x452434 : {}
+	.patch_InitSubMainClass32A0 0x4644FC : {}
 	.patch_ItemUsability_AnyArea 0x4762C4 : {}
 	.patch_TurboTextAdvance 0x480928 : {}
 	.patch_SetBGMDayNight 0x483C88 : {}
 	.patch_TurboTextClose 0x488214 : {}
-	.patch_InitSubMainClass32A0 0x4644FC : {}
 
 	. = 0x4C99A8;
 	. = ALIGN(4);

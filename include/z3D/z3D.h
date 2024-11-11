@@ -870,6 +870,16 @@ typedef void (*BgCheck_GetStaticLookupIndicesFromPos_Proc)(CollisionContext *col
 #endif
 #define BgCheck_GetStaticLookupIndicesFromPos ((BgCheck_GetStaticLookupIndicesFromPos_Proc)BgCheck_GetStaticLookupIndicesFromPos_addr)
 
+typedef void* (*SystemArena_Malloc_Proc)(u32 size);
+#if Version_USA || Version_EUR
+    #define SystemArena_Malloc_addr 0x35010C
+#elif Version_JPN
+    #define SystemArena_Malloc_addr 0x34FC24
+#else
+    #define SystemArena_Malloc_addr 0
+#endif
+#define SystemArena_Malloc ((SystemArena_Malloc_Proc)SystemArena_Malloc_addr)
+
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
 #define Item_Give_addr 0x376A78

@@ -144,6 +144,16 @@ static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
 #undef OPT_HEIGHT
 }
 
+void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
+    sub32A0->polyMax          = gColViewPolyMax;                                 // vanilla 0x40
+    void* buf                 = SystemArena_Malloc(0xA40 + 8 * gColViewPolyMax); // vanilla 0xC40
+    sub32A0->bufferPointer_1C = buf;
+    sub32A0->bufferPointer_00 = buf;
+    sub32A0->array_10         = buf + 0xA40;
+    sub32A0->bufferPointer_18 = buf + 0x140;
+    sub32A0->array_14         = buf + 0xA40 + 4 * gColViewPolyMax; // vanilla 0xB40
+}
+
 void ColView_DrawCollision(void) {
     if (!CollisionOption(COLVIEW_SHOW_COLLISION) || FAST_FORWARD_IS_SKIPPING || Version_KOR || Version_TWN) {
         return;
@@ -438,16 +448,4 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
             }
         }
     }
-}
-
-#define SystemArena_Malloc ((void*(*)(u32 size))0x35010c)
-
-void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
-    sub32A0->polyMax          = gColViewPolyMax;                                 // vanilla 0x40
-    void* buf                 = SystemArena_Malloc(0xA40 + 8 * gColViewPolyMax); // vanilla 0xC40
-    sub32A0->bufferPointer_1C = buf;
-    sub32A0->bufferPointer_00 = buf;
-    sub32A0->array_10         = buf + 0xA40;
-    sub32A0->bufferPointer_18 = buf + 0x140;
-    sub32A0->array_14         = buf + 0xA40 + 4 * gColViewPolyMax; // vanilla 0xB40
 }
