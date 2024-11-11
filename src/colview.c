@@ -18,13 +18,13 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
-s16 gColViewPolyMax = 64;
-u16 gColViewDistanceMax = 150;
+static s16 gColViewPolyMax = 64;
+static u16 gColViewDistanceMax = 150;
+static u8 gColViewDrawAllStatic = 0;
 u8 gColViewDisplayCountInfo = 1;
-u8 gColViewDrawAllStatic = 0;
 
 ToggleMenu CollisionMenu = {
-    "Collision",
+    "Collision Viewer",
     .nbItems = COLVIEW_MAX,
     .initialCursorPos = 0,
     {

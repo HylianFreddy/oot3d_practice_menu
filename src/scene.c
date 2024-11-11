@@ -68,7 +68,7 @@ Menu SceneMenu = {
         {"Set Flags", METHOD, .method = Scene_SetFlags},
         {"Clear Flags", METHOD, .method = Scene_ClearFlags},
         {"Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow},
-        {"Collision", METHOD, .method = ColView_CollisionMenuShow},
+        {"Collision Viewer", METHOD, .method = ColView_CollisionMenuShow},
         {"Free Camera", MENU, .menu = &FreeCamMenu},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
     }
