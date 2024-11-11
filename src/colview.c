@@ -70,16 +70,16 @@ static void ColView_ToggleCollisionOption(s32 selected) {
     }
 }
 
-enum ColViewAdvancedOptions {
-    OPT_POLY_COUNT_MAX,
-    OPT_DISTANCE_MAX,
-    OPT_ALL_STATIC,
-    OPT_DISPLAY_COUNT,
-    OPT_MAX,
-};
-#define OPT_HEIGHT 60
-
 static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
+#define OPT_HEIGHT 60
+    enum ColViewAdvancedOptions {
+        OPT_POLY_COUNT_MAX,
+        OPT_DISTANCE_MAX,
+        OPT_ALL_STATIC,
+        OPT_DISPLAY_COUNT,
+        OPT_MAX,
+    };
+
     static s32 selected = 0;
 
     Draw_Lock();
@@ -141,6 +141,7 @@ static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
             selected = (selected + OPT_MAX - 1) % OPT_MAX;
         }
     } while (onMenuLoop());
+#undef OPT_HEIGHT
 }
 
 void ColView_DrawCollision(void) {
