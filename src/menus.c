@@ -94,7 +94,7 @@ void quitGame(void) {
 
 Menu gz3DMenu = {
     "Practice Menu (" COMMIT_STRING ")",
-    .nbItems = GZ3D_EXTRAS ? 12 : 10,
+    .nbItems = 11 + (!!GZ3D_EXTRAS * 2),
     .initialCursorPos = 0,
     {
         { "Warps", MENU, .menu = &WarpsMenu },
@@ -106,7 +106,8 @@ Menu gz3DMenu = {
         { "Watches", METHOD, .method = Watches_ShowWatchesMenu },
         { "Debug", MENU, .menu = &DebugMenu },
         { "Commands", METHOD, .method = Commands_ShowCommandsMenu },
-        { "Settings & Profiles", MENU, .menu = &SettingsMenu },
+        { "Settings", METHOD, .method = Settings_ShowSettingsMenu },
+        { "Profiles", MENU, .menu = &ProfilesMenu },
 #if GZ3D_EXTRAS
         { "Play SFX", METHOD, .method = showSFXMenu },
         { "Quit Game", METHOD, .method = quitGame },

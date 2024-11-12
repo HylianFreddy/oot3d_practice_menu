@@ -201,7 +201,7 @@ const s32 WarpsPlacesMenuSize = 7;
 void WarpsPlacesMenuShow(void){
     static s32 selected = 0;
 
-    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = 0;
     }
 

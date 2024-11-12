@@ -63,7 +63,7 @@ void menuShow(Menu* rootMenu)
     Menu *previousMenus[0x80];
     u32 previousSelectedItems[0x80];
 
-    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selectedItem = 0;
     }
 
@@ -90,7 +90,7 @@ void menuShow(Menu* rootMenu)
                     previousMenus[nbPreviousMenus++] = currentMenu;
                     currentMenu = currentMenu->items[selectedItem].menu;
                     selectedItem = currentMenu->initialCursorPos;
-                    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
+                    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
                         selectedItem = 0;
                     }
                     break;
@@ -153,7 +153,7 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
 {
     s32 selected = menu->initialCursorPos, page = selected / TOGGLE_MENU_MAX_SHOW, pagePrev = page;
 
-    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = page = pagePrev = 0;
     }
 
@@ -232,7 +232,7 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
 void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
     s32 selected = menu->initialCursorPos, page = selected / AMOUNT_MENU_MAX_SHOW, pagePrev = page;
 
-    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = page = pagePrev = 0;
     }
 
