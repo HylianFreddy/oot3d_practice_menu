@@ -201,7 +201,13 @@ void advance_main(void) {
 }
 
 void NoClip_Update(void) {
-    if (!noClip || waitingButtonRelease || !isInGame()) {
+    if (!noClip || waitingButtonRelease) {
+        return;
+    }
+    if (!isInGame()) {
+        // Quit NoClip when loading a new scene
+        noClip = FALSE;
+        haltActors = FALSE;
         return;
     }
 
