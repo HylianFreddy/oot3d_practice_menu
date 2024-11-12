@@ -529,7 +529,7 @@ static void Commands_EditCommand(u32 commandIndex){
 void Commands_ShowCommandsMenu(void){
     static s32 selected = 0, page = 0, pagePrev = 0;
 
-    if (OPTION_ENABLED(OPTION_RESET_CURSOR)) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = 0, page = 0, pagePrev = 0;
     }
 

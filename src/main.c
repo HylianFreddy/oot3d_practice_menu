@@ -88,7 +88,7 @@ static void toggle_advance(void) {
 }
 
 void setAlert(char* alertMessage, u32 alertFrames) {
-    if (OPTION_ENABLED(OPTION_HIDE_ALERT_DISPLAY)) {
+    if (SETTING_ENABLED(SETTINGS_HIDE_ALERT_DISPLAY)) {
         sAlertFrames = 0;
         return;
     }
@@ -124,7 +124,7 @@ static void titleScreenDisplay(void) {
 }
 
 void pauseDisplay(void) {
-    if (OPTION_ENABLED(OPTION_HIDE_ALERT_DISPLAY))
+    if (SETTING_ENABLED(SETTINGS_HIDE_ALERT_DISPLAY))
         return;
 
     Draw_DrawFormattedStringTop(20, 20, COLOR_WHITE, "Paused");
