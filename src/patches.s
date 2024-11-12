@@ -82,7 +82,11 @@ loader_patch:
 
 .section .patch_InitSubMainClass32A0
 @ pc points to current instruction +8
+.if (_USA_ || _EUR_ || _JPN_)
     ldr r7,[pc,#0x1D4] @ 0x4646D8 on USA
+.else @ (_KOR_ || _TWN_)
+    ldr r8,[pc,#0x1D4]
+.endif
     push {r0-r12, lr}
     cpy r0,r4 @ sub32A0 struct
     bl ColView_InitSubMainClass32A0

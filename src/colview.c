@@ -155,7 +155,7 @@ void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
 }
 
 void ColView_DrawCollision(void) {
-    if (!CollisionOption(COLVIEW_SHOW_COLLISION) || FAST_FORWARD_IS_SKIPPING || Version_KOR || Version_TWN) {
+    if (!CollisionOption(COLVIEW_SHOW_COLLISION) || FAST_FORWARD_IS_SKIPPING) {
         return;
     }
 

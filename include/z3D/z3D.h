@@ -855,8 +855,10 @@ typedef void (*Collider_DrawPolyImpl_proc)(SubMainClass_32A0* sub32A0, Vec3f* vA
     #define Collider_DrawPolyImpl_addr 0x2C56C4
 #elif Version_JPN
     #define Collider_DrawPolyImpl_addr 0x2C51DC
-#else
-    #define Collider_DrawPolyImpl_addr 0
+#elif Version_KOR
+    #define Collider_DrawPolyImpl_addr 0x2D15D4
+#elif Version_TWN
+    #define Collider_DrawPolyImpl_addr 0x2D16D4
 #endif
 #define Collider_DrawPolyImpl ((Collider_DrawPolyImpl_proc)Collider_DrawPolyImpl_addr)
 
@@ -865,8 +867,10 @@ typedef void (*BgCheck_GetStaticLookupIndicesFromPos_Proc)(CollisionContext *col
     #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF5B0
 #elif Version_JPN
     #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF0C8
-#else
-    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0
+#elif Version_KOR
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C17C4
+#elif Version_TWN
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C18C4
 #endif
 #define BgCheck_GetStaticLookupIndicesFromPos ((BgCheck_GetStaticLookupIndicesFromPos_Proc)BgCheck_GetStaticLookupIndicesFromPos_addr)
 
@@ -875,8 +879,10 @@ typedef void* (*SystemArena_Malloc_Proc)(u32 size);
     #define SystemArena_Malloc_addr 0x35010C
 #elif Version_JPN
     #define SystemArena_Malloc_addr 0x34FC24
-#else
-    #define SystemArena_Malloc_addr 0
+#elif Version_KOR
+    #define SystemArena_Malloc_addr 0x3232C0
+#elif Version_TWN
+    #define SystemArena_Malloc_addr 0x3233C0
 #endif
 #define SystemArena_Malloc ((SystemArena_Malloc_Proc)SystemArena_Malloc_addr)
 
