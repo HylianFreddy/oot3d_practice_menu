@@ -28,6 +28,10 @@ ToggleMenu CollisionMenu = {
     .nbItems = COLVIEW_MAX,
     .initialCursorPos = 0,
     {
+        {0, "Show Colliders/Hitboxes", .method = ColView_ToggleCollisionOption},
+        {0, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
+        {0, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
+        {0, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
         {0, "Show Collision Polygons", .method = ColView_ToggleCollisionOption},
         {1, "  Static Polys", .method = ColView_ToggleCollisionOption},
         {1, "  Dynamic Polys", .method = ColView_ToggleCollisionOption},
@@ -36,11 +40,7 @@ ToggleMenu CollisionMenu = {
         {0, "  Polygon Class", .method = ColView_ToggleCollisionOption},
         {1, "  Shaded", .method = ColView_ToggleCollisionOption},
         {0, "  Reduced", .method = ColView_ToggleCollisionOption},
-        {0, "Show Colliders/Hitboxes", .method = ColView_ToggleCollisionOption},
-        {0, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
-        {0, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
-        {0, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
-        {0, "Advanced Performance Options Menu", .method = ColView_AdvancedOptionsMenuShow},
+        {0, "  Advanced Performance Options Menu", .method = ColView_AdvancedOptionsMenuShow},
     }
 };
 
