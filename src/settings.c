@@ -11,47 +11,46 @@ static void Settings_AlertProfileLoad(WatchUpdateResult res);
 ExtSaveData gExtSaveData;
 u8 selectedProfile = 0;
 
-Menu SettingsMenu = {
-    "Settings & Profiles",
-    .nbItems = NUMBER_OF_SETTING_OPTIONS,
+ToggleMenu SettingsMenu = {
+    "Settings",
+    .nbItems = SETTINGS_MAX,
     .initialCursorPos = 0,
     {
-        {"Toggle Options", METHOD, .method = Settings_ShowOptionsMenu},
+        {0, "Hide Pause/Commands Display", Settings_Toggle},
+        {0, "Reset cursor position when leaving menu", Settings_Toggle},
+        {0, "Use light blue color in menu", Settings_Toggle},
+    }
+};
+
+Menu ProfilesMenu = {
+    "Profiles",
+    .nbItems = PROFILES_MAX,
+    .initialCursorPos = 0,
+    {
         {"Profile: 0", METHOD, .method = Settings_CycleProfile},
         {"Save Profile", METHOD, .method = Settings_SaveExtSaveData},
         {"Load Profile", METHOD, .method = Settings_LoadExtSaveData},
     }
 };
 
-ToggleMenu OptionsMenu = {
-    "Toggle Options",
-    .nbItems = OPTION_MAX,
-    .initialCursorPos = 0,
-    {
-        {0, "Hide Pause/Commands Display", METHOD, .method = Settings_Toggle},
-        {0, "Reset cursor position when leaving menu", METHOD, .method = Settings_Toggle},
-        {0, "Use light blue color in menu", METHOD, .method = Settings_Toggle},
-    }
-};
-
-void Settings_ShowOptionsMenu(void){
-    ToggleMenuShow(&OptionsMenu);
+void Settings_ShowSettingsMenu(void){
+    ToggleMenuShow(&SettingsMenu);
 }
 
 static void Settings_ApplyOptions(void) {
-    sColorTitle = OptionsMenu.items[OPTION_ALT_TITLE_COLOR].on ? COLOR_ALT_BLUE : COLOR_DEFAULT_BLUE;
+    sColorTitle = SettingsMenu.items[SETTINGS_ALT_TITLE_COLOR].on ? COLOR_ALT_BLUE : COLOR_DEFAULT_BLUE;
     setAlert("", 0);
 }
 
 void Settings_Toggle(s32 selected) {
-    OptionsMenu.items[selected].on = !OptionsMenu.items[selected].on;
+    SettingsMenu.items[selected].on = !SettingsMenu.items[selected].on;
     Settings_ApplyOptions();
 }
 
 void Settings_CycleProfile(void) {
     selectedProfile++;
     selectedProfile %= 3;
-    SettingsMenu.items[SETTINGS_PROFILE].title[9] = selectedProfile + '0';
+    ProfilesMenu.items[PROFILES_NUMBER].title[9] = selectedProfile + '0';
 }
 
 void Settings_InitExtSaveData(void) {
@@ -63,8 +62,8 @@ void Settings_InitExtSaveData(void) {
     gExtSaveData.info.memAddrs.globalCtx = gGlobalContext;
     gExtSaveData.info.memAddrs.actorHeap = gStoredActorHeapAddress;
     gExtSaveData.info.region = CURRENT_REGION;
-    for (s32 i = 0; i < OPTION_MAX; i++) {
-        gExtSaveData.options[i] = OptionsMenu.items[i].on;
+    for (s32 i = 0; i < SETTINGS_MAX; i++) {
+        gExtSaveData.settings[i] = SettingsMenu.items[i].on;
     }
 }
 
@@ -78,8 +77,8 @@ void Settings_ApplyExtSaveData(void) {
     }
     commandInit = 1;
     memcpy(watches, gExtSaveData.watches, sizeof(watches));
-    for (s32 i = 0; i < OPTION_MAX; i++) {
-        OptionsMenu.items[i].on = gExtSaveData.options[i];
+    for (s32 i = 0; i < SETTINGS_MAX; i++) {
+        SettingsMenu.items[i].on = gExtSaveData.settings[i];
     }
     Settings_ApplyOptions();
 }
