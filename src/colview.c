@@ -405,6 +405,13 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
                     continue;
                 }
 
+                Color_RGBAf color = (Color_RGBAf){
+                    .r = 0.5f,
+                    .g = 1.0f,
+                    .b = 1.0f,
+                    .a = alpha,
+                };
+
                 ColView_DrawPoly((ColViewPoly){
                     .verts = {
                         v1,
@@ -412,12 +419,7 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
                         v1ext,
                     },
                     .norm = norm,
-                    .color = {
-                        .r = 1.0f,
-                        .g = 0.0f,
-                        .b = 1.0f,
-                        .a = alpha,
-                    },
+                    .color = color,
                 });
 
                 ColView_DrawPoly((ColViewPoly){
@@ -427,12 +429,7 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
                         v2ext,
                     },
                     .norm = norm,
-                    .color = {
-                        .r = 1.0f,
-                        .g = 0.0f,
-                        .b = 1.0f,
-                        .a = alpha,
-                    },
+                    .color = color,
                 });
             }
         }
