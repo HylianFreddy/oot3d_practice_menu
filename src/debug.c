@@ -929,9 +929,6 @@ void MemoryEditor_GoToPreset(void) {
         "Entrance Table",
         "Scene Table",
         "Draw Item Table",
-        "colCtx.stat",
-        "colCtx.dyna.polyList",
-        "gStaticContext.showColliders",
     };
     const void* const addresses[] = {
         &gSaveContext,
@@ -945,9 +942,6 @@ void MemoryEditor_GoToPreset(void) {
         gEntranceTable,
         gSceneTable,
         gDrawItemTable,
-        &gGlobalContext->colCtx.stat,
-        &gGlobalContext->colCtx.dyna.polyList,
-        &gStaticContext.showColliders,
     };
     const s32 addressesCount = sizeof(addresses)/sizeof(addresses[0]);
 

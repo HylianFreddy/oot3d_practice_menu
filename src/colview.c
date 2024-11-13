@@ -3,9 +3,9 @@
 #include "menu.h"
 #include "draw.h"
 #include "input.h"
-#include "menus/debug.h"
 #include "menus/scene.h"
 #include "menus/commands.h"
+
 #include <math.h>
 
 static void ColView_ToggleCollisionOption(s32 selected);
@@ -18,10 +18,10 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
-static s16 gColViewPolyMax = 64;
-static u16 gColViewDistanceMax = 150;
-static u8 gColViewDrawAllStatic = 0;
-u8 gColViewDisplayCountInfo = 1;
+static s16 sPolyMax = 64;
+static u16 sDistanceMax = 150;
+static u8 sDrawAllStatic = 0;
+u8 gColViewDisplayCountInfo = 0;
 
 ToggleMenu CollisionMenu = {
     "Collision Viewer",
@@ -29,9 +29,9 @@ ToggleMenu CollisionMenu = {
     .initialCursorPos = 0,
     {
         {0, "Show Colliders/Hitboxes", .method = ColView_ToggleCollisionOption},
-        {0, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
-        {0, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
-        {0, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
+        {1, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
+        {1, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
+        {1, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
         {0, "Show Collision Polygons", .method = ColView_ToggleCollisionOption},
         {1, "  Static Polys", .method = ColView_ToggleCollisionOption},
         {1, "  Dynamic Polys", .method = ColView_ToggleCollisionOption},
@@ -94,11 +94,11 @@ static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
                         "WARNING: Changing these settings may cause lag,\n"
                         "slow loading times and even crashes!");
         Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_POLY_COUNT_MAX * SPACING_Y, COLOR_WHITE,
-                                 "%04d Max poly count (applies on scene load)", gColViewPolyMax);
+                                 "%04d Max poly count (applies on scene load)", sPolyMax);
         Draw_DrawFormattedString(24, OPT_HEIGHT + OPT_DISTANCE_MAX * SPACING_Y, COLOR_WHITE,
-                                 "%05d Draw polys within this distance from Link", gColViewDistanceMax);
+                                 "%05d Draw polys within this distance from Link", sDistanceMax);
         Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_ALL_STATIC * SPACING_Y, COLOR_WHITE,
-                                 "(%c)  Parse all static polys instead of 1 sector", gColViewDrawAllStatic ? 'x' : ' ');
+                                 "(%c)  Parse all static polys instead of 1 sector", sDrawAllStatic ? 'x' : ' ');
         Draw_DrawFormattedString(30, OPT_HEIGHT + OPT_DISPLAY_COUNT * SPACING_Y, COLOR_WHITE,
                                  "(%c)  Display current poly count", gColViewDisplayCountInfo ? 'x' : ' ');
         for (s32 i = 0; i < 4; i++) {
@@ -121,13 +121,13 @@ static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
         if (pressed & BUTTON_A) {
             switch (selected) {
                 case OPT_POLY_COUNT_MAX:
-                    Menu_EditAmount(24, OPT_HEIGHT, &gColViewPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
+                    Menu_EditAmount(24, OPT_HEIGHT, &sPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
                     break;
                 case OPT_DISTANCE_MAX:
-                    Menu_EditAmount(18, OPT_HEIGHT + SPACING_Y, &gColViewDistanceMax, VARTYPE_U16, 0, 0, 5, FALSE, NULL, 0);
+                    Menu_EditAmount(18, OPT_HEIGHT + SPACING_Y, &sDistanceMax, VARTYPE_U16, 0, 0, 5, FALSE, NULL, 0);
                     break;
                 case OPT_ALL_STATIC:
-                    gColViewDrawAllStatic ^= 1;
+                    sDrawAllStatic ^= 1;
                     break;
                 case OPT_DISPLAY_COUNT:
                     gColViewDisplayCountInfo ^= 1;
@@ -145,13 +145,13 @@ static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
 }
 
 void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
-    sub32A0->polyMax          = gColViewPolyMax;                                 // vanilla 0x40
-    void* buf                 = SystemArena_Malloc(0xA40 + 8 * gColViewPolyMax); // vanilla 0xC40
+    sub32A0->polyMax          = sPolyMax;                                 // vanilla 0x40
+    void* buf                 = SystemArena_Malloc(0xA40 + 8 * sPolyMax); // vanilla 0xC40
     sub32A0->bufferPointer_1C = buf;
     sub32A0->bufferPointer_00 = buf;
     sub32A0->array_10         = buf + 0xA40;
     sub32A0->bufferPointer_18 = buf + 0x140;
-    sub32A0->array_14         = buf + 0xA40 + 4 * gColViewPolyMax; // vanilla 0xB40
+    sub32A0->array_14         = buf + 0xA40 + 4 * sPolyMax; // vanilla 0xB40
 }
 
 void ColView_DrawCollision(void) {
@@ -181,7 +181,7 @@ void ColView_DrawCollision(void) {
     if (CollisionOption(COLVIEW_STATIC)) {
         StaticCollisionContext* stat = &gGlobalContext->colCtx.stat;
         SurfaceType* statSurfaceTypeList = stat->colHeader->surfaceTypeList;
-        if (gColViewDrawAllStatic) {
+        if (sDrawAllStatic) {
             for (s32 i = 0; i < stat->colHeader->numPolygons; i++) {
                 ColView_DrawFromColPoly(&stat->colHeader->polyList[i], statSurfaceTypeList, FALSE);
             }
@@ -202,14 +202,6 @@ void ColView_DrawCollision(void) {
             }
         }
     }
-
-    // CitraPrint("%d / %d", gMainClass->sub32A0.polyCounter, gMainClass->sub32A0.polyMax);
-    // CitraPrint("%d / %X", gGlobalContext->colCtx.stat.colHeader->numPolygons);
-
-    // #define SystemArena_GetSizes ((void(*)(u32 *outMaxFree,u32 *outFree,u32 *outAlloc))0x301954)
-    // u32 outMaxFree, outFree, outAlloc;
-    // SystemArena_GetSizes(&outMaxFree, &outFree, &outAlloc);
-    // CitraPrint("%X %X %X", outMaxFree, outFree, outAlloc);
 }
 
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna) {
@@ -306,7 +298,6 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
 }
 
 static void ColView_DrawPoly(ColViewPoly poly) {
-    // max count is 64 polys
     Collider_DrawPolyImpl(&gMainClass->sub32A0, &poly.verts[0], &poly.verts[1], &poly.verts[2], &poly.color);
 }
 
@@ -334,7 +325,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
 
     // Check if player is far from the poly's plane
     Vec3f pos = PLAYER->actor.world.pos;
-    if (ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) > (f32)gColViewDistanceMax) {
+    if (ABS(poly.norm.x * pos.x + poly.norm.y * pos.y + poly.norm.z * pos.z + poly.dist) > (f32)sDistanceMax) {
         return FALSE;
     }
 
@@ -348,7 +339,7 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
         f32 vCDist = (*polyVertsCoords)[2][i] - (*playerCoords)[i];
 
         if (((vADist < 0 && vBDist < 0 && vCDist < 0) || (vADist > 0 && vBDist > 0 && vCDist > 0)) &&
-            (MIN(MIN(ABS(vADist), ABS(vBDist)), ABS(vCDist)) > (f32)gColViewDistanceMax)) {
+            (MIN(MIN(ABS(vADist), ABS(vBDist)), ABS(vCDist)) > (f32)sDistanceMax)) {
             return FALSE;
         }
     }
@@ -382,7 +373,7 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting) {
 }
 
 #define EPSILON_OOT3D 0.00008f
-#define EPSILON_OOT 0.008f
+// This function is based on a Python script by Gamestabled: https://pastebin.com/FuN0QsKU
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna) {
     if (ABS(norm.y) > EPSILON_OOT3D) {
         u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
@@ -408,8 +399,6 @@ static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm,
                     .y = extend_2_y,
                     .z = v2.z,
                 };
-
-                // CitraPrint("%f %f, %f %f", v1.y, v2.y, extend_1_y, extend_2_y);
 
                 // Don't draw seams that extend downwards or only a few units above the poly
                 if (extend_1_y < v1.y + 50.0 && extend_2_y < v2.y + 50.0) {

@@ -2,8 +2,6 @@
 #include "z3D/z3D.h"
 #include <math.h>
 
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
-
 MemInfo query_memory_permissions(u32 address) {
     MemInfo memory_info = {};
     PageInfo page_info = {};

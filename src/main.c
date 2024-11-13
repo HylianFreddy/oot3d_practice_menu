@@ -154,7 +154,6 @@ void advance_main(void) {
         titleScreenDisplay();
     }
 
-    // Draw_DrawFormattedString(70, 40, COLOR_WHITE, "%4.4X", gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir.y);
     drawAlert();
 
     if (CollisionOption(COLVIEW_SHOW_COLLISION) && gColViewDisplayCountInfo && isInGame()) {

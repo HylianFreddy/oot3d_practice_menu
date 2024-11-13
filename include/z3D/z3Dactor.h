@@ -5,9 +5,9 @@
 
 struct Actor;
 struct GlobalContext;
-struct CollisionPoly;
 struct LightMapper;
 struct ZARInfo;
+struct CollisionPoly;
 
 typedef struct {
     Vec3f pos;

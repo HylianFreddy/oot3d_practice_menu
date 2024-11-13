@@ -2,8 +2,6 @@
 #include "actors/player.h"
 #include "menus/scene.h"
 #include "camera.h"
-#include "input.h"
-#include "draw.h"
 
 ActorInit vanillaActorInit_Player = {0};
 
