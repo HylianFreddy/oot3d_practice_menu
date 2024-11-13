@@ -16,7 +16,6 @@ MemInfo query_memory_permissions(u32 address);
 bool is_valid_memory_read(const MemInfo* info);
 bool is_valid_memory_write(const MemInfo* info);
 bool isInGame();
-void drawAlert();
 void setAlert(char* alertMessage, u32 alertFrames);
 void pauseDisplay();
 void CitraPrint(const char* message, ...);

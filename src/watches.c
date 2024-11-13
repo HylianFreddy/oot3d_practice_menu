@@ -235,7 +235,7 @@ void Watches_ShowWatchesMenu(void) {
             }
         }
         else if(pressed & BUTTON_Y){
-            pushHistory(memoryEditorAddress);
+            MemoryEditor_PushHistory(memoryEditorAddress);
             memoryEditorAddress = (int)watches[selected].addr;
             Debug_MemoryEditor();
             Draw_Lock();

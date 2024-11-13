@@ -10,8 +10,20 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #define ACTOR_LIST_MAX_SHOW 15
+
+static void DebugActors_ShowActors(void);
+static void Debug_ShowObjects(void);
+static void Debug_FlagsEditor(void);
+static void Debug_PlayerStatesMenuShow(void);
+static void MemoryEditor_EditAddress(void);
+static void MemoryEditor_EditValue(void);
+static bool MemoryEditor_ConfirmPermissionOverride(void);
+static void MemoryEditor_GoToPreset(void);
+static void MemoryEditor_FollowPointer(void);
+static void MemoryEditor_TableSettings(void);
+static void MemoryEditor_JumpToTableElementFromIndex(void);
+static void MemoryEditor_JumpToTableElement(void);
 
 //new actor values
 static s16 newId = 0x0010;
@@ -163,7 +175,7 @@ static void DebugActors_ShowMoreInfo(Actor* actor) {
             PLAYER->actor.home.rot = actor->world.rot;
         }
         else if(pressed & BUTTON_Y){
-            pushHistory(memoryEditorAddress);
+            MemoryEditor_PushHistory(memoryEditorAddress);
             memoryEditorAddress = (int)actor;
             Debug_MemoryEditor();
             Draw_Lock();
@@ -249,7 +261,7 @@ static bool DebugActors_SpawnActor(void) {
     return false;
 }
 
-void DebugActors_ShowActors(void) {
+static void DebugActors_ShowActors(void) {
     if(!isInGame()) {
         return;
     }
@@ -340,7 +352,7 @@ void DebugActors_ShowActors(void) {
             }
         }
         else if(pressed & BUTTON_Y){
-            pushHistory(memoryEditorAddress);
+            MemoryEditor_PushHistory(memoryEditorAddress);
             memoryEditorAddress = (int)actorList[selected].instance;
             Debug_MemoryEditor();
             Draw_Lock();
@@ -408,7 +420,7 @@ void DebugActors_ShowActors(void) {
     } while(onMenuLoop());
 }
 
-void Debug_ShowObjects(void) {
+static void Debug_ShowObjects(void) {
     static u16 objectId = 0;
     static s8  digitIdx = 0;
 
@@ -469,7 +481,7 @@ void Debug_ShowObjects(void) {
     } while(onMenuLoop());
 }
 
-void Debug_FlagsEditor(void) {
+static void Debug_FlagsEditor(void) {
     static s32 row = 0;
     static s32 column = 0;
     static s32 group = 10;
@@ -595,7 +607,7 @@ void Debug_FlagsEditor(void) {
     #undef WHITE_OR_BLUE_AT
 }
 
-AmountMenu PlayerStatesMenu = {
+static AmountMenu PlayerStatesMenu = {
     "Player States",
     .nbItems = 6,
     .initialCursorPos = 0,
@@ -615,7 +627,7 @@ AmountMenu PlayerStatesMenu = {
     }
 };
 
-void PlayerStatesMenuInit(void) {
+static void PlayerStatesMenuInit(void) {
     PlayerStatesMenu.items[PLAYERSTATES_PART1].amount = (PLAYER->stateFlags1 >> 0x10) & 0xFFFF;
     PlayerStatesMenu.items[PLAYERSTATES_PART2].amount = PLAYER->stateFlags1 & 0xFFFF;
     PlayerStatesMenu.items[PLAYERSTATES_PART3].amount = (PLAYER->stateFlags2 >> 0x10) & 0xFFFF;
@@ -624,7 +636,7 @@ void PlayerStatesMenuInit(void) {
     PlayerStatesMenu.items[PLAYERSTATES_HELD_ITEM].amount = PLAYER->heldItemId;
 }
 
-void Debug_PlayerStatesMenuShow(void) {
+static void Debug_PlayerStatesMenuShow(void) {
     if (isInGame()) {
         PlayerStatesMenuInit();
         AmountMenuShow(&PlayerStatesMenu);
@@ -648,7 +660,7 @@ static void checkValidMemory(void) {
 static u32 addrHistory[10] = {0};
 static s8 addrHistoryTop = -1;
 
-void pushHistory(u32 addr) {
+void MemoryEditor_PushHistory(u32 addr) {
     if (addrHistoryTop >= 9) {
         for (s32 i = 0; i < 9; i++) {
             addrHistory[i] = addrHistory[i+1];
@@ -658,7 +670,8 @@ void pushHistory(u32 addr) {
     else
         addrHistory[++addrHistoryTop] = addr;
 }
-u32 popHistory(void) {
+
+static u32 MemoryEditor_PopHistory(void) {
     if (addrHistoryTop < 0)
         return memoryEditorAddress;
 
@@ -737,7 +750,7 @@ void Debug_MemoryEditor(void) {
 
         if (pressed & BUTTON_B){
             if (ADDITIONAL_FLAG_BUTTON) {
-                memoryEditorAddress = popHistory();
+                memoryEditorAddress = MemoryEditor_PopHistory();
                 checkValidMemory();
                 Draw_Lock();
                 Draw_ClearFramebuffer();
@@ -820,13 +833,13 @@ void Debug_MemoryEditor(void) {
     } while(onMenuLoop());
 }
 
-void MemoryEditor_EditAddress(void) {
+static void MemoryEditor_EditAddress(void) {
     u32 oldAddress = memoryEditorAddress;
 
     Menu_EditAmount(30 - 3 * SPACING_X, 30, &memoryEditorAddress, VARTYPE_U32, 0, 0, 8, TRUE, NULL, 0);
 
     if (memoryEditorAddress != oldAddress)
-        pushHistory(oldAddress);
+        MemoryEditor_PushHistory(oldAddress);
 
     checkValidMemory();
 
@@ -836,7 +849,7 @@ void MemoryEditor_EditAddress(void) {
     Draw_Unlock();
 }
 
-void MemoryEditor_EditValue(void) {
+static void MemoryEditor_EditValue(void) {
     u32 posX = 90 + selectedColumn * SPACING_X * 3;
     u32 posY = 30 + selectedRow * SPACING_Y;
     void* address = (void*)(memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
@@ -884,7 +897,7 @@ void MemoryEditor_EditValue(void) {
     }
 }
 
-bool MemoryEditor_ConfirmPermissionOverride(void) {
+static bool MemoryEditor_ConfirmPermissionOverride(void) {
     bool ret = false;
 
     Draw_Lock();
@@ -914,7 +927,7 @@ bool MemoryEditor_ConfirmPermissionOverride(void) {
     return ret;
 }
 
-void MemoryEditor_GoToPreset(void) {
+static void MemoryEditor_GoToPreset(void) {
 
     static s32 selected = 0;
     static const char* const names[] = {
@@ -970,7 +983,7 @@ void MemoryEditor_GoToPreset(void) {
             break;
         }
         else if (pressed & BUTTON_A){
-            pushHistory(memoryEditorAddress);
+            MemoryEditor_PushHistory(memoryEditorAddress);
             memoryEditorAddress = (u32)(addresses[selected]);
             break;
         }
@@ -1002,8 +1015,8 @@ void MemoryEditor_GoToPreset(void) {
     Draw_Unlock();
 }
 
-void MemoryEditor_FollowPointer(void) {
-    pushHistory(memoryEditorAddress);
+static void MemoryEditor_FollowPointer(void) {
+    MemoryEditor_PushHistory(memoryEditorAddress);
     u32 byteAddress = (memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
     u32 pointerAddress = byteAddress - byteAddress % 4;
     if (pointerAddress >= (u32)gGlobalContext->sceneSegment && pointerAddress < (u32)gGlobalContext->sceneSegment + 0x1000) // Manage segment addresses for the scene file headers
@@ -1019,7 +1032,7 @@ void MemoryEditor_FollowPointer(void) {
     Draw_Unlock();
 }
 
-void UpdateTableIndexValueSign(void) {
+static void UpdateTableIndexValueSign(void) {
     switch (tableIndexType) {
         case VARTYPE_U8:
             tableIndex &= 0xFF;
@@ -1044,7 +1057,7 @@ void UpdateTableIndexValueSign(void) {
     }
 }
 
-void MemoryEditor_TableSettings(void) {
+static void MemoryEditor_TableSettings(void) {
     static s32 selected = 0;
 
     Draw_Lock();
@@ -1137,18 +1150,18 @@ void MemoryEditor_TableSettings(void) {
     Draw_Unlock();
 }
 
-void MemoryEditor_JumpToTableElementFromIndex(void) {
+static void MemoryEditor_JumpToTableElementFromIndex(void) {
     Draw_Lock();
     Draw_ClearFramebuffer();
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
-    pushHistory(memoryEditorAddress);
+    MemoryEditor_PushHistory(memoryEditorAddress);
     memoryEditorAddress = storedTableStart + tableIndex * tableElementSize;
     checkValidMemory();
 }
 
-void MemoryEditor_JumpToTableElement(void) {
+static void MemoryEditor_JumpToTableElement(void) {
     void* byteAddress = (void*)(memoryEditorAddress + (selectedRow - 2) * 8 + selectedColumn);
     switch (tableIndexType) {
         case VARTYPE_U8:

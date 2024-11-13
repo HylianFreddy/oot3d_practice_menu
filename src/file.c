@@ -3,6 +3,17 @@
 #include "z3D/z3D.h"
 #include "draw.h"
 
+static void File_ShowTimersMenu(s32 selected);
+static void File_ToggleSkulltulaFlags(s32 selected);
+static void File_ToggleItemDropsFlags(s32 selected);
+static void File_CallNavi(s32 selected);
+static void File_ToggleEponaFreed(s32 selected);
+static void File_ToggleCarpentersFreed(s32 selected);
+static void File_ToggleIntroCutscenes(s32 selected);
+static void File_ToggleBlueWarps(s32 selected);
+static void File_ToggleMasterQuest(s32 selected);
+static void File_SetTimerStateAndValue(s32 selected);
+
 static char* Timer1States[] = {
     "Timer 1 State: inactive      ",
     "Timer 1 State: heat starting ",
@@ -37,7 +48,7 @@ static char* Timer2States[] = {
     "Timer 2 State: timer stopped ",
 };
 
-ToggleMenu FileMenu = {
+static ToggleMenu FileMenu = {
     "File",
     .nbItems = 9,
     .initialCursorPos = 0,
@@ -54,7 +65,7 @@ ToggleMenu FileMenu = {
     }
 };
 
-AmountMenu TimersMenu = {
+static AmountMenu TimersMenu = {
     "Timers",
     .nbItems = 4,
     .initialCursorPos = 0,
@@ -70,7 +81,7 @@ AmountMenu TimersMenu = {
     }
 };
 
-void File_FileMenuInit(void) {
+static void File_FileMenuInit(void) {
     s32 skulltulasDefeated = 0;
     for (u32 i = 0; i < 22; i++) {
         skulltulasDefeated += gSaveContext.gsFlags[i];
@@ -96,7 +107,7 @@ void File_ShowFileMenu() {
     ToggleMenuShow(&FileMenu);
 }
 
-void File_ToggleSkulltulaFlags(s32 selected) {
+static void File_ToggleSkulltulaFlags(s32 selected) {
     if (FileMenu.items[selected].on) {
         for (u32 i = 0; i < 22; i++) {
             gSaveContext.gsFlags[i] = 0;
@@ -115,7 +126,7 @@ void File_ToggleSkulltulaFlags(s32 selected) {
     }
 }
 
-void File_ToggleItemDropsFlags(s32 selected) {
+static void File_ToggleItemDropsFlags(s32 selected) {
     if (FileMenu.items[selected].on) {
         gSaveContext.infTable[0x19] &= ~0x0100; //magic
         gSaveContext.itemGetInf[1] &= ~0x0008; //deku seeds
@@ -128,7 +139,7 @@ void File_ToggleItemDropsFlags(s32 selected) {
     }
 }
 
-void File_CallNavi(s32 selected) {
+static void File_CallNavi(s32 selected) {
     if (FileMenu.items[selected].on) {
         gSaveContext.naviTimer = 0;
         FileMenu.items[selected].on = 0;
@@ -139,7 +150,7 @@ void File_CallNavi(s32 selected) {
     }
 }
 
-void File_ToggleEponaFreed(s32 selected) {
+static void File_ToggleEponaFreed(s32 selected) {
     if (FileMenu.items[selected].on) {
         gSaveContext.eventChkInf[0x1] &= ~0x0100;
         FileMenu.items[selected].on = 0;
@@ -150,7 +161,7 @@ void File_ToggleEponaFreed(s32 selected) {
     }
 }
 
-void File_ToggleCarpentersFreed(s32 selected) {
+static void File_ToggleCarpentersFreed(s32 selected) {
     if (FileMenu.items[selected].on) {
         gSaveContext.eventChkInf[0x9] &= ~0x000F;
         FileMenu.items[selected].on = 0;
@@ -161,7 +172,7 @@ void File_ToggleCarpentersFreed(s32 selected) {
     }
 }
 
-void File_ToggleIntroCutscenes(s32 selected) {
+static void File_ToggleIntroCutscenes(s32 selected) {
     if (FileMenu.items[selected].on) {
         gSaveContext.eventChkInf[0xA] &= ~0x01FB;
         gSaveContext.eventChkInf[0xB] &= ~0x07FE;
@@ -176,7 +187,7 @@ void File_ToggleIntroCutscenes(s32 selected) {
     }
 }
 
-void File_ToggleBlueWarps(s32 selected) {
+static void File_ToggleBlueWarps(s32 selected) {
     if (FileMenu.items[selected].on) {
         gSaveContext.eventChkInf[0x0] &= ~0x0080;
         gSaveContext.eventChkInf[0x2] &= ~0x0020;
@@ -193,14 +204,14 @@ void File_ToggleBlueWarps(s32 selected) {
     }
 }
 
-void File_ToggleMasterQuest(s32 selected) {
+static void File_ToggleMasterQuest(s32 selected) {
     gSaveContext.masterQuestFlag = FileMenu.items[selected].on = !FileMenu.items[selected].on;
 #if !Version_KOR && !Version_TWN
     WriteDungeonSceneTable();
 #endif
 }
 
-void File_TimersMenuInit(void) {
+static void File_TimersMenuInit(void) {
     TimersMenu.items[FILE_TIMER1STATE].amount = gSaveContext.timer1State;
     TimersMenu.items[FILE_TIMER1VALUE].amount = gSaveContext.timer1Value;
     TimersMenu.items[FILE_TIMER2STATE].amount = gSaveContext.timer2State;
@@ -209,12 +220,12 @@ void File_TimersMenuInit(void) {
     TimersMenu.items[FILE_TIMER2STATE].title = Timer2States[gSaveContext.timer2State];
 }
 
-void File_ShowTimersMenu(s32 selected) {
+static void File_ShowTimersMenu(s32 selected) {
     File_TimersMenuInit();
     AmountMenuShow(&TimersMenu);
 }
 
-void File_SetTimerStateAndValue(s32 selected) {
+static void File_SetTimerStateAndValue(s32 selected) {
     //set variable in save context
     s16* varToSet;
     switch (selected) {
