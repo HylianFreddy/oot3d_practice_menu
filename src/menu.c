@@ -39,6 +39,33 @@
 #include <stdio.h>
 #include <string.h>
 
+static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
+    { // S8
+        .min = -128,
+        .max = 127,
+    },
+    { // U8
+        .min = 0,
+        .max = 255,
+    },
+    { // S16
+        .min = -32768,
+        .max = 32767,
+    },
+    { // U16
+        .min = 0,
+        .max = 65535,
+    },
+    { // S32
+        .min = -2147483648,
+        .max = 2147483647,
+    },
+    { // U32
+        .min = 0,
+        .max = 4294967295,
+    },
+};
+
 static void menuDraw(Menu *menu, u32 selected)
 {
     Draw_DrawString(10, 10, COLOR_TITLE, menu->title);

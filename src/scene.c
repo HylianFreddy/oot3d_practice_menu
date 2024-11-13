@@ -9,6 +9,20 @@
 #include "menus/commands.h"
 #include "colview.h"
 
+static void Scene_RoomSelectorMenuShow(void);
+static void Scene_HideEntitiesMenuShow(void);
+static void Scene_FreeCamSettingsMenuShow(void);
+static void Scene_SetEntrancePoint(void);
+static void Scene_SelectRoomNumber(void);
+static void Scene_LoadRoom(void);
+static void Scene_SetFlags(void);
+static void Scene_ClearFlags(void);
+static void Scene_NoClipDescription(void);
+static void Scene_FreeCamDescription(void);
+static void Scene_ToggleFreeCamSetting(s32 selected);
+static void Scene_HideRoomsToggle(s32 selected);
+static void Scene_HideActorsToggle(s32 selected);
+
 u8 noClip = 0;
 u8 waitingButtonRelease = 0;
 u8 haltActors = 0;
@@ -74,7 +88,7 @@ Menu SceneMenu = {
     }
 };
 
-void Scene_SetEntrancePoint(void) {
+static void Scene_SetEntrancePoint(void) {
     gSaveContext.respawn[0] = (RespawnData){
         PLAYER->actor.world.pos,
         PLAYER->actor.shape.rot.y,
@@ -93,7 +107,7 @@ static void Scene_RoomSelectorUpdateNumber(void) {
     snprintf(RoomSelectorMenu.items[ROOMSELECTOR_NUMBER].title + 13, 3, "%2.2d", selectedRoomNumber);
 }
 
-void Scene_RoomSelectorMenuShow(void) {
+static void Scene_RoomSelectorMenuShow(void) {
     if (!isInGame()) {
         setAlert("Not in game", 90);
         return;
@@ -104,7 +118,7 @@ void Scene_RoomSelectorMenuShow(void) {
     menuShow(&RoomSelectorMenu);
 }
 
-void Scene_SelectRoomNumber(void) {
+static void Scene_SelectRoomNumber(void) {
     if (gGlobalContext->numRooms > 1) {
         Menu_EditAmount(30 + 12 * SPACING_X, 30, &selectedRoomNumber, VARTYPE_U16, 0, gGlobalContext->numRooms - 1, 2,
                         false, NULL, 0);
@@ -116,7 +130,7 @@ void Scene_SelectRoomNumber(void) {
     }
 }
 
-void Scene_LoadRoom(void) {
+static void Scene_LoadRoom(void) {
 #if Version_KOR || Version_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
     return;
@@ -135,7 +149,7 @@ void Scene_LoadRoom(void) {
     menuOpen = false;
 }
 
-void Scene_SetFlags(void) {
+static void Scene_SetFlags(void) {
     gGlobalContext->actorCtx.flags.swch = 0xFFFFFFFF;
     gGlobalContext->actorCtx.flags.tempSwch = 0xFFFFFFFF;
     gGlobalContext->actorCtx.flags.chest = 0xFFFFFFFF;
@@ -145,7 +159,7 @@ void Scene_SetFlags(void) {
     gGlobalContext->actorCtx.flags.tempCollect = 0xFFFFFFFF;
 }
 
-void Scene_ClearFlags(void) {
+static void Scene_ClearFlags(void) {
     gGlobalContext->actorCtx.flags.swch = 0;
     gGlobalContext->actorCtx.flags.tempSwch = 0;
     gGlobalContext->actorCtx.flags.chest = 0;
@@ -174,7 +188,7 @@ void Scene_NoClipToggle(void) {
     }
 }
 
-void Scene_NoClipDescription(void) {
+static void Scene_NoClipDescription(void) {
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -206,7 +220,7 @@ void Scene_NoClipDescription(void) {
     }while(onMenuLoop());
 }
 
-void Scene_FreeCamSettingsMenuShow(void) {
+static void Scene_FreeCamSettingsMenuShow(void) {
     FreeCamSettingsMenu.items[FREECAMSETTING_ENABLE].on = freeCam.enabled;
     FreeCamSettingsMenu.items[FREECAMSETTING_LOCK].on = freeCam.locked;
     FreeCamSettingsMenu.items[FREECAMSETTING_MODE].on = freeCam.mode;
@@ -215,7 +229,7 @@ void Scene_FreeCamSettingsMenuShow(void) {
     ToggleMenuShow(&FreeCamSettingsMenu);
 }
 
-void Scene_FreeCamDescription(void) {
+static void Scene_FreeCamDescription(void) {
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -250,7 +264,7 @@ void Scene_FreeCamDescription(void) {
     }while(onMenuLoop());
 }
 
-void Scene_ToggleFreeCamSetting(s32 selected) {
+static void Scene_ToggleFreeCamSetting(s32 selected) {
     switch (selected) {
         case FREECAMSETTING_ENABLE:
             FreeCam_Toggle();
@@ -272,17 +286,17 @@ void Scene_ToggleFreeCamSetting(s32 selected) {
     }
 }
 
-void Scene_HideEntitiesMenuShow() {
+static void Scene_HideEntitiesMenuShow() {
     HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on = gStaticContext.disableRoomDraw;
     ToggleMenuShow(&HideEntitiesMenu);
 }
 
-void Scene_HideRoomsToggle(s32 selected) {
+static void Scene_HideRoomsToggle(s32 selected) {
     gStaticContext.disableRoomDraw ^= 1;
     HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on ^= 1;
 }
 
-void Scene_HideActorsToggle(s32 selected) {
+static void Scene_HideActorsToggle(s32 selected) {
     HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on ^= 1;
 }
 

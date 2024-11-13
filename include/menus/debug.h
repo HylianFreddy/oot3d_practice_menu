@@ -6,20 +6,8 @@ extern Menu DebugMenu;
 
 extern u32 memoryEditorAddress;
 
-void DebugActors_ShowActors();
-void Debug_ShowObjects();
-void Debug_FlagsEditor();
-void Debug_PlayerStatesMenuShow();
-void Debug_MemoryEditor();
-void MemoryEditor_EditAddress();
-void MemoryEditor_EditValue();
-bool MemoryEditor_ConfirmPermissionOverride();
-void pushHistory(u32 addr);
-void MemoryEditor_GoToPreset(void);
-void MemoryEditor_FollowPointer(void);
-void MemoryEditor_TableSettings(void);
-void MemoryEditor_JumpToTableElementFromIndex(void);
-void MemoryEditor_JumpToTableElement(void);
+void Debug_MemoryEditor(void);
+void MemoryEditor_PushHistory(u32 addr);
 u32 MemoryEditor_GetSelectedByteAddress(void);
 
 typedef enum {
