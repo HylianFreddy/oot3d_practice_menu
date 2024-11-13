@@ -6,7 +6,6 @@
 // #include "z3Dequipment.h"
 #include "z3Dcutscene.h"
 #include "z3Ditem.h"
-#include "z3Dmath.h"
 #include "z3Dbgcheck.h"
 #include "color.h"
 

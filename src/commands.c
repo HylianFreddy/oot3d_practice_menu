@@ -16,7 +16,7 @@
 
 u32 pauseUnpause = 0; //tells main to pause/unpause
 u32 frameAdvance = 0; //tells main to frame advance
-bool shouldDrawWatches = 0;
+bool shouldDrawWatches = 1;
 u32 shouldAutoloadSavefile = 0;
 u32 shouldFastForward = 0;
 u32 gFastForwardCycleCounter = 0;
