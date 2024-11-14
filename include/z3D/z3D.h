@@ -748,7 +748,13 @@ typedef void (*CloseTextbox_proc)(GlobalContext* globalCtx);
 #define Message_CloseTextbox ((CloseTextbox_proc)CloseTextbox_addr)
 
 typedef void (*PlaySound_proc)(u32);
-#define PlaySound_addr 0x35C528
+#if Version_USA || Version_EUR
+    #define PlaySound_addr 0x35C528
+#elif Version_JPN
+    #define PlaySound_addr 0x35C040
+#else //KOR & TWN
+    #define PlaySound_addr 0
+#endif
 #define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
 
 typedef void (*Play_Init_proc)(GameState*);
