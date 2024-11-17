@@ -375,7 +375,7 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting) {
 #define EPSILON_OOT3D 0.00008f
 // This function is based on a Python script by Gamestabled: https://pastebin.com/FuN0QsKU
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna) {
-    if (ABS(norm.y) > EPSILON_OOT3D) {
+    if (norm.y > EPSILON_OOT3D) {
         u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
         for (s32 p = 0; p < 3; p++) {
             u8* pair = pairs[p];
