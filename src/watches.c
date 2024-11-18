@@ -67,6 +67,11 @@ static void Watches_EditPos(s32 watchId) {
             watches[watchId].posY = 40 + watchId * SPACING_Y;
         }
 
+        if (rInputCtx.touchHeld) {
+            watches[watchId].posX = rInputCtx.touchX;
+            watches[watchId].posY = rInputCtx.touchY;
+        }
+
         speed = (pressed & BUTTON_X) ? 10 : 1;
         if (pressed & PAD_RIGHT)
             watches[watchId].posX = (watches[watchId].posX + speed) % SCREEN_BOT_WIDTH;
