@@ -39,8 +39,7 @@ u32 Input_WaitWithTimeout(u32 msec) {
 
     // We special some buttons as we want to automatically scroll the cursor or
     // allow amount editing at a reasonable pace as long as it's held down.
-    if (isScrollButtonPressed && scrollDelay)
-    {
+    if (isScrollButtonPressed && scrollDelay) {
         // Wait 250 ms the first time, as long as the button isn't released
         for(u32 i = 0; HID_PAD && i < 250; i+=10) {
             svcSleepThread(10 * 1000 * 1000LL);
@@ -48,17 +47,14 @@ u32 Input_WaitWithTimeout(u32 msec) {
         scrollDelay = 0;
         Input_Update(); // If the scroll button has been released, clear it from the current buttons
     }
-    else if (isScrollButtonPressed)
-    {
-        // By default wait 50 milliseconds before moving the cursor so that
-        // we don't scroll the menu too fast.
+    else if (isScrollButtonPressed || rInputCtx.touchHeld) {
+        // Wait 50 milliseconds while a scroll button or the touch screen is pressed,
+        // so that we don't scroll the menu too fast or redraw things too quickly.
         svcSleepThread(50 * 1000 * 1000LL);
     }
-    else
-    {
-        // Wait for a new key to be pressed in the event that up and down are not pressed.
-        while (rInputCtx.pressed.val == 0 && (msec == 0 || n <= msec))
-        {
+    else {
+        // Wait for a new button or the touch screen to be pressed.
+        while (rInputCtx.pressed.val == 0 && rInputCtx.touchPressed == 0 && (msec == 0 || n <= msec)) {
             scrollDelay = 1;
             Input_Update();
             svcSleepThread(1 * 1000 * 1000LL);
