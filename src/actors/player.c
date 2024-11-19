@@ -16,7 +16,7 @@ void PlayerActor_rUpdate(Actor* thisx, GlobalContext* globalCtx) {
 
     // Restore custom draw function if it's overwritten by FW spawn animation.
     if (thisx->draw == vanillaActorInit_Player.draw) {
-        vanillaActorInit_Player.draw = PlayerActor_rDraw;
+        thisx->draw = PlayerActor_rDraw;
     }
 
     vanillaActorInit_Player.update(thisx, globalCtx);
