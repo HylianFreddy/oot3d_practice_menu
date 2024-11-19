@@ -345,7 +345,7 @@ static void DebugActors_ShowActors(void) {
                         break;
                     }
                     if ((killAll || actor->id == selectedActor->id) &&
-                        (!preserveNearby || actor->xzDistToPlayer > 100)) {
+                        (!preserveNearby || distXYZ(actor->world.pos, PLAYER->actor.world.pos) > 300)) {
                         Actor_Kill(actor);
                     }
                 }
