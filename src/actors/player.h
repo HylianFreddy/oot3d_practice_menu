@@ -4,6 +4,7 @@
 #include "z3D/z3D.h"
 
 extern ActorInit vanillaActorInit_Player;
+extern SamPlusUnk* Player_SamPlusUnk;
 
 void PlayerActor_rInit(Actor* thisx, GlobalContext* globalCtx);
 void PlayerActor_rUpdate(Actor* thisx, GlobalContext* globalCtx);

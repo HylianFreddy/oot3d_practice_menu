@@ -20,8 +20,7 @@ static void Scene_ClearFlags(void);
 static void Scene_NoClipDescription(void);
 static void Scene_FreeCamDescription(void);
 static void Scene_ToggleFreeCamSetting(s32 selected);
-static void Scene_HideRoomsToggle(s32 selected);
-static void Scene_HideActorsToggle(s32 selected);
+static void Scene_HideEntityToggle(s32 selected);
 
 u8 noClip = 0;
 u8 waitingButtonRelease = 0;
@@ -64,11 +63,12 @@ ToggleMenu FreeCamSettingsMenu = {
 
 ToggleMenu HideEntitiesMenu = {
     "Hide Game Entities",
-    .nbItems = 2,
+    .nbItems = HIDEENTITIES_MAX,
     .initialCursorPos = 0,
     {
-        {0, "Hide Rooms", .method = Scene_HideRoomsToggle},
-        {0, "Hide Actors", .method = Scene_HideActorsToggle},
+        {0, "Hide Rooms", .method = Scene_HideEntityToggle},
+        {0, "Hide Actors", .method = Scene_HideEntityToggle},
+        {0, "  Except Link", .method = Scene_HideEntityToggle},
     }
 };
 
@@ -291,13 +291,11 @@ static void Scene_HideEntitiesMenuShow() {
     ToggleMenuShow(&HideEntitiesMenu);
 }
 
-static void Scene_HideRoomsToggle(s32 selected) {
-    gStaticContext.disableRoomDraw ^= 1;
-    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on ^= 1;
-}
-
-static void Scene_HideActorsToggle(s32 selected) {
-    HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on ^= 1;
+static void Scene_HideEntityToggle(s32 selected) {
+    HideEntitiesMenu.items[selected].on ^= 1;
+    if (selected == HIDEENTITIES_ROOMS) {
+        gStaticContext.disableRoomDraw = HideEntitiesMenu.items[selected].on;
+    }
 }
 
 s32 Scene_HaltActorsEnabled() {

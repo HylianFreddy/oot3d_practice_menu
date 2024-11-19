@@ -285,7 +285,7 @@ void autoLoadSaveFile(void) {
         if (gSaveContext.saveCount > 0) {
             setAlert("Autoload File 1", 90);
             gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
-#if !Version_KOR && !Version_TWN
+#if GZ3D_EXTRAS && !Version_KOR && !Version_TWN
             if (gSaveContext.masterQuestFlag) {
                 // These static variables are used at some point during the load to overwrite the MQ flag.
                 // Setting them like this is kind of broken (saving the game will save onto MQ slot 1),
