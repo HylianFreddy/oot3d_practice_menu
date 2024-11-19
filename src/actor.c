@@ -31,20 +31,31 @@ void Actor_rDrawContext(GlobalContext *globalCtx,ActorContext *actorCtx) {
     // Collision display is normally handled in Actor_DrawContext, but in order to draw its models even
     // when "Hide Actors" is enabled, we disable it and then call CollisionCheck_DrawCollision manually
     u8 shouldHideActors = HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on;
+    u8 exceptLink       = HideEntitiesMenu.items[HIDEENTITIES_EXCEPT_LINK].on;
     u8 delayCollDisplay = shouldHideActors && gStaticContext.collisionDisplay;
     if (delayCollDisplay) {
         gStaticContext.collisionDisplay = 0;
     }
 
-    s32 tempSaModelsCount1 = gMainClass->sub180.saModelsCount1;
-    s32 tempSaModelsCount2 = gMainClass->sub180.saModelsCount2;
+    s32 saModels3DCount_before_actors = gMainClass->sub180.saModels3DCount;
+    s32 saModels2DCount_before_actors = gMainClass->sub180.saModels2DCount;
 
     Actor_DrawContext(globalCtx, actorCtx);
 
     if (shouldHideActors) {
-        gMainClass->sub180.saModelsCount1 = tempSaModelsCount1; // 3D models
-        gMainClass->sub180.saModelsCount2 = tempSaModelsCount2; // 2D billboards
+        // To hide actors, reset the model counts to exclude all the ones added by the various draw functions.
+        gMainClass->sub180.saModels3DCount = saModels3DCount_before_actors;
+        gMainClass->sub180.saModels2DCount = saModels2DCount_before_actors;
+
+        if (exceptLink && Player_SamPlusUnk != NULL) {
+            // Keep the player model by moving it at the beginning of the list (after room models but before BgActor models)
+            // and increasing the count by 1.
+            gMainClass->sub180.saModels3DList[gMainClass->sub180.saModels3DCount].saModel = Player_SamPlusUnk->saModel;
+            gMainClass->sub180.saModels3DList[gMainClass->sub180.saModels3DCount].unk     = Player_SamPlusUnk->unk;
+            gMainClass->sub180.saModels3DCount++;
+        }
     }
+    Player_SamPlusUnk = NULL;
 
     if (delayCollDisplay) {
         gStaticContext.collisionDisplay = 1;
