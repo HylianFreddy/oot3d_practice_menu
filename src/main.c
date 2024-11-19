@@ -157,10 +157,10 @@ void advance_main(void) {
     drawAlert();
 
     if (CollisionOption(COLVIEW_SHOW_COLLISION) && gColViewDisplayCountInfo && isInGame()) {
-        s16 polyMax = gMainClass->sub32A0.polyMax;
-        s16 polyCounter = gMainClass->sub32A0.polyCounter;
-        Draw_DrawFormattedString(3, SCREEN_BOT_HEIGHT - SPACING_Y, polyCounter >= polyMax ? COLOR_RED : COLOR_WHITE,
-                                 "%d/%d", polyCounter, polyMax);
+        s16 polyMax   = gMainClass->sub32A0.coll2DModelsMax;
+        s16 polyCount = gMainClass->sub32A0.coll2DModelsCount;
+        Draw_DrawFormattedString(3, SCREEN_BOT_HEIGHT - SPACING_Y, polyCount >= polyMax ? COLOR_RED : COLOR_WHITE,
+                                 "%d/%d", polyCount, polyMax);
     }
 
     if(menuOpen) {

@@ -65,7 +65,7 @@ void Actor_rDrawContext(GlobalContext *globalCtx,ActorContext *actorCtx) {
     if (haltActors) {
         // Zero out some collision display values so the colliders will
         // keep drawing correctly while actors are halted
-        gMainClass->sub32A0.saModelCount = 0;
-        gMainClass->sub32A0.polyCounter = 0;
+        gMainClass->sub32A0.coll3DModelsCount = 0;
+        gMainClass->sub32A0.coll2DModelsCount = 0;
     }
 }

@@ -145,7 +145,7 @@ static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
 }
 
 void ColView_InitSubMainClass32A0(SubMainClass_32A0* sub32A0) {
-    sub32A0->polyMax          = sPolyMax;                                 // vanilla 0x40
+    sub32A0->coll2DModelsMax  = sPolyMax;                                 // vanilla 0x40
     void* buf                 = SystemArena_Malloc(0xA40 + 8 * sPolyMax); // vanilla 0xC40
     sub32A0->bufferPointer_1C = buf;
     sub32A0->bufferPointer_00 = buf;

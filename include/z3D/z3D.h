@@ -590,16 +590,16 @@ typedef struct SubMainClass_180 {
 
 // This struct contains data related to the built-in Collision Display
 typedef struct SubMainClass_32A0 {
-    /* 0x00 */ void* bufferPointer_00; // Start of 0xC40 buffer
-    /* 0x04 */ s16 saModelCount; // 3D sphere and cylinder models
-    /* 0x06 */ s16 saModelMax;
+    /* 0x00 */ void* bufferPointer_00; // start of 0xC40 buffer
+    /* 0x04 */ s16 coll3DModelsCount; // sphere and cylinder models
+    /* 0x06 */ s16 coll3DModelsMax;
     /* 0x08 */ void* cmbMan;
-    /* 0x0C */ s16 polyCounter; // 2D quad models
-    /* 0x0E */ s16 polyMax;
+    /* 0x0C */ s16 coll2DModelsCount; // tri and quad models
+    /* 0x0E */ s16 coll2DModelsMax;
     /* 0x10 */ void*(*array_10)[]; // pointer to array of pointers, offset 0xA40 in 0xC40 buffer (size 0x100?)
     /* 0x14 */ void*(*array_14)[]; // pointer to array of pointers, offset 0xB40 in 0xC40 buffer (size 0x100?)
-    /* 0x18 */ void* bufferPointer_18; // Offset 0x140 in 0xC40 buffer
-    /* 0x1C */ void* bufferPointer_1C; // Start of 0xC40 buffer
+    /* 0x18 */ void* bufferPointer_18; // offset 0x140 in 0xC40 buffer
+    /* 0x1C */ void* bufferPointer_1C; // start of 0xC40 buffer
 } SubMainClass_32A0;
 _Static_assert(sizeof(SubMainClass_32A0) == 0x20, "SubMainClass_32A0 size");
 
