@@ -6,6 +6,7 @@
 // #include "z3Dequipment.h"
 #include "z3Dcutscene.h"
 #include "z3Ditem.h"
+#include "z3Dbgcheck.h"
 #include "color.h"
 
 // #include "hid.h"
@@ -254,23 +255,6 @@ typedef struct Camera {
     /* 0x1B2 */ char unk_1B2[0x00A];
 } Camera; // size = 0x1BC
 _Static_assert(sizeof(Camera) == 0x1BC, "Camera size");
-
-typedef struct {
-    /* 0x00 */ void* colHeader; //TODO: CollisionHeader* struct
-    /* 0x04 */ char             unk_04[0x4C];
-} StaticCollisionContext; // size = 0x50
-
-typedef struct {
-    /* 0x0000 */ char   unk_00[0x04];
-    /* 0x0004 */ ActorMesh actorMeshArr[50];
-    /* 0x151C */ u16    flags[50];
-    /* 0x1580 */ char   unk_13F0[0x24];
-} DynaCollisionContext; // size = 0x15A4
-
-typedef struct {
-    /* 0x0000 */ StaticCollisionContext stat;
-    /* 0x0050 */ DynaCollisionContext   dyna;
-} CollisionContext; // size = 0x15F4
 
 typedef struct {
     /* 0x00 */ u8*  texture;
@@ -548,12 +532,16 @@ typedef struct GlobalContext {
 _Static_assert(sizeof(GlobalContext) == 0x8038, "Global Context size");
 
 typedef struct StaticContext {
-    /* 0x0000 */ char unk_0[0x0E60];
+    /* 0x0000 */ char unk_000[0x0E60];
     /* 0x0E60 */ u16  spawnOnEpona;
-    /* 0x0E62 */ char unk_E72[0x0010];
-    /* 0x0E72 */ u16  collisionDisplay;
-    /* 0x0E74 */ char unk_E74[0x015C];
-    /* 0x0FD0 */ u16  renderGeometryDisable;
+    /* 0x0E62 */ char unk_E62[0x0010];
+    /* 0x0E72 */ u16  showColliders;
+    /* 0x0E74 */ char unk_E74[0x000A];
+    /* 0x0E7E */ u16  showAT;
+    /* 0x0E80 */ u16  showAC;
+    /* 0x0E82 */ u16  showOC;
+    /* 0x0E84 */ char unk_E84[0x014C];
+    /* 0x0FD0 */ u16  disableRoomDraw;
     /* 0x0FD2 */ char unk_FD2[0x0602];
 } StaticContext; //size 0x15D4
 _Static_assert(sizeof(StaticContext) == 0x15D4, "Static Context size");
@@ -602,15 +590,16 @@ typedef struct SubMainClass_180 {
 
 // This struct contains data related to the built-in Collision Display
 typedef struct SubMainClass_32A0 {
-    /* 0x00 */ char unk_00[0x4];
-    /* 0x04 */ s16 saModelCount; // 3D sphere and cylinder models
-    /* 0x06 */ s16 saModelMax;
-    /* 0x08 */ char unk_08[0x4];
-    /* 0x0C */ s16 polyCounter; // 2D quad models
-    /* 0x0E */ s16 polyMax;
-    /* 0x10 */ void*(*arr_10)[]; // pointer to array of pointers
-    /* 0x14 */ void*(*arr_14)[]; // pointer to array of pointers
-    /* 0x18 */ char unk_18[0x8];
+    /* 0x00 */ void* bufferPointer_00; // start of 0xC40 buffer
+    /* 0x04 */ s16 coll3DModelsCount; // sphere and cylinder models
+    /* 0x06 */ s16 coll3DModelsMax;
+    /* 0x08 */ void* cmbMan;
+    /* 0x0C */ s16 coll2DModelsCount; // tri and quad models
+    /* 0x0E */ s16 coll2DModelsMax;
+    /* 0x10 */ void*(*array_10)[]; // pointer to array of pointers, offset 0xA40 in 0xC40 buffer (size 0x100?)
+    /* 0x14 */ void*(*array_14)[]; // pointer to array of pointers, offset 0xB40 in 0xC40 buffer (size 0x100?)
+    /* 0x18 */ void* bufferPointer_18; // offset 0x140 in 0xC40 buffer
+    /* 0x1C */ void* bufferPointer_1C; // start of 0xC40 buffer
 } SubMainClass_32A0;
 _Static_assert(sizeof(SubMainClass_32A0) == 0x20, "SubMainClass_32A0 size");
 
@@ -869,6 +858,43 @@ typedef void (*WriteDungeonSceneTable_proc)(void);
     #define WriteDungeonSceneTable_addr 0x2EAFB4
 #endif
 #define WriteDungeonSceneTable ((WriteDungeonSceneTable_proc)WriteDungeonSceneTable_addr)
+
+typedef void (*Collider_DrawPolyImpl_proc)(SubMainClass_32A0* sub32A0, Vec3f* vA, Vec3f* vB, Vec3f* vC,
+                                           Color_RGBAf* rgba);
+#if Version_USA || Version_EUR
+    #define Collider_DrawPolyImpl_addr 0x2C56C4
+#elif Version_JPN
+    #define Collider_DrawPolyImpl_addr 0x2C51DC
+#elif Version_KOR
+    #define Collider_DrawPolyImpl_addr 0x2D15D4
+#elif Version_TWN
+    #define Collider_DrawPolyImpl_addr 0x2D16D4
+#endif
+#define Collider_DrawPolyImpl ((Collider_DrawPolyImpl_proc)Collider_DrawPolyImpl_addr)
+
+typedef void (*BgCheck_GetStaticLookupIndicesFromPos_Proc)(CollisionContext *col_ctx,Vec3f *pos,Vec3i *sector);
+#if Version_USA || Version_EUR
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF5B0
+#elif Version_JPN
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF0C8
+#elif Version_KOR
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C17C4
+#elif Version_TWN
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C18C4
+#endif
+#define BgCheck_GetStaticLookupIndicesFromPos ((BgCheck_GetStaticLookupIndicesFromPos_Proc)BgCheck_GetStaticLookupIndicesFromPos_addr)
+
+typedef void* (*SystemArena_Malloc_Proc)(u32 size);
+#if Version_USA || Version_EUR
+    #define SystemArena_Malloc_addr 0x35010C
+#elif Version_JPN
+    #define SystemArena_Malloc_addr 0x34FC24
+#elif Version_KOR
+    #define SystemArena_Malloc_addr 0x3232C0
+#elif Version_TWN
+    #define SystemArena_Malloc_addr 0x3233C0
+#endif
+#define SystemArena_Malloc ((SystemArena_Malloc_Proc)SystemArena_Malloc_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);

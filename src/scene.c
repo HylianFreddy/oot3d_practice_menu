@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "advance.h"
 #include "menus/commands.h"
+#include "colview.h"
 
 static void Scene_RoomSelectorMenuShow(void);
 static void Scene_HideEntitiesMenuShow(void);
@@ -26,15 +27,6 @@ u8 waitingButtonRelease = 0;
 u8 haltActors = 0;
 
 static s32 selectedRoomNumber = -1;
-
-static Menu CollisionMenu = {
-    "Collision",
-    .nbItems = 1,
-    .initialCursorPos = 0,
-    {
-        {"TODO Placeholder", METHOD, .method = NULL}, //TODO: Collision options
-    }
-};
 
 static Menu RoomSelectorMenu = {
     "Room Selector",
@@ -90,7 +82,7 @@ Menu SceneMenu = {
         {"Set Flags", METHOD, .method = Scene_SetFlags},
         {"Clear Flags", METHOD, .method = Scene_ClearFlags},
         {"Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow},
-        {"Collision (TODO)", MENU, .menu = &CollisionMenu},
+        {"Collision Viewer", METHOD, .method = ColView_CollisionMenuShow},
         {"Free Camera", MENU, .menu = &FreeCamMenu},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
     }
@@ -295,14 +287,14 @@ static void Scene_ToggleFreeCamSetting(s32 selected) {
 }
 
 static void Scene_HideEntitiesMenuShow() {
-    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on = gStaticContext.renderGeometryDisable;
+    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on = gStaticContext.disableRoomDraw;
     ToggleMenuShow(&HideEntitiesMenu);
 }
 
 static void Scene_HideEntityToggle(s32 selected) {
     HideEntitiesMenu.items[selected].on ^= 1;
     if (selected == HIDEENTITIES_ROOMS) {
-        gStaticContext.renderGeometryDisable = HideEntitiesMenu.items[selected].on;
+        gStaticContext.disableRoomDraw = HideEntitiesMenu.items[selected].on;
     }
 }
 

@@ -22,21 +22,27 @@ hook_before_Play_Update:
 
 .global hook_after_Play_Update
 hook_after_Play_Update:
-    push {r0-r12, lr}
+    push {lr}
+    push {r0-r12}
     bl after_Play_Update
-    pop {r0-r12, lr}
+    pop {r0-r12}
+    @ Call Play_Draw
 .if (_USA_ || _EUR_)
-    b 0x2E25F0
+    bl 0x2E25F0
 .endif
 .if _JPN_
-    b 0x2E2108
+    bl 0x2E2108
 .endif
 .if _TWN_
-    b 0x2FC1A0
+    bl 0x2FC1A0
 .endif
 .if _KOR_
-    b 0x2FC0A0
+    bl 0x2FC0A0
 .endif
+    push {r0-r12}
+    bl after_Play_Draw
+    pop {r0-r12}
+    pop {pc}
 
 .global hook_PlaySound
 hook_PlaySound:

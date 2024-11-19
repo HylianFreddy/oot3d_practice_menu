@@ -32,9 +32,9 @@ void Actor_rDrawContext(GlobalContext *globalCtx,ActorContext *actorCtx) {
     // when "Hide Actors" is enabled, we disable it and then call CollisionCheck_DrawCollision manually
     u8 shouldHideActors = HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on;
     u8 exceptLink       = HideEntitiesMenu.items[HIDEENTITIES_EXCEPT_LINK].on;
-    u8 delayCollDisplay = shouldHideActors && gStaticContext.collisionDisplay;
+    u8 delayCollDisplay = shouldHideActors && gStaticContext.showColliders;
     if (delayCollDisplay) {
-        gStaticContext.collisionDisplay = 0;
+        gStaticContext.showColliders = 0;
     }
 
     s32 saModels3DCount_before_actors = gMainClass->sub180.saModels3DCount;
@@ -58,14 +58,14 @@ void Actor_rDrawContext(GlobalContext *globalCtx,ActorContext *actorCtx) {
     Player_SamPlusUnk = NULL;
 
     if (delayCollDisplay) {
-        gStaticContext.collisionDisplay = 1;
+        gStaticContext.showColliders = 1;
         CollisionCheck_DrawCollision(globalCtx,&globalCtx->colChkCtx);
     }
 
     if (haltActors) {
         // Zero out some collision display values so the colliders will
         // keep drawing correctly while actors are halted
-        gMainClass->sub32A0.saModelCount = 0;
-        gMainClass->sub32A0.polyCounter = 0;
+        gMainClass->sub32A0.coll3DModelsCount = 0;
+        gMainClass->sub32A0.coll2DModelsCount = 0;
     }
 }

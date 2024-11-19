@@ -21,6 +21,7 @@
 #include "actor.h"
 #include "camera.h"
 #include "commit_string.h"
+#include "colview.h"
 
 #define NOCLIP_SLOW_SPEED 8
 #define NOCLIP_FAST_SPEED 30
@@ -59,6 +60,11 @@ void after_Play_Update(GlobalContext* globalCtx) {
     }
     NoClip_Update();
     FreeCam_Update();
+}
+
+// Called after the `PlayState` draw function.
+void after_Play_Draw() {
+    ColView_DrawCollision();
 }
 
 // Called once for every update on any GameState, before all the functions in the Graph_ThreadEntry loop.
@@ -149,6 +155,13 @@ void advance_main(void) {
     }
 
     drawAlert();
+
+    if (CollisionOption(COLVIEW_SHOW_COLLISION) && gColViewDisplayCountInfo && isInGame()) {
+        s16 polyMax   = gMainClass->sub32A0.coll2DModelsMax;
+        s16 polyCount = gMainClass->sub32A0.coll2DModelsCount;
+        Draw_DrawFormattedString(3, SCREEN_BOT_HEIGHT - SPACING_Y, polyCount >= polyMax ? COLOR_RED : COLOR_WHITE,
+                                 "%d/%d", polyCount, polyMax);
+    }
 
     if(menuOpen) {
         menuShow(&gz3DMenu);
@@ -290,8 +303,10 @@ void autoLoadSaveFile(void) {
 // Called for every update cycle in Graph_ThreadEntry
 // Returning true will skip drawing the frame on screen, making the game speed-up significantly
 // (exactly how much depends on the CPU speed).
-// While holding ZL, a frame will only be drawn every 20 update cycles.
 s32 checkFastForward(void) {
-    static u32 updateCycleCounter = 0;
-    return shouldFastForward && (++updateCycleCounter % 20 != 0);
+    if (shouldFastForward) {
+        gFastForwardCycleCounter = (gFastForwardCycleCounter + 1) % FAST_FORWARD_CYCLE_MAX;
+        return gFastForwardCycleCounter != 0;
+    }
+    return FALSE;
 }

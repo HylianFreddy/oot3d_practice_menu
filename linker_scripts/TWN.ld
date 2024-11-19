@@ -10,6 +10,7 @@ SECTIONS
 	.patch_GameButtonInputs 0x104DE4 : {}
 	.patch_before_Play_Update 0x13A2C8 : {}
 	.patch_after_Play_Update 0x13A320 : {}
+	.patch_InitSubMainClass32A0 0x14BC1C : {}
 	.patch_ActorDrawContext 0x2FC894: {}
 	.patch_HaltActors 0x2FDD24 : {}
 	.patch_Gfx_Update 0x311CA8 : {}

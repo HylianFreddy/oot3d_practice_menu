@@ -10,6 +10,7 @@
 #include "draw.h"
 #include "advance.h"
 #include "camera.h"
+#include "colview.h"
 
 #include <string.h>
 
@@ -18,6 +19,7 @@ u32 frameAdvance = 0; //tells main to frame advance
 bool shouldDrawWatches = 1;
 u32 shouldAutoloadSavefile = 0;
 u32 shouldFastForward = 0;
+u32 gFastForwardCycleCounter = 0;
 
 PosRot storedPosRot[STORED_POS_COUNT];
 static u8 storedPosIndex = 0;
@@ -178,9 +180,13 @@ static void Command_FrameAdvance(void){
 
 // static void Command_RecordMacro(void);
 // static void Command_PlayMacro(void);
-// static void Command_CollisionView(void);
+
+static void Command_CollisionView(void) {
+    CollisionMenu.items[COLVIEW_SHOW_COLLISION].on ^= 1;
+}
+
 static void Command_HitboxView(void){
-    gStaticContext.collisionDisplay = !gStaticContext.collisionDisplay;
+    gStaticContext.showColliders ^= 1;
 }
 
 static void Command_ToggleWatches(void){
@@ -230,7 +236,8 @@ Command commandList[NUMBER_OF_COMMANDS] = {
     {"Next Position", 0, 0, { 0 }, Command_NextPos, COMMAND_PRESS_TYPE, 0, 0},
     {"Pause/Unpause", 0, 0, { 0 }, Command_PauseUnpause, COMMAND_PRESS_TYPE, 0, 0},
     {"Frame Advance", 0, 0, { 0 }, Command_FrameAdvance, COMMAND_PRESS_TYPE, 0, 0},
-    {"Toggle Hitbox View", 0, 0, { 0 }, Command_HitboxView, COMMAND_PRESS_TYPE, 0, 0},
+    {"Hitbox View", 0, 0, { 0 }, Command_HitboxView, COMMAND_PRESS_TYPE, 0, 0},
+    {"Collision View", 0, 0, { 0 }, Command_CollisionView, COMMAND_PRESS_TYPE, 0, 0},
     {"Toggle Watches", 0, 0, { 0 }, Command_ToggleWatches, COMMAND_PRESS_TYPE, 0, 0},
     {"Break Free", 0, 0, { 0 }, Command_Break, COMMAND_HOLD_TYPE, 0, 0},
     {"NoClip", 0, 0, { 0 }, Scene_NoClipToggle, COMMAND_PRESS_ONCE_TYPE, 0, 0},
