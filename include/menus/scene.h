@@ -6,6 +6,8 @@
 enum HideEntitiesEnum {
     HIDEENTITIES_ROOMS,
     HIDEENTITIES_ACTORS,
+    HIDEENTITIES_EXCEPT_LINK,
+    HIDEENTITIES_MAX,
 };
 
 enum FreeCamSetting {
