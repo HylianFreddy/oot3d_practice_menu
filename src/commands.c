@@ -9,47 +9,69 @@
 #include "z3D/z3D.h"
 #include "draw.h"
 #include "advance.h"
+#include "camera.h"
+#include "colview.h"
+
+#include <string.h>
 
 u32 pauseUnpause = 0; //tells main to pause/unpause
 u32 frameAdvance = 0; //tells main to frame advance
-bool menuOpen = 0;    //tells main to open menu
 bool shouldDrawWatches = 1;
+u32 shouldAutoloadSavefile = 0;
+u32 shouldFastForward = 0;
+u32 gFastForwardCycleCounter = 0;
 
 PosRot storedPosRot[STORED_POS_COUNT];
 static u8 storedPosIndex = 0;
 
+// Used to make the game ignore button presses that were used for specific commands.
+btn_t buttonsToIgnore = { 0 };
+
+// Button names in the same order as the `BUTTON_` values; 4 characters each
+static char buttonNames[15][COMMAND_BUTTON_NAME_LENGTH] = {
+    "A   ",    // BUTTON_A
+    "B   ",    // BUTTON_B
+    "Sel ",    // BUTTON_SELECT
+    "St  ",    // BUTTON_START
+    "\x1A   ", // BUTTON_RIGHT
+    "\x1B   ", // BUTTON_LEFT
+    "\x18   ", // BUTTON_UP
+    "\x19   ", // BUTTON_DOWN
+    "R   ",    // BUTTON_R1
+    "L   ",    // BUTTON_L1
+    "X   ",    // BUTTON_X
+    "Y   ",    // BUTTON_Y
+    "    ",    // Unused
+    "ZL  ",    // BUTTON_ZL
+    "ZR  ",    // BUTTON_ZR
+};
+
 static void Command_OpenMenu(void){
-    menuOpen = 1;
+    menuOpen = true;
 }
 
 static void Command_Break(void){
     if (isInGame()) {
-        /* TODO
-        if (z64_game.event_flag != -1)
-            z64_game.event_flag = 0x0000;
-        */
-
-        gGlobalContext->csCtx.state = 0x03;
-
-        /*if (gGlobalContext->msgMode != 0x00) {
-            gGlobalContext->msgMode = 0x36; // doesn't work to close text boxes
-            //z64_game.message_state_2 = 0x00;
-            //z64_game.message_state_3 = 0x02;
+        if (gGlobalContext->csCtx.state != CS_STATE_IDLE) {
+            gGlobalContext->csCtx.state = CS_STATE_STOP;
         }
-        if (aggressive) {
-            z64_game.camera_mode = 0x0001;
-            z64_game.camera_flag_1 = 0x0000;
-            if (z64_link.action != 0x00)
-                z64_link.action = 0x07;
-        }*/
+        if (gGlobalContext->subCameras[0].timer != -1) {
+            gGlobalContext->subCameras[0].timer = 0;
+        }
 
+        // "aggressive" break
+#if !Version_KOR && !Version_TWN
+        Message_CloseTextbox(gGlobalContext);
+#endif
+        gGlobalContext->mainCamera.setting   = 1;
+        gGlobalContext->mainCamera.animState = 0;
         PLAYER->stateFlags1 = 0x0;
         PLAYER->stateFlags2 = 0x0;
-        if (gGlobalContext->nextEntranceIndex != 0xFFFF && gGlobalContext->sceneLoadFlag == 0x14) {
-            gGlobalContext->sceneLoadFlag = 0xEC; //hacky solution to avoid softlocks when warping during fade-in
+        if (PLAYER->csAction != 0) {
+            PLAYER->csAction = 7;
         }
-        alertMessage = "Break";
-        alertFrames = 20;
+
+        setAlert("Break", 40);
     }
 }
 
@@ -68,15 +90,18 @@ static void Command_RunFast(void){
 }
 
 static void Command_Reset(void){
-    if (isInGame()) EntranceWarp(0xFFFF, gSaveContext.linkAge, -1, 0);
+    if (isInGame()){
+        gSaveContext.respawnFlag = 0;
+        EntranceWarp(0xFFFF, 0, -1, 0, FALSE);
+    }
 }
 
 static void Command_ReloadScene(void){
     if (isInGame()) {
         if(gGlobalContext->nextEntranceIndex != -1)
-            EntranceWarp(gGlobalContext->nextEntranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0);
+            EntranceWarp(gGlobalContext->nextEntranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
         else
-            EntranceWarp(gSaveContext.entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0);
+            EntranceWarp(gSaveContext.entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
     }
 }
 
@@ -85,16 +110,15 @@ static void Command_VoidOut(void){
         gSaveContext.respawn[RESPAWN_MODE_DOWN].tempSwchFlags = gGlobalContext->actorCtx.flags.tempSwch;
         gSaveContext.respawn[RESPAWN_MODE_DOWN].tempCollectFlags = gGlobalContext->actorCtx.flags.tempCollect;
         gSaveContext.respawnFlag = 1;
-        if (gGlobalContext->sceneLoadFlag == 0 || gGlobalContext->sceneLoadFlag == -20) {
-            EntranceWarp(gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0);
+        if (gGlobalContext->transitionTrigger == 0 || gGlobalContext->transitionTrigger == -20) {
+            EntranceWarp(gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
         }
     }
 }
 
 static void Command_ToggleAge(void){
     gGlobalContext->linkAgeOnLoad = 1 - gGlobalContext->linkAgeOnLoad;
-    alertMessage = gGlobalContext->linkAgeOnLoad ? "Child on next load" : "Adult on next load";
-    alertFrames = menuOpen ? 10 : 75;
+    setAlert(gGlobalContext->linkAgeOnLoad ? "Child on next load" : "Adult on next load", 75);
 }
 
 // static void Command_SaveState(void);
@@ -105,9 +129,9 @@ static void Command_StorePos(void){
         storedPosRot[storedPosIndex].pos = PLAYER->actor.world.pos;
         storedPosRot[storedPosIndex].rot = PLAYER->actor.world.rot;
 
-        alertMessage = "Stored position X";
-        alertMessage[16] = storedPosIndex + '0';
-        alertFrames = menuOpen ? 10 : 90;
+        char* alert = "Stored position X";
+        alert[16] = storedPosIndex + '0';
+        setAlert(alert, 90);
     }
 }
 
@@ -119,16 +143,16 @@ static void Command_LoadPos(void){
         PLAYER->actor.focus.rot = storedPosRot[storedPosIndex].rot;
         PLAYER->actor.shape.rot = storedPosRot[storedPosIndex].rot;
 
-        alertMessage = "Loaded position X";
-        alertMessage[16] = storedPosIndex + '0';
-        alertFrames = menuOpen ? 10 : 90;
+        char* alert = "Loaded position X";
+        alert[16] = storedPosIndex + '0';
+        setAlert(alert, 90);
     }
 }
 
 static void AlertPosIndex(void) {
-    alertMessage = "Position X";
-    alertMessage[9] = storedPosIndex + '0';
-    alertFrames = menuOpen ? 10 : 75;
+    char* alert = "Position X";
+    alert[9] = storedPosIndex + '0';
+    setAlert(alert, 75);
 }
 
 static void Command_PreviousPos(void) {
@@ -156,13 +180,45 @@ static void Command_FrameAdvance(void){
 
 // static void Command_RecordMacro(void);
 // static void Command_PlayMacro(void);
-// static void Command_CollisionView(void);
+
+static void Command_CollisionView(void) {
+    CollisionMenu.items[COLVIEW_SHOW_COLLISION].on ^= 1;
+}
+
 static void Command_HitboxView(void){
-    gStaticContext.collisionDisplay = !gStaticContext.collisionDisplay;
+    gStaticContext.showColliders ^= 1;
 }
 
 static void Command_ToggleWatches(void){
     shouldDrawWatches = !shouldDrawWatches;
+    if (advance_ctx.advance_state == PAUSED) {
+        Watches_DrawWatches(shouldDrawWatches ? COLOR_WHITE : COLOR_BLACK);
+    }
+}
+
+static void Command_FreeCam(void){
+    if (!freeCam.enabled) {
+        FreeCam_Toggle();
+    } else if (freeCam.locked) {
+        FreeCam_ToggleLock();
+    } else {
+        return;
+    }
+
+    if (advance_ctx.advance_state == PAUSED) {
+        // Unpause automatically when entering FreeCam
+        pauseUnpause = 1;
+    }
+
+    waitingButtonRelease = 1;
+}
+
+static void Command_TriggerSavefileAutoload(void){
+    shouldAutoloadSavefile = 1;
+}
+
+static void Command_TriggerFastForward(void){
+    shouldFastForward = 1;
 }
 
 Command commandList[NUMBER_OF_COMMANDS] = {
@@ -180,13 +236,23 @@ Command commandList[NUMBER_OF_COMMANDS] = {
     {"Next Position", 0, 0, { 0 }, Command_NextPos, COMMAND_PRESS_TYPE, 0, 0},
     {"Pause/Unpause", 0, 0, { 0 }, Command_PauseUnpause, COMMAND_PRESS_TYPE, 0, 0},
     {"Frame Advance", 0, 0, { 0 }, Command_FrameAdvance, COMMAND_PRESS_TYPE, 0, 0},
-    {"Toggle Hitbox View", 0, 0, { 0 }, Command_HitboxView, COMMAND_PRESS_TYPE, 0, 0},
+    {"Hitbox View", 0, 0, { 0 }, Command_HitboxView, COMMAND_PRESS_TYPE, 0, 0},
+    {"Collision View", 0, 0, { 0 }, Command_CollisionView, COMMAND_PRESS_TYPE, 0, 0},
     {"Toggle Watches", 0, 0, { 0 }, Command_ToggleWatches, COMMAND_PRESS_TYPE, 0, 0},
     {"Break Free", 0, 0, { 0 }, Command_Break, COMMAND_HOLD_TYPE, 0, 0},
     {"NoClip", 0, 0, { 0 }, Scene_NoClipToggle, COMMAND_PRESS_ONCE_TYPE, 0, 0},
+    {"Free Camera", 0, 0, { 0 }, Command_FreeCam, COMMAND_PRESS_ONCE_TYPE, 0, 0},
+    {"Autoload Savefile", 0, 0, { 0 }, Command_TriggerSavefileAutoload, COMMAND_HOLD_TYPE, 0, 0},
+    {"Fast Forward", 0, 0, { 0 }, Command_TriggerFastForward, COMMAND_HOLD_TYPE, 0, 0},
 };
 
 static void Commands_ListInitDefaults(void){
+    // reset all commands for when default settings are restored
+    for(u32 i = 0; i < NUMBER_OF_COMMANDS; ++i) {
+        commandList[i].comboLen = 0;
+        commandList[i].strict = 0;
+    }
+
     // storing all previous buttons for every index is needed to make the strict commands work
     commandList[COMMAND_OPEN_MENU].comboLen = 3;
     commandList[COMMAND_OPEN_MENU].inputs[0] = BUTTON_L1;
@@ -248,14 +314,9 @@ static void Commands_ListInitDefaults(void){
     commandList[COMMAND_BREAK].inputs[3] = BUTTON_Y | BUTTON_X | BUTTON_B | BUTTON_A;
     commandList[COMMAND_BREAK].strict = 0;
 
-    // reset the other commands for when default settings are restored
-    for(u32 i = 0; i < NUMBER_OF_COMMANDS; ++i){
-        if ((i > COMMAND_RUN_FAST) && i != COMMAND_VOID_OUT &&
-            (i < COMMAND_STORE_POS || i > COMMAND_FRAME_ADVANCE) && i != COMMAND_BREAK){
-            commandList[i].comboLen = 0;
-            commandList[i].strict = 0;
-        }
-    }
+    commandList[COMMAND_FAST_FORWARD].comboLen = 1;
+    commandList[COMMAND_FAST_FORWARD].inputs[0] = BUTTON_ZL;
+    commandList[COMMAND_FAST_FORWARD].strict = 0;
 }
 
 u32 commandInit = 0;
@@ -265,6 +326,10 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
         commandInit = 1;
     }
 
+    // Reset these every time
+    shouldAutoloadSavefile = 0;
+    shouldFastForward = 0;
+
     if (commandList[COMMAND_OPEN_MENU].comboLen == 0) { // prevent getting locked out of the menu
         commandList[COMMAND_OPEN_MENU].comboLen = 3;
         commandList[COMMAND_OPEN_MENU].inputs[0] = BUTTON_L1;
@@ -273,96 +338,88 @@ void Command_UpdateCommands(u32 curInputs){ //curInputs should be all the held a
         commandList[COMMAND_OPEN_MENU].strict = 0;
     }
 
-    for (int i = 0; i < NUMBER_OF_COMMANDS; i++){
-        if (commandList[i].comboLen == 0) continue;
-        if ((commandList[i].strict && curInputs == commandList[i].inputs[commandList[i].curIdx]) ||
-            (!commandList[i].strict && (curInputs & commandList[i].inputs[commandList[i].curIdx]) == commandList[i].inputs[commandList[i].curIdx])){ //case where we hit the new button
+    u8 executedPressCommand = 0;
 
-            commandList[i].curIdx++;
-            if(commandList[i].curIdx == commandList[i].comboLen){ //time to execute the command
-                if (commandList[i].type == COMMAND_HOLD_TYPE){
-                    commandList[i].method();
-                    commandList[i].curIdx = commandList[i].comboLen - 1;
+    for (int i = 0; i < NUMBER_OF_COMMANDS; i++) {
+        Command* cmd = &commandList[i];
+
+        if (cmd->comboLen == 0 ||
+            (i == COMMAND_AUTOLOAD_SAVEFILE && (gSaveContext.entranceIndex != 0x629 || gSaveContext.cutsceneIndex != 0xFFF3))
+        ) {
+            continue;
+        }
+
+        u32 nextInputs     = cmd->inputs[cmd->curIdx];
+        u32 previousInputs = (cmd->curIdx > 0) ? cmd->inputs[cmd->curIdx - 1] : 0;
+
+        if ((cmd->strict && curInputs == nextInputs) ||
+            (!cmd->strict && (curInputs & nextInputs) == nextInputs)) { // case where we hit the new button
+
+            if (cmd->curIdx == cmd->comboLen - 1) { // time to execute the command
+                switch (cmd->type) {
+                    case COMMAND_HOLD_TYPE:
+                        cmd->method();
+                        break;
+                    case COMMAND_PRESS_ONCE_TYPE:
+                        cmd->curIdx = 0;
+                        // fallthrough
+                    case COMMAND_PRESS_TYPE:
+                        // execute at most one "press" or "press_once" command per update cycle
+                        if (cmd->waiting == 0 && !executedPressCommand) {
+                            cmd->method();
+                            cmd->waiting = 1;
+                            executedPressCommand = 1;
+                        }
+                        break;
                 }
-                else if(commandList[i].type == COMMAND_PRESS_ONCE_TYPE){
-                    commandList[i].method();
-                    commandList[i].curIdx = 0;
-                }
-                else if(commandList[i].type == COMMAND_PRESS_TYPE){
-                    if(commandList[i].waiting == 0){
-                        commandList[i].method();
-                        commandList[i].waiting = 1;
-                    }
-                    commandList[i].curIdx = commandList[i].comboLen - 1;
-                }
+                u32 lastButton = cmd->inputs[cmd->comboLen - 1] &
+                                ~(cmd->comboLen > 1 ? cmd->inputs[cmd->comboLen - 2] : 0);
+                Commands_SetButtonsToIgnore(lastButton);
+            } else {
+                cmd->curIdx++;
             }
-        }
-        else if(commandList[i].curIdx > 0 && ((commandList[i].strict && curInputs == commandList[i].inputs[commandList[i].curIdx - 1]) ||
-                (!commandList[i].strict && (curInputs & commandList[i].inputs[commandList[i].curIdx - 1]) == commandList[i].inputs[commandList[i].curIdx - 1]))){ //case where inputs still held
+        } else if (cmd->curIdx > 0 &&
+                   ((cmd->strict && curInputs == previousInputs) ||
+                    (!cmd->strict && (curInputs & previousInputs) == previousInputs))) { // case where inputs still held
 
-            commandList[i].waiting = 0;
-        }
-        else { //case where command resets
-            commandList[i].curIdx = 0;
-            commandList[i].waiting = 0;
+            cmd->waiting = 0;
+        } else { // case where command resets
+            cmd->curIdx  = 0;
+            cmd->waiting = 0;
         }
 
-        if (noClip || freeCam) break; // only the "open menu" command should work during noclip mode
+        if (noClip || FreeCam_Moving)
+            break; // only the "open menu" command should work during noclip mode
     }
 }
 
-void Commands_ComboToString(char* buf, u32 commandIdx){
+void Commands_ComboToString(char buf[COMMAND_COMBO_STRING_SIZE], u32 commandIdx){
     u32 prevInput = 0;
+    u32 charIdx = 0;
+
+    if (commandList[commandIdx].comboLen == 0) {
+        // Set combo string to whitespaces to overwrite previously drawn characters
+        memset(buf, ' ', COMMAND_COMBO_STRING_SIZE);
+        buf[COMMAND_COMBO_STRING_SIZE - 1] = '\x00';
+        return;
+    }
 
     for (u32 i = 0; i < commandList[commandIdx].comboLen; ++i){
         u32 newInput = commandList[commandIdx].inputs[i] & ~prevInput;
-        switch(newInput){
-            case(BUTTON_A):
-                buf[i] = 'A';
-                break;
-            case(BUTTON_B):
-                buf[i] = 'B';
-                break;
-            case(BUTTON_X):
-                buf[i] = 'X';
-                break;
-            case(BUTTON_Y):
-                buf[i] = 'Y';
-                break;
-            case(BUTTON_START):
-                buf[i] = 'S';
-                break;
-            case(BUTTON_SELECT):
-                buf[i] = 's';
-                break;
-            case(BUTTON_UP):
-                buf[i] = '^';
-                break;
-            case(BUTTON_DOWN):
-                buf[i] = 'v';
-                break;
-            case(BUTTON_LEFT):
-                buf[i] = '<';
-                break;
-            case(BUTTON_RIGHT):
-                buf[i] = '>';
-                break;
-            case(BUTTON_L1):
-                buf[i] = 'L';
-                break;
-            case(BUTTON_R1):
-                buf[i] = 'R';
-                break;
-        }
+        u32 btnIdx = __builtin_ctz(newInput);
+        memcpy(buf + charIdx, buttonNames[btnIdx], COMMAND_BUTTON_NAME_LENGTH);
+        charIdx += COMMAND_BUTTON_NAME_LENGTH;
         prevInput = commandList[commandIdx].inputs[i];
     }
+
+    buf[charIdx - 1] = '\x00';
 }
 
 static void Commands_EditCommand(u32 commandIndex){
     u32 selected = 0;
     u32 editing = 0;
     u32 curColor = COLOR_WHITE;
-    char comboString[COMMAND_COMBO_MAX + 1];
+    char comboString[COMMAND_COMBO_STRING_SIZE];
     u32 prevInput[COMMAND_COMBO_MAX] = {0};
 
     Draw_Lock();
@@ -376,11 +433,7 @@ static void Commands_EditCommand(u32 commandIndex){
         Draw_DrawFormattedString(10, 10, COLOR_TITLE, "Edit Command: %s", commandList[commandIndex].title);
 
         Commands_ComboToString(comboString, commandIndex);
-        Draw_DrawFormattedString(30, 30, curColor, "Combo: %c  %c  %c  %c",
-            commandList[commandIndex].comboLen >= 1 ? comboString[0] : ' ',
-            commandList[commandIndex].comboLen >= 2 ? comboString[1] : ' ',
-            commandList[commandIndex].comboLen >= 3 ? comboString[2] : ' ',
-            commandList[commandIndex].comboLen >= 4 ? comboString[3] : ' ');
+        Draw_DrawFormattedString(30, 30, curColor, "Combo: %s", comboString);
         Draw_DrawCharacter(10, 30, COLOR_TITLE, selected == COMMAND_EDIT_COMBO ? '>' : ' ');
 
         Draw_DrawFormattedString(30, 30 + SPACING_Y, COLOR_WHITE, "Type: %s", commandList[commandIndex].strict ? "Strict " : "Relaxed");
@@ -418,7 +471,7 @@ static void Commands_EditCommand(u32 commandIndex){
             else if (pressed & BUTTON_B){
                 break;
             }
-            else if (pressed & (BUTTON_DOWN | BUTTON_UP)){
+            else if (pressed & (PAD_DOWN | PAD_UP)){
                 selected = (selected + 1) % 2;
             }
         }
@@ -434,6 +487,11 @@ static void Commands_EditCommand(u32 commandIndex){
                     editing = (secs > 1);
                     curColor = (editing ? COLOR_RED : COLOR_WHITE);
                     continue;
+                }
+
+                // ignore circle pad inputs
+                if (pressed & CPAD_ANY) {
+                    break;
                 }
 
                 // buttons have to be pressed one at a time, ignore multiple button inputs
@@ -471,14 +529,14 @@ static void Commands_EditCommand(u32 commandIndex){
             }
         }
 
-    } while(menuOpen);
+    } while(onMenuLoop());
     Draw_ClearFramebuffer();
 }
 
 void Commands_ShowCommandsMenu(void){
     static s32 selected = 0, page = 0, pagePrev = 0;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = 0, page = 0, pagePrev = 0;
     }
 
@@ -498,16 +556,12 @@ void Commands_ShowCommandsMenu(void){
 
         for (s32 i = 0; i < COMMAND_MENU_MAX_SHOW && page * COMMAND_MENU_MAX_SHOW + i < NUMBER_OF_COMMANDS; ++i)
         {
-            char comboString[COMMAND_COMBO_MAX + 1];
+            char comboString[COMMAND_COMBO_STRING_SIZE];
             s32 j = page * COMMAND_MENU_MAX_SHOW + i;
             Commands_ComboToString(comboString, j);
-            Draw_DrawFormattedString(30, 30 + i * SPACING_Y, COLOR_WHITE, "%s: %c  %c  %c  %c",
-                commandList[j].title,
-                commandList[j].comboLen >= 1 ? comboString[0] : ' ',
-                commandList[j].comboLen >= 2 ? comboString[1] : ' ',
-                commandList[j].comboLen >= 3 ? comboString[2] : ' ',
-                commandList[j].comboLen >= 4 ? comboString[3] : ' ');
-            Draw_DrawString(200, 30 + i * SPACING_Y, COLOR_WHITE, commandList[j].strict ? "Strict " : "Relaxed");
+            Draw_DrawFormattedString(30,  30 + i * SPACING_Y, COLOR_WHITE, "%s: ", commandList[j].title);
+            Draw_DrawFormattedString(160, 30 + i * SPACING_Y, COLOR_WHITE, "%s",   comboString);
+            Draw_DrawString(260, 30 + i * SPACING_Y, COLOR_WHITE, commandList[j].strict ? "Strict " : "Relaxed");
             Draw_DrawCharacter(10, 30 + i * SPACING_Y, COLOR_TITLE, j == selected ? '>' : ' ');
         }
 
@@ -533,23 +587,26 @@ void Commands_ShowCommandsMenu(void){
             Draw_FlushFramebuffer();
             Draw_Unlock();
         }
+        else if (pressed & BUTTON_L1)
+        {
+            selected = 0;
+        }
         else if(pressed & BUTTON_Y)
         {
             commandList[selected].method();
-            drawAlert();
         }
-        else if(pressed & BUTTON_DOWN)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected -= COMMAND_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             if(selected + COMMAND_MENU_MAX_SHOW < NUMBER_OF_COMMANDS)
                 selected += COMMAND_MENU_MAX_SHOW;
             else if((NUMBER_OF_COMMANDS - 1) / COMMAND_MENU_MAX_SHOW == page)
@@ -567,5 +624,25 @@ void Commands_ShowCommandsMenu(void){
 
         pagePrev = page;
         page = selected / COMMAND_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
+}
+
+void Commands_SetButtonsToIgnore(u32 buttons) {
+    buttonsToIgnore.val |= buttons;
+    if (buttonsToIgnore.sel) {
+        // Save menu is programmed to open on Start press and something maps Select to Start.
+        // So in order to ignore Select you must ignore Start too.
+        buttonsToIgnore.strt = 1;
+    }
+}
+
+void Commands_OverrideGameButtonInputs(btn_t* inputs) { // inputs[0]: held, inputs[1]: pressed
+    if (buttonsToIgnore.val) {
+        if (inputs[0].val & buttonsToIgnore.val) {
+            inputs[0].val &= ~buttonsToIgnore.val;
+            inputs[1].val &= ~buttonsToIgnore.val;
+        } else {
+            buttonsToIgnore.val = 0;
+        }
+    }
 }

@@ -38,25 +38,28 @@ INCLUDES    +=  assets
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-USA         := USA
-EUR         := EUR
-JP          := JP
+IS_USA      := 0
+IS_EUR      := 0
+IS_JPN      := 0
+IS_KOR      := 0
+IS_TWN      := 0
 REGION      := USA
 
-ifeq ($(USA), $(REGION))
-  LINK_SCRIPT 	:= oot.ld
-  ASFLAGS += -D _USA_=1 -D _JP_=0 -D _EUR_=0
-endif
-ifeq ($(JP), $(REGION))
-  LINK_SCRIPT 	:= oot_j.ld
-  ASFLAGS += -D _USA_=0 -D _JP_=1 -D _EUR_=0
-endif
-ifeq ($(EUR), $(REGION))
-  LINK_SCRIPT 	:= oot_e.ld
-  ASFLAGS += -D _USA_=0 -D _JP_=0 -D _EUR_=1
+ifeq ($(REGION), USA)
+  IS_USA := 1
+else ifeq ($(REGION), JPN)
+  IS_JPN := 1
+else ifeq ($(REGION), EUR)
+  IS_EUR := 1
+else ifeq ($(REGION), KOR)
+  IS_KOR := 1
+else ifeq ($(REGION), TWN)
+  IS_TWN := 1
+else
+  $(error "Invalid region!")
 endif
 
-VERFLAGS := -D USA=$(USA) -D JP=$(JP) -D EUR=$(EUR) -D REGION=$(REGION)
+LINK_SCRIPT	:= linker_scripts/$(REGION).ld
 
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=softfp -mtp=soft -mfpu=vfpv2
 
@@ -64,25 +67,25 @@ CFLAGS	:=	-g -Wall -mword-relocations -D DEBUG \
 			-fomit-frame-pointer -ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS $(VERFLAGS)
+CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -O1
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
-ASFLAGS	+=	-g $(ARCH) $(VERFLAGS)
-LDFLAGS	=	-g $(ARCH) -Wl,-Map,$(notdir $*.map) -T $(TOPDIR)/$(LINK_SCRIPT) -nostdlib $(VERFLAGS) -lgcc
+ASFLAGS	+=	-g $(ARCH)
+LDFLAGS	=	-g $(ARCH) -Wl,-Map,$(notdir $*.map) -T $(TOPDIR)/$(LINK_SCRIPT) -nostdlib -lgcc
 
 LIBS	:=	-lgcc
 
+# Define version for the Assembly code
+ASFLAGS	+=	-D _USA_=$(IS_USA) -D _EUR_=$(IS_EUR) -D _JPN_=$(IS_JPN) \
+			-D _KOR_=$(IS_KOR) -D _TWN_=$(IS_TWN)
+
 # Define version for the C code
-ifeq ($(REGION), $(USA))
-	CFLAGS += -g -DVersion_USA
-endif
-ifeq ($(REGION), $(JP))
-	CFLAGS += -g -DVersion_JP
-endif
-ifeq ($(REGION), $(EUR))
-	CFLAGS += -g -DVersion_EUR
-endif
+CFLAGS	+=	-D Version_USA=$(IS_USA) -D Version_EUR=$(IS_EUR) -D Version_JPN=$(IS_JPN) \
+			-D Version_KOR=$(IS_KOR) -D Version_TWN=$(IS_TWN)
+
+GZ3D_EXTRAS ?= 0
+CFLAGS += -D GZ3D_EXTRAS=$(GZ3D_EXTRAS)
 
 citra ?= 0
 ifneq ($(citra), 0)
@@ -162,11 +165,10 @@ endif
 all: $(BUILD)
 
 $(BUILD):
+	@$(TOPDIR)/write_commit_string.sh
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@if ! python3 patch.py $(OUTPUT).elf; then \
-		python patch.py $(OUTPUT).elf; \
-	fi
+	@python patch.py $(OUTPUT).elf $(REGION) $(citra)
 
 #---------------------------------------------------------------------------------
 clean:

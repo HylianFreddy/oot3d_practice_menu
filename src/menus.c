@@ -30,6 +30,9 @@
 #include "menu.h"
 #include "draw.h"
 #include "z3D/z3D.h"
+#include "input.h"
+#include "common.h"
+#include "commit_string.h"
 
 #include "menus/warps.h"
 #include "menus/scene.h"
@@ -42,9 +45,56 @@
 #include "menus/commands.h"
 #include "menus/settings.h"
 
+#if GZ3D_EXTRAS
+static u32 sfxId = 0;
+AmountMenu PlaySFXMenu;
+
+void PlaySFX(s32 selected) {
+#if Version_KOR || Version_TWN
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
+    sfxId = PlaySFXMenu.items[selected].amount;
+    PlaySound(0x1000000 + sfxId);
+}
+
+AmountMenu PlaySFXMenu = {
+    "Play SFX",
+    .nbItems = 1,
+    .initialCursorPos = 0,
+    {
+        {.amount = 0, .isSigned = false, .min = 0, .max = 0, .nDigits = 4, .hex = true,
+            .title = "SFX ID", .method = PlaySFX},
+    }
+};
+
+void showSFXMenu(void) {
+    AmountMenuShow(&PlaySFXMenu);
+}
+
+void quitGame(void) {
+    if (!gGlobalContext) {
+        return;
+    }
+    if (!ADDITIONAL_FLAG_BUTTON) {
+        setAlert("Hold R", 90);
+        return;
+    }
+
+#if Version_KOR || Version_TWN
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
+    gGlobalContext->state.running = 0;
+    gGlobalContext->state.init = 0;
+    *((u8*)0x5C6605) = 1; // break loop calling Graph_ThreadEntry
+    menuOpen = false;
+}
+#endif // GZ3D_EXTRAS
+
 Menu gz3DMenu = {
-    "Practice Menu",
-    .nbItems = 10,
+    "Practice Menu (" COMMIT_STRING ")",
+    .nbItems = 11 + (!!GZ3D_EXTRAS * 2),
     .initialCursorPos = 0,
     {
         { "Warps", MENU, .menu = &WarpsMenu },
@@ -53,9 +103,14 @@ Menu gz3DMenu = {
         { "Inventory", MENU, .menu = &InventoryMenu },
         { "Equips", METHOD, .method = Equips_ShowEquipsMenu },
         { "File", METHOD, .method = File_ShowFileMenu },
-        { "Watches", METHOD, .method = &WatchesMenuFunc },
+        { "Watches", METHOD, .method = Watches_ShowWatchesMenu },
         { "Debug", MENU, .menu = &DebugMenu },
         { "Commands", METHOD, .method = Commands_ShowCommandsMenu },
-        { "Settings", MENU, .menu = &SettingsMenu },
+        { "Settings", METHOD, .method = Settings_ShowSettingsMenu },
+        { "Profiles", MENU, .menu = &ProfilesMenu },
+#if GZ3D_EXTRAS
+        { "Play SFX", METHOD, .method = showSFXMenu },
+        { "Quit Game", METHOD, .method = quitGame },
+#endif // GZ3D_EXTRAS
     }
 };

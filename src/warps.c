@@ -27,9 +27,12 @@ AmountMenu WarpsOverridesMenu = {
     .nbItems = 3,
     .initialCursorPos = 0,
     {
-        {0, 0,  6, "Game Mode", .method = Warps_OverrideGameMode},
-        {0, 0, 14, "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
-        {0, 0,  3, "ZoneoutType/RespawnFlag - POSITIVE", .method = Warps_SetRespawnFlag},
+        {.amount = 0, .isSigned = false, .min =  0, .max =  6, .nDigits = 1, .hex = false,
+            .title = "Game Mode", .method = Warps_OverrideGameMode},
+        {.amount = 0, .isSigned = false, .min =  0, .max = 14, .nDigits = 2, .hex = false,
+            .title = "Scene Setup Index - Override OFF", .method = Warps_OverrideSceneSetupIndex},
+        {.amount = 0, .isSigned = true,  .min = -3, .max =  3, .nDigits = 1, .hex = false,
+            .title = "ZoneoutType/RespawnFlag", .method = Warps_SetRespawnFlag},
     }
 };
 
@@ -198,7 +201,7 @@ const s32 WarpsPlacesMenuSize = 7;
 void WarpsPlacesMenuShow(void){
     static s32 selected = 0;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = 0;
     }
 
@@ -239,11 +242,14 @@ void WarpsPlacesMenuShow(void){
             Draw_FlushFramebuffer();
             Draw_Unlock();
         }
-        else if(pressed & BUTTON_DOWN)
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
+        }
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
@@ -252,7 +258,7 @@ void WarpsPlacesMenuShow(void){
             selected = WarpsPlacesMenuSize - 1;
         else if(selected >= WarpsPlacesMenuSize) selected = 0;
 
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void ManuallyEnterEntranceIndex(void){
@@ -260,21 +266,17 @@ void ManuallyEnterEntranceIndex(void){
 }
 
 void ClearCutscenePointer(void){
-    static u32 nullCS[] = { 0, 0 };
+    // Cutscene script starts 8 bytes after the address written at `csCtx.segment`
+    // (everything inside the scene segment seems to behave like this for some reason)
+    // So the 3rd and 4th zeroes here will be the number of cutscene commands and cutscene frames.
+    static u32 nullCS[] = { 0, 0, 0, 0 };
     gGlobalContext->csCtx.segment = &nullCS;
 }
 
 void Warps_OverridesMenuInit(void){
     WarpsOverridesMenu.items[WARPS_GAME_MODE].amount = gSaveContext.gameMode;
     WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount = gSaveContext.sceneSetupIndex;
-    if (gSaveContext.respawnFlag >= 0) {
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = gSaveContext.respawnFlag;
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - POSITIVE";
-    }
-    else {
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = -(gSaveContext.respawnFlag);
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - NEGATIVE";
-    }
+    WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount = gSaveContext.respawnFlag;
 }
 
 void WarpsOverridesMenuShow(void){
@@ -304,12 +306,5 @@ void Warps_OverrideSceneSetup(void){
 }
 
 void Warps_SetRespawnFlag(s32 selected) {
-    if (ADDITIONAL_FLAG_BUTTON) {
-        gSaveContext.respawnFlag = -(WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount);
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - NEGATIVE";
-    }
-    else {
-        gSaveContext.respawnFlag = WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount;
-        WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].title = "ZoneoutType/RespawnFlag - POSITIVE";
-    }
+    gSaveContext.respawnFlag = (s16)WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount;
 }

@@ -1,0 +1,4 @@
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# EOL normalization
+206bb81de5d569e31342510539c6a0cf021942c2

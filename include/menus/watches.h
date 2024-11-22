@@ -5,18 +5,28 @@
 #define WATCHES_MAX 15
 #define WATCHES_MAXNAME 6
 
-typedef enum {
-    S8 = 0,
-    U8,
-    X8,
-    S16,
-    U16,
-    X16,
-    S32,
-    U32,
-    X32,
-    F32,
+typedef enum WatchType {
+    WATCHTYPE_S8,
+    WATCHTYPE_U8,
+    WATCHTYPE_X8,
+    WATCHTYPE_S16,
+    WATCHTYPE_U16,
+    WATCHTYPE_X16,
+    WATCHTYPE_S32,
+    WATCHTYPE_U32,
+    WATCHTYPE_X32,
+    WATCHTYPE_F32,
+    WATCHTYPE_MAX,
 } WatchType;
+
+enum WatchEditOption {
+    WATCHEDIT_NAME,
+    WATCHEDIT_TYPE,
+    WATCHEDIT_ADDR,
+    WATCHEDIT_POS,
+    WATCHEDIT_DISPLAY,
+    WATCHEDIT_MAX,
+};
 
 typedef struct Watch {
     WatchType type;
@@ -30,5 +40,5 @@ typedef struct Watch {
 extern Watch watches[WATCHES_MAX];
 extern bool shouldDrawWatches;
 
-void WatchesMenuFunc(void);
-//void Watches_ToggleWatches(void);
+void Watches_ShowWatchesMenu(void);
+void Watches_DrawWatches(u32 color);

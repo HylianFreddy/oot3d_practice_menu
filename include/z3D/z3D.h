@@ -6,8 +6,13 @@
 // #include "z3Dequipment.h"
 #include "z3Dcutscene.h"
 #include "z3Ditem.h"
+#include "z3Dbgcheck.h"
+#include "color.h"
 
 // #include "hid.h"
+
+#define TRUE 1
+#define FALSE 0
 
 typedef struct {
     /* 0x00 */ u8  buttonItems[5]; //B,Y,X,I,II
@@ -54,13 +59,13 @@ typedef enum {
 } ButtonStatus;
 
 // Save Context (ram start: 0x00587958)
-typedef struct {
+typedef struct SaveContext {
     /* 0x0000 */ s32          entranceIndex;
     /* 0x0004 */ s32          linkAge; // 0: Adult; 1: Child
     /* 0x0008 */ s32          cutsceneIndex;
     /* 0x000C */ u16          dayTime; // "zelda_time"
     /* 0x000E */ u8           masterQuestFlag;
-    /* 0x000F */ char         unk_F[0x0001];
+    /* 0x000F */ u8           motionControlSetting;
     /* 0x0010 */ s32          nightFlag;
     /* 0x0014 */ s32          unk_14;
     /* 0x0018 */ s32          unk_18;
@@ -155,7 +160,8 @@ typedef struct {
     /* 0x14F0 */ RespawnData  respawn[3]; // "restart_data"
     /* 0x1544 */ char         unk_1544[0x000E];
     /* 0x1552 */ s16          nayrusLoveTimer;
-    /* 0x1554 */ char         unk_1554[0x0008];
+    /* 0x1554 */ char         unk_1554[0x0004];
+    /* 0x1558 */ u32          seqIndex;
     /* 0x155C */ s16          rupeeAccumulator;
     /* 0x155E */ s16          timer1State;
     /* 0x1560 */ s16          timer1Value;
@@ -167,9 +173,12 @@ typedef struct {
     /* 0x156F */ u8           buttonStatus[5];
     /* 0x1574 */ char         unk_1574[1];
     /* 0x1575 */ u8           ocarinaButtonStatus;
-    /* 0x1576 */ char         unk_1576[0x000D];
-    /* 0x1584 */ u16          magicMeterSize;
-    /* 0x1586 */ char         unk_1586[0x0004];
+    /* 0x1576 */ char         unk_1576[0x0009];
+    /* 0x1580 */ s16          magicState;
+    /* 0x1582 */ s16          prevMagicState;
+    /* 0x1584 */ u16          magicCapacity; // magicMeterSize
+    /* 0x1586 */ s16          magicFillTarget;
+    /* 0x1588 */ s16          magicTarget;
     /* 0x158A */ u16          eventInf[4];
     /* 0x1592 */ u16          dungeonIndex;
     /* 0x1594 */ char         unk_1594[0x000C];
@@ -179,32 +188,73 @@ typedef struct {
     /* 0x15AB */ u8           nextTransition;
     /* 0x15AC */ char         unk_15AC[0x006];
     /* 0x15B2 */ s16          healthAccumulator;
+    /* 0x15B4 */ char         unk_15B4[0x10];
 } SaveContext; // size = 0x15C4
+_Static_assert(sizeof(SaveContext) == 0x15C4, "Save Context size");
 
 typedef struct GraphicsContext GraphicsContext; //TODO
+typedef struct GlobalContext GlobalContext;
 typedef struct Camera {
-    /*0x0000*/ char  unk_000[0x17C];
-    /*0x017C*/ Vec3s inputDir;
-    /*0x0182*/ Vec3s camDir;
-    /*0x0188*/ char  unk_188[0x34];
+    /* 0x000 */ char unk_000[0x080];
+    /* 0x080 */ Vec3f at;
+    /* 0x08C */ Vec3f eye;
+    /* 0x098 */ Vec3f up;
+    /* 0x0A4 */ Vec3f eyeNext;
+    /* 0x0B0 */ Vec3f skyboxOffset;
+    /* 0x0BC */ char unk_0BC[0x018];
+    /* 0x0D4 */ GlobalContext* globalCtx;
+    /* 0x0D8 */ Player* player;
+    /* 0x0DC */ PosRot playerPosRot;
+    /* 0x0F0 */ Actor* target;
+    /* 0x0F4 */ PosRot targetPosRot;
+    /* 0x108 */ f32 rUpdateRateInv;
+    /* 0x10C */ f32 pitchUpdateRateInv;
+    /* 0x110 */ f32 yawUpdateRateInv;
+    /* 0x114 */ f32 xzOffsetUpdateRate;
+    /* 0x118 */ f32 yOffsetUpdateRate;
+    /* 0x11C */ f32 fovUpdateRate;
+    /* 0x120 */ f32 xzSpeed;
+    /* 0x124 */ f32 dist;
+    /* 0x128 */ f32 speedRatio;
+    /* 0x12C */ Vec3f playerToAtOffset;
+    /* 0x138 */ Vec3f playerPosDelta;
+    /* 0x144 */ f32 fov;
+    /* 0x148 */ f32 atLERPStepScale;
+    /* 0x14C */ f32 playerGroundY;
+    /* 0x150 */ Vec3f floorNorm;
+    /* 0x15C */ f32 waterYPos;
+    /* 0x160 */ s32 waterPrevCamIdx;
+    /* 0x164 */ s32 waterPrevCamSetting;
+    /* 0x168 */ s32 waterQuakeIdx;
+    /* 0x16C */ char unk_16C[0x00C];
+    /* 0x178 */ s16 uid;
+    /* 0x17A */ char unk_17A[0x002];
+    /* 0x17C */ Vec3s inputDir;
+    /* 0x182 */ Vec3s camDir;
+    /* 0x188 */ s16 status;
+    /* 0x18A */ s16 setting;
+    /* 0x18C */ s16 mode;
+    /* 0x18E */ s16 bgCheckId;
+    /* 0x190 */ s16 camDataIdx;
+    /* 0x192 */ s16 behaviorFlags;
+    /* 0x194 */ s16 stateFlags;
+    /* 0x196 */ s16 childCamIdx;
+    /* 0x198 */ s16 waterDistortionTimer;
+    /* 0x19A */ s16 distortionFlags;
+    /* 0x19C */ s16 prevSetting;
+    /* 0x19E */ s16 nextCamDataIdx;
+    /* 0x1A0 */ s16 nextBgCheckId;
+    /* 0x1A2 */ s16 roll;
+    /* 0x1A4 */ s16 paramFlags;
+    /* 0x1A6 */ s16 animState;
+    /* 0x1A8 */ s16 timer;
+    /* 0x1AA */ s16 parentCamIdx;
+    /* 0x1AC */ s16 thisIdx;
+    /* 0x1AE */ s16 prevCamDataIdx;
+    /* 0x1B0 */ s16 csId;
+    /* 0x1B2 */ char unk_1B2[0x00A];
 } Camera; // size = 0x1BC
-
-typedef struct {
-    /* 0x00 */ void* colHeader; //TODO: CollisionHeader* struct
-    /* 0x04 */ char             unk_04[0x4C];
-} StaticCollisionContext; // size = 0x50
-
-typedef struct {
-    /* 0x0000 */ char   unk_00[0x04];
-    /* 0x0004 */ ActorMesh actorMeshArr[50];
-    /* 0x151C */ u16    flags[50];
-    /* 0x1580 */ char   unk_13F0[0x24];
-} DynaCollisionContext; // size = 0x15A4
-
-typedef struct {
-    /* 0x0000 */ StaticCollisionContext stat;
-    /* 0x0050 */ DynaCollisionContext   dyna;
-} CollisionContext; // size = 0x15F4
+_Static_assert(sizeof(Camera) == 0x1BC, "Camera size");
 
 typedef struct {
     /* 0x00 */ u8*  texture;
@@ -250,6 +300,14 @@ typedef struct {
     /* 0x01C0 */ TitleCardContext titleCtx;
 } ActorContext; // TODO: size = 0x1D8
 
+typedef enum {
+    /* 0 */ CS_STATE_IDLE,
+    /* 1 */ CS_STATE_START,
+    /* 2 */ CS_STATE_RUN,
+    /* 3 */ CS_STATE_STOP,
+    /* 4 */ CS_STATE_RUN_UNSTOPPABLE
+} CutsceneState;
+
 typedef struct CutsceneContext {
     /* 0x00 */ char  unk_00[0x4];
     /* 0x04 */ void* segment;
@@ -263,19 +321,6 @@ typedef struct CutsceneContext {
     /* 0x40 */ CsCmdActorAction* linkAction;
     /* 0x44 */ CsCmdActorAction* actorActions[10]; // "npcdemopnt"
 } CutsceneContext; // size = 0x6C
-
-typedef struct Sub_118_C {
-    s32 data[4];
-} Sub_118_C;
-
-typedef struct SubGlobalContext_118 {
-    /* 0x00 */ char unk_00[0x0C];
-    /* 0x0C */ Sub_118_C* sub0C; //an array of these
-    /* 0x10 */ char unk_10[0x24];
-    /* 0x34 */ s32 indexInto0C;
-    /* 0x38 */ char unk_38[0x28];
-    /* 0x60 */ void** unk_60; //seems to point to an array of cutscene pointers, maybe?
-} SubGlobalContext_118; // size = at least 0x64
 
 typedef struct Collider Collider; //TODO
 typedef struct OcLine OcLine; //TODO
@@ -301,16 +346,43 @@ typedef struct {
 #define OBJECT_EXCHANGE_BANK_MAX 19
 #define OBJECT_ID_MAX 417
 
+typedef struct ZAR {
+    /* 0x00 */ char	magic[4]; //"ZAR\1"
+    /* 0x04 */ u32  size;
+    /* 0x08 */ u16  numTypes;
+    /* 0x0A */ u16  numFiles;
+    /* 0x0C */ u32  fileTypesOffset;
+    /* 0x10 */ u32  fileMetadataOffset;
+    /* 0x14 */ u32  dataOffset;
+    /* 0x18 */ char magic2[8]; // "queen"
+    /* 0x20 */ char data[1];
+} ZAR;
+
+typedef struct ZARFileTypeEntry {
+    /* 0x00 */ u32	numFiles;
+    /* 0x04 */ u32  filesListOffset;
+    /* 0x08 */ u16  typeNameOffset;
+    /* 0x0C */ u16  unk_0C; // always -1?
+} ZARFileTypeEntry;
+
 typedef struct ZARInfo {
     /* 0x00 */ void* buf;
-    /* 0x04 */ char unk_04[0x48];
+    /* 0x04 */ s32 size;
+    /* 0x08 */ ZAR* buf2;
+    /* 0x0C */ ZARFileTypeEntry* fileTypes;
+    /* 0x10 */ void* fileMetadata;
+    /* 0x14 */ void* data;
+    /* 0x18 */ ZAR* buf3;
+    /* 0x1C */ s32 fileTypeMap[11];
+    /* 0x48 */ char unk_48[0x4];
     /* 0x4C */ void*** cmbPtrs;  /* Really, this is a pointer to an array of pointers to CMB managers,
                                     the first member of which is a pointer to the CMB data */
     /* 0x50 */ void*** csabPtrs; /* Same as above but for CSAB */
-    /* 0x54 */ char unk_54[0x04];
+    /* 0x54 */ void* ctxb;
     /* 0x58 */ void*** cmabPtrs; /* Same as above but for CMAB */
     /* 0x5C */ char unk_5C[0x14];
 } ZARInfo; // size = 0x70
+_Static_assert(sizeof(ZARInfo) == 0x70, "ZARInfo size");
 
 typedef struct {
     /* 0x00 */ s16 id;
@@ -334,15 +406,33 @@ typedef struct GameState {
     /* 0x04 */ void (*main)(struct GameState*);
     /* 0x08 */ void (*destroy)(struct GameState*); // "cleanup"
     /* 0x0C */ void (*init)(struct GameState*);
-    //TODO
+    /* 0x10 */ u32 size;
+    /* 0x14 */ char unk_14[0xED];
+    /* 0x101*/ u8 running;
 } GameState;
+_Static_assert(sizeof(GameState) == 0x104, "GameState size");
 
 typedef struct {
-    /* 0x000 */ s8   currentRoomNumber;
-    /* 0x001 */ char unk_01[0x7BF];
-    /* 0x7C0 */ u16  unk_7C0;
-    /* 0x7C2 */ char unk_7C2[0x796];
-} RoomContext; // size 0xF58
+    /* 0x00 */ s8    num;
+    /* 0x01 */ u8    unk_01;
+    /* 0x02 */ u8    behaviorType2;
+    /* 0x03 */ u8    behaviorType1;
+    /* 0x04 */ s8    echo;
+    /* 0x05 */ u8    lensMode;
+    /* 0x08 */ void* roomShape; // maybe?
+    /* 0x0C */ void* segment;   // maybe?
+    /* 0x10 */ char  unk_10[0x3CC];
+} Room;
+_Static_assert(sizeof(Room) == 0x3DC, "Room size");
+
+typedef struct {
+    /* 0x000 */ Room curRoom;
+    /* 0x3DC */ Room prevRoom;
+    /* 0x7B8 */ char unk_7B8[0x19];
+    /* 0x7D1 */ s8   status;
+    /* 0x7D2 */ char unk_7D2[0x786];
+} RoomContext;
+_Static_assert(sizeof(RoomContext) == 0xF58, "RoomContext size");
 
 typedef struct {
     /* 0x000 */ s32 topY;
@@ -365,16 +455,40 @@ typedef struct {
     /* 0x1D8 */ char unk_0360[0x0004];
 } View; // size 0x1DC
 
+typedef struct MessageContext {
+    /* 0x000 */ char                  unk_000[0x1F0];
+    /* 0x1F0 */ u8                    msgMode;
+    /* 0x1F1 */ char                  unk_1F1[0xEB];
+    /* 0x2DC */ u16                   lastPlayedSong;
+    /* 0x2DE */ u16                   ocarinaMode;
+    /* 0x2E0 */ char                  unk_2DF[0x20];
+    /* 0x300 */ u8                    lastOcarinaButtonIndex;
+} MessageContext;
+_Static_assert(sizeof(MessageContext) == 0x302, "MessageContext size");
+
+typedef struct {
+    /* 0x000 */ u8 type;
+    /* 0x001 */ u8 isDone;
+    /* 0x002 */ u8 direction;
+    /* 0x004 */ Color_RGBA8_u32 color;
+    /* 0x008 */ u16 timer;
+} TransitionFade;
+_Static_assert(sizeof(TransitionFade) == 0xC, "TransitionFade size");
+
+typedef struct {
+    /* 0x00 */ char fileName[0x40];
+    /* 0x40 */ u32  unk_40; // size?
+} RomFile;
+_Static_assert(sizeof(RomFile) == 0x44, "RomFile size");
+
 // Global Context (ram start: 0871E840)
 typedef struct GlobalContext {
-    // /* 0x0000 */ GameState state;
-    /* 0x0000 */ char                  unk_0[0x0104];
+    /* 0x0000 */ GameState             state;
     /* 0x0104 */ s16                   sceneNum;
     /* 0x0106 */ char                  unk_106[0x000A];
     /* 0x0110 */ void*                 sceneSegment;
-    /* 0x0114 */ char                  unk_114[0x0004];
-    /* 0x0118 */ SubGlobalContext_118  sub118;
-    /* 0x017C */ char                  unk_17C[0x000C];
+    /* 0x0114 */ ZAR*                  sceneZAR;
+    /* 0x0118 */ ZARInfo               sceneZARInfo;
     /* 0x0188 */ View                  view;
     /* 0x0364 */ Camera                mainCamera;
     /* 0x0520 */ Camera                subCameras[3];
@@ -385,42 +499,52 @@ typedef struct GlobalContext {
     /* 0x208C */ ActorContext          actorCtx;
     /* 0x2264 */ char                  unk_2264[0x0034];
     /* 0x2298 */ CutsceneContext       csCtx; // "demo_play"
-    /* 0x2304 */ char                  unk_2304[0x078C];
-    /* 0x2A90 */ u8                    msgMode; //seems to be used primarily for the ocarina
-    /* 0x2A91 */ char                  unk_2A91[0xEB];
-    /* 0x2B7C */ u16                   lastPlayedSong;
-    /* 0x2B7E */ s16                   unk_2B7E; // msgCtx.unk_E3EE in OoT
-    /* 0x2B80 */ char                  unk_2B80[0x06B0];
+    /* 0x2304 */ char                  unk_2304[0x059C];
+    /* 0x28A0 */ MessageContext        msgCtx;
+    /* 0x2BA2 */ char                  unk_2BA2[0x068E];
     /* 0x3230 */ u32                   lightSettingsList_addr;
     /* 0x3234 */ char                  unk_3234[0x0824];
     /* 0x3A58 */ ObjectContext         objectCtx;
     /* 0x43DC */ char                  unk_43DC[0x0854];
     /* 0x4C30 */ RoomContext           roomCtx;
-    /* 0x5B88 */ char                  unk_5B88[0x0078];
+    /* 0x5B88 */ char                  unk_5B88[0x0074];
+    /* 0x5BFC */ u32                   gameplayFrames;
     /* 0x5C00 */ u8                    linkAgeOnLoad;
-    /* 0x5C01 */ char                  unk_5C01[0x001B];
+    /* 0x5C01 */ u8                    haltAllActors;
+    /* 0x5C02 */ u8                    spawn;
+    /* 0x5C03 */ u8                    numActorEntries;
+    /* 0x5C04 */ u8                    numRooms;
+    /* 0x5C08 */ RomFile*              roomList;
+    /* 0x5C0C */ char                  unk_5C0C[0x0010];
     /* 0x5C1C */ s16*                  setupExitList;
     /* 0x5C20 */ char                  unk_5C20[0x000D];
-    /* 0x5C2D */ s8                    sceneLoadFlag; // "fade_direction"
+    /* 0x5C2D */ s8                    transitionTrigger; // "fade_direction"
     /* 0x5C2E */ char                  unk_5C2E[0x0004];
     /* 0x5C32 */ s16                   nextEntranceIndex;
     /* 0x5C34 */ char                  unk_5C34[0x0042];
-    /* 0x5C76 */ u8                    fadeOutTransition;
+    /* 0x5C76 */ u8                    transitionType; // fadeOutTransition
     /* 0x5C78 */ CollisionCheckContext colChkCtx;
-    //TODO
-} GlobalContext; // size = 0x5F14 TODO
-_Static_assert(sizeof(GlobalContext) == 0x5F14, "Global Context size");
+    /* 0x5F14 */ char                  unk_5F14[0x1FFE];
+    /* 0x7F12 */ u8                    transitionMode;
+    /* 0x7F14 */ TransitionFade        transitionFadeFlash;
+    /* 0x7F20 */ char                  unk_7F20[0x118];
+} GlobalContext;
+_Static_assert(sizeof(GlobalContext) == 0x8038, "Global Context size");
 
 typedef struct StaticContext {
-    /* 0x0000 */ char unk_0[0x0E60];
+    /* 0x0000 */ char unk_000[0x0E60];
     /* 0x0E60 */ u16  spawnOnEpona;
-    /* 0x0E62 */ char unk_E72[0x0010];
-    /* 0x0E72 */ u16  collisionDisplay;
-    /* 0x0E74 */ char unk_E74[0x015C];
-    /* 0x0FD0 */ u16  renderGeometryDisable;
+    /* 0x0E62 */ char unk_E62[0x0010];
+    /* 0x0E72 */ u16  showColliders;
+    /* 0x0E74 */ char unk_E74[0x000A];
+    /* 0x0E7E */ u16  showAT;
+    /* 0x0E80 */ u16  showAC;
+    /* 0x0E82 */ u16  showOC;
+    /* 0x0E84 */ char unk_E84[0x014C];
+    /* 0x0FD0 */ u16  disableRoomDraw;
     /* 0x0FD2 */ char unk_FD2[0x0602];
 } StaticContext; //size 0x15D4
-// _Static_assert(sizeof(StaticContext) == 0x15D4, "Static Context size");
+_Static_assert(sizeof(StaticContext) == 0x15D4, "Static Context size");
 
 typedef struct {
     /* 0x00 */ s8  scene;
@@ -449,10 +573,54 @@ typedef struct {
     /* 0x03 */ u8 flags3;
 } RestrictionFlags;
 
+typedef struct SamPlusUnk {
+    /* 0x00 */ SkeletonAnimationModel* saModel;
+    /* 0x04 */ u32 unk;
+} SamPlusUnk;
+
+typedef struct SubMainClass_180 {
+    /* 0x000 */ char unk_00[0x8];
+    /* 0x008 */ s32 saModels3DCount;
+    /* 0x00C */ s32 saModels2DCount;
+    /* 0x010 */ char unk_10[0x10];
+    /* 0x020 */ SamPlusUnk* saModels3DList; // 3D models
+    /* 0x024 */ SamPlusUnk* saModels2DList; // 2D billboards
+    /* ... size unknown*/
+} SubMainClass_180;
+
+// This struct contains data related to the built-in Collision Display
+typedef struct SubMainClass_32A0 {
+    /* 0x00 */ void* bufferPointer_00; // start of 0xC40 buffer
+    /* 0x04 */ s16 coll3DModelsCount; // sphere and cylinder models
+    /* 0x06 */ s16 coll3DModelsMax;
+    /* 0x08 */ void* cmbMan;
+    /* 0x0C */ s16 coll2DModelsCount; // tri and quad models
+    /* 0x0E */ s16 coll2DModelsMax;
+    /* 0x10 */ void*(*array_10)[]; // pointer to array of pointers, offset 0xA40 in 0xC40 buffer (size 0x100?)
+    /* 0x14 */ void*(*array_14)[]; // pointer to array of pointers, offset 0xB40 in 0xC40 buffer (size 0x100?)
+    /* 0x18 */ void* bufferPointer_18; // offset 0x140 in 0xC40 buffer
+    /* 0x1C */ void* bufferPointer_1C; // start of 0xC40 buffer
+} SubMainClass_32A0;
+_Static_assert(sizeof(SubMainClass_32A0) == 0x20, "SubMainClass_32A0 size");
+
+typedef struct MainClass {
+    /* 0x0000 */ char unk_00[0x180];
+#if Version_KOR || Version_TWN
+    /* 0x???? */ char unk_kor_twn[0x4]; // the stuff below is 4 bytes ahead on KOR/TWN
+#endif
+    /* 0x0180 */ SubMainClass_180 sub180;
+    /* 0x01A8 */ char unk_1A8[0x30F8];
+    /* 0x32A0 */ SubMainClass_32A0 sub32A0;
+    /* ... size unknown*/
+} MainClass;
+#define MAIN_CLASS_TEMP_SIZE (0x32C0 + (Version_KOR || Version_TWN) * 4)
+_Static_assert(sizeof(MainClass) == MAIN_CLASS_TEMP_SIZE, "MainClass size");
+
 extern GlobalContext* gGlobalContext;
+extern void* gStoredActorHeapAddress;
 extern const u32 ItemSlots[];
 extern const char DungeonNames[][25];
-#define gSaveContext (*(SaveContext*)0x00587958)
+
 #define gStaticContext (*(StaticContext*)0x08080010)
 #define gObjectTable ((ObjectFile*)0x53CCF4)
 #define gEntranceTable ((EntranceInfo*)0x543BB8)
@@ -466,8 +634,20 @@ extern const char DungeonNames[][25];
 #define gDrawItemTable ((DrawItemTableEntry*)0x4D88C8)
 #define gRestrictionFlags ((RestrictionFlags*)0x539DC4)
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
-#define ControlStick_X (*(f32*)0x5655C0)
-#define ControlStick_Y (*(f32*)0x5655C4)
+
+#if Version_KOR || Version_TWN
+    #define gSaveContext (*(SaveContext*)0x595FD0)
+    #define ControlStick_X (*(f32*)0x573C38)
+    #define ControlStick_Y (*(f32*)0x573C3C)
+    #define gActorHeapAddress (*(void**)0x5B14B4)
+    #define gMainClass ((MainClass*)0x5C5AA4)
+#else
+    #define gSaveContext (*(SaveContext*)0x587958)
+    #define ControlStick_X (*(f32*)0x5655C0)
+    #define ControlStick_Y (*(f32*)0x5655C4)
+    #define gActorHeapAddress (*(void**)0x5A2E3C)
+    #define gMainClass ((MainClass*)0x5BE5B8)
+#endif
 
 typedef enum {
     DUNGEON_DEKU_TREE = 0,
@@ -496,24 +676,37 @@ typedef enum {
 #define real_hid_addr   0x10002000
 #define real_hid        (*(hid_mem_t *) real_hid_addr)
 
-#define Z3D_TOP_SCREEN_LEFT_1 0x14313890
-#define Z3D_TOP_SCREEN_LEFT_2 0x14359DA0
-#define Z3D_TOP_SCREEN_RIGHT_1 0x14410AD0
-#define Z3D_TOP_SCREEN_RIGHT_2 0x14456FE0
-#define Z3D_BOTTOM_SCREEN_1 0x143A02B0
-#define Z3D_BOTTOM_SCREEN_2 0x143D86C0
+#if Version_KOR || Version_TWN
+    #define Z3D_TOP_SCREEN_LEFT_1 0x1430A900
+    #define Z3D_TOP_SCREEN_LEFT_2 0x14350E10
+    #define Z3D_TOP_SCREEN_RIGHT_1 0x14407DD0
+    #define Z3D_TOP_SCREEN_RIGHT_2 0x1444E2E0
+    #define Z3D_BOTTOM_SCREEN_1 0x14397380
+    #define Z3D_BOTTOM_SCREEN_2 0x143CF790
+#else
+    #define Z3D_TOP_SCREEN_LEFT_1 0x14313890
+    #define Z3D_TOP_SCREEN_LEFT_2 0x14359DA0
+    #define Z3D_TOP_SCREEN_RIGHT_1 0x14410AD0
+    #define Z3D_TOP_SCREEN_RIGHT_2 0x14456FE0
+    #define Z3D_BOTTOM_SCREEN_1 0x143A02B0
+    #define Z3D_BOTTOM_SCREEN_2 0x143D86C0
+#endif
 
 typedef Actor* (*Actor_Spawn_proc)(ActorContext *actorCtx,GlobalContext *globalCtx,s16 actorId,float posX,float posY,float posZ,s16 rotX,s16 rotY,s16 rotZ,s16 params)
-    __attribute__((pcs("aapcs-vfp")));;
-#ifdef Version_JP
-    #define Actor_Spawn_addr 0x3733E8
-#else //USA & EUR
+    __attribute__((pcs("aapcs-vfp")));
+#if Version_USA || Version_EUR
     #define Actor_Spawn_addr 0x3738D0
+#elif Version_JPN
+    #define Actor_Spawn_addr 0x3733E8
+#elif Version_KOR
+    #define Actor_Spawn_addr 0x2F7CAC
+#elif Version_TWN
+    #define Actor_Spawn_addr 0x2F7DAC
 #endif
 #define Actor_Spawn ((Actor_Spawn_proc)Actor_Spawn_addr)
 
 typedef s32 (*Object_proc)(ObjectContext* objectCtx, s16 objectId);
-#ifdef Version_JP
+#if Version_JPN
     #define Object_Spawn_addr 0x32DD34
 #else //USA & EUR
     #define Object_Spawn_addr 0x32E21C
@@ -521,29 +714,196 @@ typedef s32 (*Object_proc)(ObjectContext* objectCtx, s16 objectId);
 #define Object_Spawn ((Object_proc)Object_Spawn_addr)
 
 typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* player);
-#ifdef Version_JP
+#if Version_JPN
     #define Player_SetEquipmentData_addr 0x348C54
 #else //USA & EUR
     #define Player_SetEquipmentData_addr 0x34913C
 #endif
 #define Player_SetEquipmentData ((Player_SetEquipmentData_proc)Player_SetEquipmentData_addr)
 
-typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
-#ifdef Version_JP
-    #define Flags_SetEnv_addr 0x36621C
-#else //USA & EUR
-    #define Flags_SetEnv_addr 0x366704
+typedef void (*CutsceneFlags_Set_proc)(GlobalContext* globalCtx, s16 flag);
+#if Version_USA || Version_EUR
+    #define CutsceneFlags_Set_addr 0x366704
+#elif Version_JPN
+    #define CutsceneFlags_Set_addr 0x36621C
+#elif Version_KOR
+    #define CutsceneFlags_Set_addr 0x2CEC18
+#elif Version_TWN
+    #define CutsceneFlags_Set_addr 0x2CED18
 #endif
-#define Flags_SetEnv ((Flags_SetEnv_proc)Flags_SetEnv_addr)
+#define CutsceneFlags_Set ((CutsceneFlags_Set_proc)CutsceneFlags_Set_addr)
+
+typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor* actor);
+#define DisplayTextbox_addr 0x367C7C
+#define DisplayTextbox ((DisplayTextbox_proc)DisplayTextbox_addr)
+
+typedef void (*CloseTextbox_proc)(GlobalContext* globalCtx);
+#if Version_JPN
+    #define CloseTextbox_addr 0x3720F8
+#else //USA & EUR
+    #define CloseTextbox_addr 0x3725E0
+#endif
+#define Message_CloseTextbox ((CloseTextbox_proc)CloseTextbox_addr)
+
+typedef void (*PlaySound_proc)(u32);
+#if Version_USA || Version_EUR
+    #define PlaySound_addr 0x35C528
+#elif Version_JPN
+    #define PlaySound_addr 0x35C040
+#else //KOR & TWN
+    #define PlaySound_addr 0
+#endif
+#define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
+
+typedef void (*Play_Init_proc)(GameState*);
+#if Version_EUR
+    #define Play_Init_addr 0x435314
+#elif Version_JPN
+    #define Play_Init_addr 0x4352C8
+#elif Version_KOR
+    #define Play_Init_addr 0x11EE6C
+#elif Version_TWN
+    #define Play_Init_addr 0x11EF44
+#else // Version_USA
+    #define Play_Init_addr 0x4352F0
+#endif
+#define Play_Init ((Play_Init_proc)Play_Init_addr)
+
+typedef void (*Play_Main_proc)(GameState*);
+#if Version_EUR
+    #define Play_Main_addr 0x4523AC
+#elif Version_JPN
+    #define Play_Main_addr 0x452364
+#elif Version_KOR
+    #define Play_Main_addr 0x13A1E8
+#elif Version_TWN
+    #define Play_Main_addr 0x13A2C0
+#else // Version_USA
+    #define Play_Main_addr 0x45238C
+#endif
+#define Play_Main ((Play_Main_proc)Play_Main_addr)
+
+typedef void (*FileSelect_LoadGame_proc)(GameState* gameState, s32 fileNum);
+#if Version_EUR
+    #define FileSelect_LoadGame_addr 0x44737C
+#elif Version_JPN
+    #define FileSelect_LoadGame_addr 0x447334
+#elif Version_KOR
+    #define FileSelect_LoadGame_addr 0x12E5BC
+#elif Version_TWN
+    #define FileSelect_LoadGame_addr 0x12E694
+#else // Version_USA
+    #define FileSelect_LoadGame_addr 0x44735C
+#endif
+#define FileSelect_LoadGame ((FileSelect_LoadGame_proc)FileSelect_LoadGame_addr)
+
+typedef void (*Load_Savefiles_Buffer_proc)();
+#if Version_EUR
+    #define Load_Savefiles_Buffer_addr 0x447170
+#elif Version_JPN
+    #define Load_Savefiles_Buffer_addr 0x447128
+#elif Version_KOR
+    #define Load_Savefiles_Buffer_addr 0x12E3C0
+#elif Version_TWN
+    #define Load_Savefiles_Buffer_addr 0x12E498
+#else // Version_USA
+    #define Load_Savefiles_Buffer_addr 0x447150
+#endif
+#define Load_Savefiles_Buffer ((Load_Savefiles_Buffer_proc)Load_Savefiles_Buffer_addr)
+
+typedef void (*Actor_DrawContext_proc)(GlobalContext*, ActorContext*);
+#if Version_EUR
+    #define Actor_DrawContext_addr 0x461904
+#elif Version_JPN
+    #define Actor_DrawContext_addr 0x4618BC
+#elif Version_KOR
+    #define Actor_DrawContext_addr 0x1491C4
+#elif Version_TWN
+    #define Actor_DrawContext_addr 0x14929C
+#else // Version_USA
+    #define Actor_DrawContext_addr 0x4618E4
+#endif
+#define Actor_DrawContext ((Actor_DrawContext_proc)Actor_DrawContext_addr)
+
+typedef void (*CollisionCheck_DrawCollision_proc)(GlobalContext*, CollisionCheckContext*);
+#if Version_EUR
+    #define CollisionCheck_DrawCollision_addr 0x47CAEC
+#elif Version_JPN
+    #define CollisionCheck_DrawCollision_addr 0x47CAA4
+#elif Version_KOR
+    #define CollisionCheck_DrawCollision_addr 0x15E6AC
+#elif Version_TWN
+    #define CollisionCheck_DrawCollision_addr 0x15E784
+#else // Version_USA
+    #define CollisionCheck_DrawCollision_addr 0x47CACC
+#endif
+#define CollisionCheck_DrawCollision ((CollisionCheck_DrawCollision_proc)CollisionCheck_DrawCollision_addr)
+
+typedef s32 (*Room_StartTransition_proc)(GlobalContext*, RoomContext*, s32);
+#if Version_JPN
+    #define Room_StartTransition_addr 0x33B1D4
+#else //USA & EUR
+    #define Room_StartTransition_addr 0x33B6BC
+#endif
+#define Room_StartTransition ((Room_StartTransition_proc)Room_StartTransition_addr)
+
+typedef s32 (*Room_ClearPrevRoom_proc)(GlobalContext*, RoomContext*);
+#if Version_JPN
+    #define Room_ClearPrevRoom_addr 0x36C038
+#else //USA & EUR
+    #define Room_ClearPrevRoom_addr 0x36C520
+#endif
+#define Room_ClearPrevRoom ((Room_ClearPrevRoom_proc)Room_ClearPrevRoom_addr)
+
+typedef void (*WriteDungeonSceneTable_proc)(void);
+#if Version_JPN
+    #define WriteDungeonSceneTable_addr 0x2EAACC
+#else //USA & EUR
+    #define WriteDungeonSceneTable_addr 0x2EAFB4
+#endif
+#define WriteDungeonSceneTable ((WriteDungeonSceneTable_proc)WriteDungeonSceneTable_addr)
+
+typedef void (*Collider_DrawPolyImpl_proc)(SubMainClass_32A0* sub32A0, Vec3f* vA, Vec3f* vB, Vec3f* vC,
+                                           Color_RGBAf* rgba);
+#if Version_USA || Version_EUR
+    #define Collider_DrawPolyImpl_addr 0x2C56C4
+#elif Version_JPN
+    #define Collider_DrawPolyImpl_addr 0x2C51DC
+#elif Version_KOR
+    #define Collider_DrawPolyImpl_addr 0x2D15D4
+#elif Version_TWN
+    #define Collider_DrawPolyImpl_addr 0x2D16D4
+#endif
+#define Collider_DrawPolyImpl ((Collider_DrawPolyImpl_proc)Collider_DrawPolyImpl_addr)
+
+typedef void (*BgCheck_GetStaticLookupIndicesFromPos_Proc)(CollisionContext *col_ctx,Vec3f *pos,Vec3i *sector);
+#if Version_USA || Version_EUR
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF5B0
+#elif Version_JPN
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF0C8
+#elif Version_KOR
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C17C4
+#elif Version_TWN
+    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C18C4
+#endif
+#define BgCheck_GetStaticLookupIndicesFromPos ((BgCheck_GetStaticLookupIndicesFromPos_Proc)BgCheck_GetStaticLookupIndicesFromPos_addr)
+
+typedef void* (*SystemArena_Malloc_Proc)(u32 size);
+#if Version_USA || Version_EUR
+    #define SystemArena_Malloc_addr 0x35010C
+#elif Version_JPN
+    #define SystemArena_Malloc_addr 0x34FC24
+#elif Version_KOR
+    #define SystemArena_Malloc_addr 0x3232C0
+#elif Version_TWN
+    #define SystemArena_Malloc_addr 0x3233C0
+#endif
+#define SystemArena_Malloc ((SystemArena_Malloc_Proc)SystemArena_Malloc_addr)
 
 /*
 typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
 #define Item_Give_addr 0x376A78
 #define Item_Give ((Item_Give_proc)Item_Give_addr)
-
-typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor* actor);
-#define DisplayTextbox_addr 0x367C7C
-#define DisplayTextbox ((DisplayTextbox_proc)DisplayTextbox_addr)
 
 typedef u32 (*EventCheck_proc)(u32 param_1);
 #define EventCheck_addr 0x350CF4
@@ -565,17 +925,9 @@ typedef u32 (*Inventory_HasEmptyBottle_proc)(void);
 #define Inventory_HasEmptyBottle_addr 0x377A04
 #define Inventory_HasEmptyBottle ((Inventory_HasEmptyBottle_proc)Inventory_HasEmptyBottle_addr)
 
-typedef void (*PlaySound_proc)(u32);
-#define PlaySound_addr 0x35C528
-#define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
-
 typedef void (*FireDamage_proc)(Actor* player, GlobalContext* globalCtx, int flamesColor);
 #define FireDamage_addr 0x35D8D8
 #define FireDamage ((FireDamage_proc)FireDamage_addr)
-
-typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
-#define Flags_SetEnv_addr 0x366704
-#define Flags_SetEnv ((Flags_SetEnv_proc)Flags_SetEnv_addr)
 
 typedef void (*GiveItem_proc)(Actor* actor, GlobalContext* globalCtx, s32 getItemId, f32 xzRange, f32 yRange)
     __attribute__((pcs("aapcs-vfp")));

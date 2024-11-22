@@ -22,8 +22,10 @@ typedef union {
         uint32_t       l :  1; //10
         uint32_t       x :  1; //11
         uint32_t       y :  1; //12
-        uint32_t    gpio :  2; //14
-        uint32_t padding : 14; //28
+        uint32_t    unk0 :  1; //13
+        uint32_t      zl :  1; //14
+        uint32_t      zr :  1; //15
+        uint32_t    unk1 : 13; //16
         uint32_t c_right :  1; //29
         uint32_t  c_left :  1; //30
         uint32_t    c_up :  1; //31
@@ -112,5 +114,19 @@ typedef struct {
 #define BUTTON_L1         (1 << 9)
 #define BUTTON_X          (1 << 10)
 #define BUTTON_Y          (1 << 11)
+#define BUTTON_ZL         (1 << 13)
+#define BUTTON_ZR         (1 << 14)
+#define CPAD_RIGHT        (1 << 28)
+#define CPAD_LEFT         (1 << 29)
+#define CPAD_UP           (1 << 30)
+#define CPAD_DOWN         (1 << 31)
+
+#define PAD_RIGHT         (BUTTON_RIGHT | CPAD_RIGHT)
+#define PAD_LEFT          (BUTTON_LEFT  | CPAD_LEFT)
+#define PAD_UP            (BUTTON_UP    | CPAD_UP)
+#define PAD_DOWN          (BUTTON_DOWN  | CPAD_DOWN)
+
+#define DPAD_ANY (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)
+#define CPAD_ANY (CPAD_UP | CPAD_DOWN | CPAD_LEFT | CPAD_RIGHT)
 
 #endif //HID_H

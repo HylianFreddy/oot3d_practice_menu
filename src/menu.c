@@ -35,8 +35,36 @@
 #include "input.h"
 #include "menus/commands.h"
 #include "menus/settings.h"
+#include "common.h"
 #include <stdio.h>
 #include <string.h>
+
+static const struct {s64 min; s64 max;} varTypeLimits[VARTYPE_MAX] = {
+    { // S8
+        .min = -128,
+        .max = 127,
+    },
+    { // U8
+        .min = 0,
+        .max = 255,
+    },
+    { // S16
+        .min = -32768,
+        .max = 32767,
+    },
+    { // U16
+        .min = 0,
+        .max = 65535,
+    },
+    { // S32
+        .min = -2147483648,
+        .max = 2147483647,
+    },
+    { // U32
+        .min = 0,
+        .max = 4294967295,
+    },
+};
 
 static void menuDraw(Menu *menu, u32 selected)
 {
@@ -54,15 +82,15 @@ static void menuDraw(Menu *menu, u32 selected)
     Draw_FlushFramebuffer();
 }
 
-void menuShow()
+void menuShow(Menu* rootMenu)
 {
-    Menu *currentMenu = &gz3DMenu;
+    Menu *currentMenu = rootMenu;
     u32 selectedItem = currentMenu->initialCursorPos;
     u32 nbPreviousMenus = 0;
     Menu *previousMenus[0x80];
     u32 previousSelectedItems[0x80];
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selectedItem = 0;
     }
 
@@ -78,11 +106,6 @@ void menuShow()
 
         if(pressed & BUTTON_A)
         {
-            Draw_Lock();
-            Draw_ClearFramebuffer();
-            Draw_FlushFramebuffer();
-            Draw_Unlock();
-
             switch(currentMenu->items[selectedItem].action_type)
             {
                 case METHOD:
@@ -94,7 +117,7 @@ void menuShow()
                     previousMenus[nbPreviousMenus++] = currentMenu;
                     currentMenu = currentMenu->items[selectedItem].menu;
                     selectedItem = currentMenu->initialCursorPos;
-                    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+                    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
                         selectedItem = 0;
                     }
                     break;
@@ -119,16 +142,18 @@ void menuShow()
             }
             else
             {
-                menuOpen = 0;
                 break;
             }
         }
-        else if(pressed & BUTTON_DOWN)
+        else if (pressed & BUTTON_L1) {
+            selectedItem = 0;
+        }
+        else if(pressed & PAD_DOWN)
         {
             if(++selectedItem >= currentMenu->nbItems)
                 selectedItem = 0;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             if(selectedItem-- <= 0)
                 selectedItem = currentMenu->nbItems - 1;
@@ -140,10 +165,14 @@ void menuShow()
         menuDraw(currentMenu, selectedItem);
         Draw_Unlock();
     }
-    while(menuOpen);
+    while(onMenuLoop());
 
-    if(gGlobalContext->sceneLoadFlag != 0x14) {
-        svcSleepThread(1000 * 1000 * 300LL); //wait 300 milliseconds for users to buffer inputs
+    // Wait 300 milliseconds for users to buffer inputs and set menu as closed, but only if:
+    //  - the menu is closing normally (as opposed to something else setting menuOpen to false);
+    //  - this function was not called from some other menu.
+    if (menuOpen && (rootMenu == &gz3DMenu)) {
+        svcSleepThread(1000 * 1000 * 300LL);
+        menuOpen = false;
     }
 }
 
@@ -151,7 +180,7 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
 {
     s32 selected = menu->initialCursorPos, page = selected / TOGGLE_MENU_MAX_SHOW, pagePrev = page;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = page = pagePrev = 0;
     }
 
@@ -185,11 +214,6 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
             break;
         if(pressed & BUTTON_A)
         {
-            Draw_Lock();
-            Draw_ClearFramebuffer();
-            Draw_FlushFramebuffer();
-            Draw_Unlock();
-
             if(menu->items[selected].method != NULL) {
                 menu->items[selected].method(selected); //the method will handle swapping on/off
             }
@@ -199,18 +223,21 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
             Draw_FlushFramebuffer();
             Draw_Unlock();
         }
-        else if(pressed & BUTTON_DOWN)
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
+        }
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected -= TOGGLE_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             if(selected + TOGGLE_MENU_MAX_SHOW < menu->nbItems)
                 selected += TOGGLE_MENU_MAX_SHOW;
             else if((menu->nbItems - 1) / TOGGLE_MENU_MAX_SHOW == page)
@@ -226,15 +253,13 @@ void ToggleMenuShow(ToggleMenu *menu) //displays a toggle menu, analogous to ros
 
         pagePrev = page;
         page = selected / TOGGLE_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
     s32 selected = menu->initialCursorPos, page = selected / AMOUNT_MENU_MAX_SHOW, pagePrev = page;
-    u32 curColor = COLOR_GREEN;
-    u32 chosen = 0;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = page = pagePrev = 0;
     }
 
@@ -256,63 +281,51 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
         {
             s32 j = page * AMOUNT_MENU_MAX_SHOW + i;
             Draw_DrawString(70, 30 + i * SPACING_Y, COLOR_WHITE, menu->items[j].title);
-            Draw_DrawFormattedString(10, 30 + i * SPACING_Y, j == selected ? curColor : COLOR_TITLE,
-                menu->items[j].hex ? " 0x%04X" : "  %05d", menu->items[j].amount);
+            s16 signedAmount = (s16)(menu->items[j].amount);
+            u8 digitsOffDecimalNegative = (menu->items[j].isSigned && signedAmount < 0) ? 1 : 0;
+            Draw_DrawFormattedString(10 + ((menu->items[j].hex ? 4 : 5) - menu->items[j].nDigits - digitsOffDecimalNegative) * SPACING_X,
+                                     30 + i * SPACING_Y,
+                                     j == selected ? COLOR_GREEN : COLOR_TITLE,
+                                     menu->items[j].hex ? " 0x%0*X" : "  %0*d",
+                                     menu->items[j].nDigits + digitsOffDecimalNegative,
+                                     menu->items[j].isSigned ? signedAmount : menu->items[j].amount);
         }
 
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
         u32 pressed = Input_WaitWithTimeout(1000);
-        if(pressed & BUTTON_B && !chosen)
+        if(pressed & BUTTON_B)
             break;
-        else if(pressed & BUTTON_A && !chosen)
+        else if(pressed & BUTTON_A)
         {
-            curColor = COLOR_RED;
-            chosen = 1;
+            bool isHex = menu->items[selected].hex;
+            u32 posX = 10 + ((isHex ? 4 : 6) - menu->items[selected].nDigits) * SPACING_X;
+            u32 posY = 30 + (selected % AMOUNT_MENU_MAX_SHOW) * SPACING_Y;
+            Menu_EditAmount(posX, posY, &menu->items[selected].amount,
+                            menu->items[selected].isSigned ? VARTYPE_S16 : VARTYPE_U16,
+                            menu->items[selected].min,
+                            menu->items[selected].max,
+                            menu->items[selected].nDigits,
+                            isHex,
+                            menu->items[selected].method, selected);
         }
-        else if(pressed & (BUTTON_A | BUTTON_B) & chosen)
-        {
-            if(menu->items[selected].method != NULL) {
-                menu->items[selected].method(selected);
-            }
-            curColor = COLOR_GREEN;
-            chosen = 0;
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
         }
-        else if(pressed & BUTTON_DOWN && !chosen)
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_DOWN && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount-= (menu->items[selected].hex ? 0x100 : 100);
-            else
-                menu->items[selected].amount--;
-        }
-        else if(pressed & BUTTON_UP && !chosen)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_UP && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount+= (menu->items[selected].hex ? 0x100 : 100);
-            else
-                menu->items[selected].amount++;
-        }
-        else if(pressed & BUTTON_LEFT && !chosen)
+        else if(pressed & PAD_LEFT)
         {
             selected -= AMOUNT_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount+= (menu->items[selected].hex ? 0x1000 : 1000);
-            else
-                menu->items[selected].amount += (menu->items[selected].hex ? 0x10 : 10);
-        }
-        else if(pressed & BUTTON_RIGHT && !chosen)
+        else if(pressed & PAD_RIGHT)
         {
             if(selected + AMOUNT_MENU_MAX_SHOW < menu->nbItems)
                 selected += AMOUNT_MENU_MAX_SHOW;
@@ -320,38 +333,16 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
                 selected %= AMOUNT_MENU_MAX_SHOW;
             else selected = menu->nbItems - 1;
         }
-        else if(pressed & BUTTON_LEFT && chosen)
-        {
-            if (pressed & BUTTON_X)
-                menu->items[selected].amount-= (menu->items[selected].hex ? 0x1000 : 1000);
-            else
-                menu->items[selected].amount -= (menu->items[selected].hex ? 0x10 : 10);
-        }
-
-        while(chosen && (menu->items[selected].max != 0) && (menu->items[selected].amount > menu->items[selected].max)) {
-            u16 overDiff = menu->items[selected].amount - menu->items[selected].max;
-            u16 underDiff = 0xFFFF - menu->items[selected].amount;
-            if(overDiff < underDiff) {
-                menu->items[selected].amount = overDiff - 1;
-            }
-            else {
-                menu->items[selected].amount = menu->items[selected].max - underDiff;
-            }
-        }
 
         if(selected < 0)
             selected = menu->nbItems - 1;
         else if(selected >= menu->nbItems) selected = 0;
 
-        if(chosen && menu->items[selected].method != NULL) {
-            menu->items[selected].method(selected);
-        }
-
         menu->initialCursorPos = selected;
 
         pagePrev = page;
         page = selected / AMOUNT_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 u32 KeyboardFill(char * buf, u32 len){
@@ -414,16 +405,16 @@ u32 KeyboardFill(char * buf, u32 len){
         else if(pressed & (BUTTON_R1 | BUTTON_L1)){
             keys = (keys == Lower) ? Upper : Lower;
         }
-        else if(pressed & BUTTON_DOWN){
+        else if(pressed & PAD_DOWN){
             selected += 10;
         }
-        else if(pressed & BUTTON_UP){
+        else if(pressed & PAD_UP){
             selected -= 10;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             selected++;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected--;
         }
         else if(pressed & BUTTON_START){
@@ -432,7 +423,127 @@ u32 KeyboardFill(char * buf, u32 len){
 
         if (selected >= 40) selected = 0;
         if (selected < 0) selected = 39;
-    } while(menuOpen);
+    } while(onMenuLoop());
 
     return idx;
+}
+
+/**
+ * @brief Allow the user to edit a numeric value displayed at an arbitrary position on the screen
+ */
+void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType, s32 customMin, s32 customMax,
+                     s32 digitCount, bool isHex, void (*method)(s32), s32 amountMenuIndex) {
+
+    static void* lastEditedValue = 0;
+    static s32 digitIndex = 0;
+    static char* formatString = "%s%0*_";
+    static char* formatCursor = "%_";
+
+    if (valueAddress != lastEditedValue) {
+        lastEditedValue = valueAddress;
+        digitIndex = 0;
+    }
+
+    s64 longValue;
+    switch (varType) {
+        case VARTYPE_S8:  longValue =  *(s8*)valueAddress; break;
+        case VARTYPE_U8:  longValue =  *(u8*)valueAddress; break;
+        case VARTYPE_S16: longValue = *(s16*)valueAddress; break;
+        case VARTYPE_U16: longValue = *(u16*)valueAddress; break;
+        case VARTYPE_S32: longValue = *(s32*)valueAddress; break;
+        default:          longValue = *(u32*)valueAddress; break;
+    }
+
+    s64 min = (customMin != 0) ? customMin : varTypeLimits[varType].min;
+    s64 max = (customMax != 0) ? customMax : varTypeLimits[varType].max;
+
+    // Update format strings (hex/signed/unsigned)
+    if (isHex) {
+        formatString[5] = formatCursor[1] = 'X';
+    } else {
+        formatString[5] = formatCursor[1] = (varType == VARTYPE_U32 ? 'u' : 'd');
+    }
+
+    do
+    {
+        Draw_Lock();
+
+        // Draw value
+        const char* prefix = isHex
+            ? longValue < 0
+                ? "-0x"
+                : " 0x"
+            : longValue < 0
+                ? ""
+                : " "
+        ;
+        Draw_DrawFormattedString(posX, posY, COLOR_GREEN, formatString,
+            prefix,
+            digitCount + ((isHex || longValue >= 0) ? 0 : 1),
+            (isHex && longValue < 0) ? -longValue : longValue
+        );
+        if (method) {
+            method(amountMenuIndex);
+        }
+
+        // Calculate the positional value of the selected digit
+        s32 digitValue = 1;
+        for (s32 i = 0; i < digitIndex; i++) {
+            digitValue = digitValue * (isHex ? 16 : 10);
+        }
+
+        // Draw cursor
+        Draw_DrawFormattedString(posX + (digitCount - digitIndex + (isHex ? 2 : 0)) * SPACING_X, posY, COLOR_RED, formatCursor,
+            ((longValue < 0 ? -longValue : longValue) / digitValue) % (isHex ? 16 : 10));
+
+        Draw_Unlock();
+
+        // Handle input
+        u32 pressed = Input_WaitWithTimeout(1000);
+
+        if (pressed & (BUTTON_B | BUTTON_A)){
+            break;
+        }
+        else if ((pressed & BUTTON_R1) && (pressed & BUTTON_L1)) {
+            longValue = 0;
+        }
+        else if (pressed & PAD_UP) {
+            longValue += digitValue;
+        }
+        else if (pressed & PAD_DOWN) {
+            longValue -= digitValue;
+        }
+        else if (pressed & PAD_RIGHT){
+            digitIndex--;
+        }
+        else if (pressed & PAD_LEFT){
+            digitIndex++;
+        }
+
+        // Limit cursor position
+        if(digitIndex >= digitCount)
+            digitIndex = 0;
+        else if(digitIndex < 0)
+            digitIndex = digitCount - 1;
+
+        // Limit value
+        while ((longValue > max) || (longValue < min)) {
+            s64 offset = 1 + max - min;
+            if (longValue > max) {
+                longValue -= offset;
+            } else {
+                longValue += offset;
+            }
+        }
+
+        // Write new value to address
+        if (varType <= VARTYPE_U8) {
+            *(u8*)valueAddress = (u8)longValue;
+        } else if (varType <= VARTYPE_U16) {
+            *(u16*)valueAddress = (u16)longValue;
+        } else {
+            *(u32*)valueAddress = longValue;
+        }
+
+    } while(menuOpen);
 }

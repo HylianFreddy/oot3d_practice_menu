@@ -13,3 +13,4 @@ build/*
 *.map
 *.lst
 *.elf
+commit_string.h

@@ -10,6 +10,7 @@
 #include "z3D/z3D.h"
 #include "utils.h"
 #include <stdio.h>
+#include "camera.h"
 
 #define ENTRANCE_MENU_MAX_SHOW 15
 #define SCENE_MENU_MAX_SHOW 18
@@ -35,26 +36,38 @@ static const char* AgeNames[] = {
     "Child",
 };
 
-void EntranceWarp(u16 EntranceIndex, s32 chosenAge, s32 cutsceneIndex, u32 chosenTimeIndex){
+void EntranceWarp(s16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneIndex, u32 chosenTimeIndex, s32 useFadeOut){
+    s32 resolvedCutsceneIndex = (chosenCutsceneIndex == -2) ? 0 : (chosenCutsceneIndex + 0xFFF0);
     if (chosenTimeIndex != 0){
         gSaveContext.dayTime = frozenTime = EntranceTimes[chosenTimeIndex];
     }
-    gGlobalContext->nextEntranceIndex = EntranceIndex;
-    gGlobalContext->fadeOutTransition = 11;
     gGlobalContext->linkAgeOnLoad = chosenAge;
-    if (cutsceneIndex == -1){ //this prevents crashes because warping with CS 0xFFEF ("None") would keep the previous CS number
+
+    gSaveContext.nextCutsceneIndex = resolvedCutsceneIndex;
+    if (chosenCutsceneIndex == -1){ //this prevents crashes because warping with CS 0xFFEF ("None") would keep the previous CS number
         gSaveContext.cutsceneIndex = 0;
     }
-
-    gSaveContext.nextCutsceneIndex = (cutsceneIndex == -2) ? 0 : (cutsceneIndex + 0xFFF0);
-
-    gGlobalContext->sceneLoadFlag = 0x14;
 
     if(noClip) {
         Scene_NoClipToggle();
     }
-    if(freeCam) {
-        Scene_FreeCamToggle();
+    if(freeCam.enabled) {
+        FreeCam_Toggle();
+    }
+
+    if (useFadeOut) {
+        gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
+        gGlobalContext->transitionType = 3;
+        gGlobalContext->transitionTrigger = 0x14;
+    } else {
+        gSaveContext.entranceIndex = chosenEntranceIndex;
+        gGlobalContext->state.running = 0;
+        gGlobalContext->state.init = Play_Init;
+        // Stop BGM, except when voiding out
+        if (gSaveContext.respawnFlag != 1) {
+            gSaveContext.seqIndex = 0xFF;
+            gSaveContext.nightSeqIndex = 0xFF;
+        }
     }
 }
 
@@ -69,7 +82,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
     s32 cutsceneIndex = -1;
     u32 chosen = 0;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = 3, page = 0, pagePrev = 0;
     }
 
@@ -136,22 +149,11 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                 if (ADDITIONAL_FLAG_BUTTON && selected == Entrance_Select_Menu_CsIdx) {
                     gSaveContext.nextCutsceneIndex = (cutsceneIndex == -2) ? 0 : (cutsceneIndex + 0xFFF0);
                 }
-                else if (ADDITIONAL_FLAG_BUTTON && selected == Entrance_Select_Menu_Etcs) {
-                    gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
-                }
             }
-            else if (pressed & (BUTTON_UP | BUTTON_DOWN | BUTTON_LEFT | BUTTON_RIGHT)) // change selected value
+            else if (pressed & (PAD_UP | PAD_DOWN)) // change selected value
             {
-                s32 increment = 0;
-                if (pressed & BUTTON_UP) increment = (pressed & BUTTON_X) ? 0x100 : 0x1;
-                if (pressed & BUTTON_DOWN) increment = (pressed & BUTTON_X) ? -0x100 : -0x1;
-                if (pressed & BUTTON_RIGHT) increment = (pressed & BUTTON_X) ? 0x1000 : 0x10;
-                if (pressed & BUTTON_LEFT) increment = (pressed & BUTTON_X) ? -0x1000 : -0x10;
-
-                if (selected == Entrance_Select_Menu_Etcs)
-                    chosenEntranceIndex += increment;
-                else if (selected == Entrance_Select_Menu_CsIdx) {
-                    cutsceneIndex += increment;
+                if (selected == Entrance_Select_Menu_CsIdx) {
+                    cutsceneIndex += (pressed & PAD_UP) ? 1 : -1;
                     // keep cutsceneIndex within the correct values
                     if(cutsceneIndex > 15){
                         cutsceneIndex = (ADDITIONAL_FLAG_BUTTON ? -2 : -1);
@@ -161,9 +163,6 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                     }
                 }
             }
-            else if ((pressed & BUTTON_L1) && selected == Entrance_Select_Menu_Etcs) {
-                chosenEntranceIndex = 0;
-            }
         } else { // not chosen
             if(pressed & BUTTON_B) // close entrances menu
             {
@@ -171,7 +170,14 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
             }
             if(pressed & BUTTON_A) // select option
             {
-                if(selected == Entrance_Select_Menu_CsIdx || (manualSelection && selected == Entrance_Select_Menu_Etcs)){
+                if (manualSelection && selected == Entrance_Select_Menu_Etcs) {
+                    Menu_EditAmount(30 + 15 * SPACING_X, 30 + SPACING_Y * Entrance_Select_Menu_Etcs,
+                                    &chosenEntranceIndex, VARTYPE_U16, 0, 0, 4, TRUE, NULL, 0);
+                    if (ADDITIONAL_FLAG_BUTTON) {
+                        gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
+                    }
+                }
+                else if(selected == Entrance_Select_Menu_CsIdx){
                     chosen = 1;
                     curColor = COLOR_RED;
                 }
@@ -187,16 +193,19 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                     }
                 }
                 else if(selected >= Entrance_Select_Menu_Etcs){
-                    u16 entranceIndex = manualSelection ? chosenEntranceIndex : entrances->items[selected - Entrance_Select_Menu_Etcs].entranceIndex;
-                    EntranceWarp(entranceIndex, chosenAge, cutsceneIndex, chosenTime);
-                    menuOpen = 0;
+                    s16 entranceIndex = manualSelection ? chosenEntranceIndex : entrances->items[selected - Entrance_Select_Menu_Etcs].entranceIndex;
+                    EntranceWarp(entranceIndex, chosenAge, cutsceneIndex, chosenTime, ADDITIONAL_FLAG_BUTTON);
+                    menuOpen = false;
                 }
             }
-            else if(pressed & BUTTON_DOWN)
+            else if (pressed & BUTTON_L1) {
+                selected = 0;
+            }
+            else if(pressed & PAD_DOWN)
             {
                 selected++;
             }
-            else if(pressed & BUTTON_UP)
+            else if(pressed & PAD_UP)
             {
                 selected--;
             }
@@ -231,7 +240,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
                 Draw_DrawStringTop(60, 220, COLOR_WHITE, "Next Cutscene: None                ");
             }*/
         }
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 void WarpsSceneMenuShow(WarpsSceneMenu* menu){
@@ -239,7 +248,7 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
     s32 page = selected / SCENE_MENU_MAX_SHOW;
     s32 pagePrev = page;
 
-    if (ToggleSettingsMenu.items[TOGGLESETTINGS_REMEMBER_CURSOR_POSITION].on == 0) {
+    if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = 0, page = 0, pagePrev = 0;
     }
 
@@ -284,18 +293,21 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
             Draw_FlushFramebuffer();
             Draw_Unlock();
         }
-        else if(pressed & BUTTON_DOWN)
+        else if (pressed & BUTTON_L1) {
+            selected = 0;
+        }
+        else if(pressed & PAD_DOWN)
         {
             selected++;
         }
-        else if(pressed & BUTTON_UP)
+        else if(pressed & PAD_UP)
         {
             selected--;
         }
-        else if(pressed & BUTTON_LEFT){
+        else if(pressed & PAD_LEFT){
             selected -= SCENE_MENU_MAX_SHOW;
         }
-        else if(pressed & BUTTON_RIGHT){
+        else if(pressed & PAD_RIGHT){
             if(selected + SCENE_MENU_MAX_SHOW < menu->nbItems)
                 selected += SCENE_MENU_MAX_SHOW;
             else if((menu->nbItems - 1) / SCENE_MENU_MAX_SHOW == page)
@@ -311,7 +323,7 @@ void WarpsSceneMenuShow(WarpsSceneMenu* menu){
 
         pagePrev = page;
         page = selected / SCENE_MENU_MAX_SHOW;
-    } while(menuOpen);
+    } while(onMenuLoop());
 }
 
 EntrancesByScene Entrances_Empty = {

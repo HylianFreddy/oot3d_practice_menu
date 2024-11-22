@@ -4,6 +4,8 @@
 #include "z3D/z3D.h"
 
 #define COMMAND_COMBO_MAX 4
+#define COMMAND_BUTTON_NAME_LENGTH 4
+#define COMMAND_COMBO_STRING_SIZE (COMMAND_COMBO_MAX * COMMAND_BUTTON_NAME_LENGTH)
 #define COMMAND_COMBO_TIMEOUT 3
 #define COMMAND_MENU_MAX_SHOW 17
 #define STORED_POS_COUNT 9
@@ -30,9 +32,13 @@ typedef enum {
     COMMAND_TOGGLE_PAUSE,
     COMMAND_FRAME_ADVANCE,
     COMMAND_HITBOX_VIEW,
+    COMMAND_COLLISION_VIEW,
     COMMAND_TOGGLE_WATCHES,
     COMMAND_BREAK,
     COMMAND_NOCLIP,
+    COMMAND_FREECAM,
+    COMMAND_AUTOLOAD_SAVEFILE,
+    COMMAND_FAST_FORWARD,
     NUMBER_OF_COMMANDS,
 } commandNames;
 
@@ -57,9 +63,15 @@ extern Command commandList[NUMBER_OF_COMMANDS];
 
 void Commands_ShowCommandsMenu(void);
 void Command_UpdateCommands(u32 inputs);
-void Commands_ComboToString(char* buf, u32 commandIdx);
+void Commands_ComboToString(char buf[COMMAND_COMBO_STRING_SIZE], u32 commandIdx);
+void Commands_SetButtonsToIgnore(u32 buttons);
 
 extern u32 pauseUnpause;
 extern u32 frameAdvance;
 extern PosRot storedPosRot[STORED_POS_COUNT];
 extern u32 commandInit;
+extern u32 shouldAutoloadSavefile;
+extern u32 shouldFastForward;
+extern u32 gFastForwardCycleCounter;
+#define FAST_FORWARD_CYCLE_MAX 20
+#define FAST_FORWARD_IS_SKIPPING (shouldFastForward && gFastForwardCycleCounter != FAST_FORWARD_CYCLE_MAX - 1)

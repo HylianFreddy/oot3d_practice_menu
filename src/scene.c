@@ -4,40 +4,71 @@
 #include "z3D/z3D.h"
 #include "common.h"
 #include "input.h"
+#include "camera.h"
+#include "advance.h"
+#include "menus/commands.h"
+#include "colview.h"
+
+static void Scene_RoomSelectorMenuShow(void);
+static void Scene_HideEntitiesMenuShow(void);
+static void Scene_FreeCamSettingsMenuShow(void);
+static void Scene_SetEntrancePoint(void);
+static void Scene_SelectRoomNumber(void);
+static void Scene_LoadRoom(void);
+static void Scene_SetFlags(void);
+static void Scene_ClearFlags(void);
+static void Scene_NoClipDescription(void);
+static void Scene_FreeCamDescription(void);
+static void Scene_ToggleFreeCamSetting(s32 selected);
+static void Scene_HideEntityToggle(s32 selected);
 
 u8 noClip = 0;
-u8 freeCam = 0;
-u8 releasedABbuttons = 0;
-void dummyActorFunction(Actor* thisx, GlobalContext* globalCtx) {}
-void* storedPlayerUpdateFunction = &dummyActorFunction;
-View storedView;
-PosRot freeCamView;
+u8 waitingButtonRelease = 0;
+u8 haltActors = 0;
 
-static Menu CollisionMenu = {
-    "Collision",
-    .nbItems = 1,
+static s32 selectedRoomNumber = -1;
+
+static Menu RoomSelectorMenu = {
+    "Room Selector",
+    .nbItems = 2,
     .initialCursorPos = 0,
     {
-        {"TODO Placeholder", METHOD, .method = NULL}, //TODO: Collision options
+        {"Room Number: --", METHOD, .method = Scene_SelectRoomNumber},
+        {"Load", METHOD, .method = Scene_LoadRoom},
     }
 };
 
-AmountMenu RoomNumberMenu = {
-    "Choose a Room Number, then void out :)",
-    .nbItems = 1,
+static Menu FreeCamMenu = {
+    "Free Camera",
+    .nbItems = 2,
     .initialCursorPos = 0,
     {
-        {0, 0, 28, "Room Number", .method = Scene_SetRoomNumberinEP},
+        {"Settings", METHOD, .method = Scene_FreeCamSettingsMenuShow},
+        {"Info", METHOD, .method = Scene_FreeCamDescription},
+    }
+};
+
+ToggleMenu FreeCamSettingsMenu = {
+    "Free Camera Settings",
+    .nbItems = 5,
+    .initialCursorPos = 0,
+    {
+        {0, "Enable", .method = Scene_ToggleFreeCamSetting},
+        {0, "Lock", .method = Scene_ToggleFreeCamSetting},
+        {0, "Mode: OFF=Camera / ON=View", .method = Scene_ToggleFreeCamSetting},
+        {0, "Behavior: OFF=Manual / ON=Radial", .method = Scene_ToggleFreeCamSetting},
+        {0, "Remember Position", .method = Scene_ToggleFreeCamSetting},
     }
 };
 
 ToggleMenu HideEntitiesMenu = {
     "Hide Game Entities",
-    .nbItems = 2,
+    .nbItems = HIDEENTITIES_MAX,
     .initialCursorPos = 0,
     {
-        {0, "Hide Rooms", .method = Scene_HideRoomsToggle},
-        {0, "Hide Actors (TODO)", .method = NULL},
+        {0, "Hide Rooms", .method = Scene_HideEntityToggle},
+        {0, "Hide Actors", .method = Scene_HideEntityToggle},
+        {0, "  Except Link", .method = Scene_HideEntityToggle},
     }
 };
 
@@ -48,45 +79,77 @@ Menu SceneMenu = {
     {
         {"NoClip / Move Link", METHOD, .method = Scene_NoClipDescription},
         {"Set Entrance Point", METHOD, .method = Scene_SetEntrancePoint},
-        {"Set flags", METHOD, .method = Scene_SetFlags},
-        {"Clear flags", METHOD, .method = Scene_ClearFlags},
-        {"Room \"selector\" (not really)", METHOD, .method = Scene_RoomNumberMenuShow},
-        {"Collision (TODO)", MENU, .menu = &CollisionMenu},
-        {"Free Camera", METHOD, .method = Scene_FreeCamDescription},
+        {"Set Flags", METHOD, .method = Scene_SetFlags},
+        {"Clear Flags", METHOD, .method = Scene_ClearFlags},
+        {"Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow},
+        {"Collision Viewer", METHOD, .method = ColView_CollisionMenuShow},
+        {"Free Camera", MENU, .menu = &FreeCamMenu},
         {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
     }
 };
 
-void Scene_SetEntrancePoint(void) {
+static void Scene_SetEntrancePoint(void) {
     gSaveContext.respawn[0] = (RespawnData){
         PLAYER->actor.world.pos,
         PLAYER->actor.shape.rot.y,
         (ADDITIONAL_FLAG_BUTTON ? 0x0EFF : 0x0DFF),
         gSaveContext.entranceIndex,
-        gGlobalContext->roomCtx.currentRoomNumber,
+        gGlobalContext->roomCtx.curRoom.num,
         0,
         gGlobalContext->actorCtx.flags.tempSwch,
         gGlobalContext->actorCtx.flags.tempCollect,
     };
-    alertMessage = ADDITIONAL_FLAG_BUTTON ? "EP set as from EPG" : "EP set!";
-    alertFrames = 10;
-    drawAlert();
+    setAlert(ADDITIONAL_FLAG_BUTTON ? "EP set as from EPG" : "EP set!", 90);
 }
 
-void Scene_RoomNumberMenuInit(void) {
-    RoomNumberMenu.items[0].amount = gSaveContext.respawn[0].roomIndex;
+static void Scene_RoomSelectorUpdateNumber(void) {
+    // Write current room number to menu item title
+    snprintf(RoomSelectorMenu.items[ROOMSELECTOR_NUMBER].title + 13, 3, "%2.2d", selectedRoomNumber);
 }
 
-void Scene_RoomNumberMenuShow(void) {
-    Scene_RoomNumberMenuInit();
-    AmountMenuShow(&RoomNumberMenu);
+static void Scene_RoomSelectorMenuShow(void) {
+    if (!isInGame()) {
+        setAlert("Not in game", 90);
+        return;
+    }
+    selectedRoomNumber = gGlobalContext->roomCtx.curRoom.num;
+    RoomSelectorMenu.initialCursorPos = 0; // reset the cursor because it's useless to keep it on "Load"
+    Scene_RoomSelectorUpdateNumber();
+    menuShow(&RoomSelectorMenu);
 }
 
-void Scene_SetRoomNumberinEP(s32 selected) {
-    gSaveContext.respawn[0].roomIndex = RoomNumberMenu.items[0].amount;
+static void Scene_SelectRoomNumber(void) {
+    if (gGlobalContext->numRooms > 1) {
+        Menu_EditAmount(30 + 12 * SPACING_X, 30, &selectedRoomNumber, VARTYPE_U16, 0, gGlobalContext->numRooms - 1, 2,
+                        false, NULL, 0);
+    }
+    Scene_RoomSelectorUpdateNumber();
+    if (ADDITIONAL_FLAG_BUTTON) { // preserve old behavior of setting the room number in the Entrance Point
+        gSaveContext.respawn[0].roomIndex = selectedRoomNumber;
+        setAlert("Set in EP", 90);
+    }
 }
 
-void Scene_SetFlags(void) {
+static void Scene_LoadRoom(void) {
+#if Version_KOR || Version_TWN
+    setAlert(UNSUPPORTED_WARNING, 90);
+    return;
+#endif
+    if (selectedRoomNumber == gGlobalContext->roomCtx.curRoom.num) {
+        setAlert("Already loaded", 90);
+        return;
+    }
+    if (gGlobalContext->roomCtx.prevRoom.num != -1) {
+        // For now, let's just refuse loading rooms while the game is already in a room transition state.
+        setAlert("roomCtx busy!", 90);
+        return;
+    }
+    Room_StartTransition(gGlobalContext, &gGlobalContext->roomCtx, selectedRoomNumber);
+    Room_ClearPrevRoom(gGlobalContext, &gGlobalContext->roomCtx);
+    menuOpen = false;
+}
+
+static void Scene_SetFlags(void) {
     gGlobalContext->actorCtx.flags.swch = 0xFFFFFFFF;
     gGlobalContext->actorCtx.flags.tempSwch = 0xFFFFFFFF;
     gGlobalContext->actorCtx.flags.chest = 0xFFFFFFFF;
@@ -96,7 +159,7 @@ void Scene_SetFlags(void) {
     gGlobalContext->actorCtx.flags.tempCollect = 0xFFFFFFFF;
 }
 
-void Scene_ClearFlags(void) {
+static void Scene_ClearFlags(void) {
     gGlobalContext->actorCtx.flags.swch = 0;
     gGlobalContext->actorCtx.flags.tempSwch = 0;
     gGlobalContext->actorCtx.flags.chest = 0;
@@ -107,24 +170,25 @@ void Scene_ClearFlags(void) {
 }
 
 void Scene_NoClipToggle(void) {
-    if (isInGame() && !freeCam) {
+    if (isInGame() && !FreeCam_Moving) {
         if (!noClip) {
-            storedPlayerUpdateFunction = PLAYER->actor.update;
-            PLAYER->actor.update = dummyActorFunction;
-            PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
+            haltActors = 1;
             noClip = 1;
+            if (advance_ctx.advance_state == PAUSED) {
+                // Unpause automatically when entering NoClip
+                pauseUnpause = 1;
+            }
         }
         else {
-            PLAYER->actor.update = storedPlayerUpdateFunction;
-            PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
+            haltActors = 0;
             noClip = 0;
         }
-        menuOpen = 0;
-        releasedABbuttons = 0;
+        menuOpen = false;
+        waitingButtonRelease = 1;
     }
 }
 
-void Scene_NoClipDescription(void) {
+static void Scene_NoClipDescription(void) {
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -135,9 +199,9 @@ void Scene_NoClipDescription(void) {
                                         "Commands:\n"
                                         "Circle Pad - Move horizontally (camera)\n"
                                         "DPad       - Move horizontally (cardinal)\n"
-                                        "L+DPad     - Move vertically\n"
-                                        "Hold R     - Move fast\n"
-                                        "X/Y        - Freeze/Unfreeze actors\n"
+                                        "L/R        - Move vertically\n"
+                                        "Hold X     - Move fast\n"
+                                        "Y          - Freeze/Unfreeze actors\n"
                                         "A          - Quit and confirm position\n"
                                         "B          - Quit and cancel movement");
     Draw_FlushFramebuffer();
@@ -153,36 +217,19 @@ void Scene_NoClipDescription(void) {
         if (pressed & BUTTON_A){
             Scene_NoClipToggle();
         }
-    }while(menuOpen);
+    }while(onMenuLoop());
 }
 
-u8 Scene_FreeCamEnabled(void) {
-    return freeCam;
+static void Scene_FreeCamSettingsMenuShow(void) {
+    FreeCamSettingsMenu.items[FREECAMSETTING_ENABLE].on = freeCam.enabled;
+    FreeCamSettingsMenu.items[FREECAMSETTING_LOCK].on = freeCam.locked;
+    FreeCamSettingsMenu.items[FREECAMSETTING_MODE].on = freeCam.mode;
+    FreeCamSettingsMenu.items[FREECAMSETTING_BEHAVIOR].on = freeCam.behavior;
+    FreeCamSettingsMenu.items[FREECAMSETTING_REMEMBER_POS].on = freeCam.rememberPos;
+    ToggleMenuShow(&FreeCamSettingsMenu);
 }
 
-void Scene_FreeCamToggle(void) {
-    if (isInGame() && !noClip) {
-        if (!freeCam) {
-            storedView = gGlobalContext->view;
-            freeCamView.pos = gGlobalContext->view.eye;
-            freeCamView.rot = gGlobalContext->cameraPtrs[gGlobalContext->activeCamera]->camDir;
-            storedPlayerUpdateFunction = PLAYER->actor.update;
-            PLAYER->actor.update = dummyActorFunction;
-            PLAYER->stateFlags2 |= 0x08000000; //freeze actors (ocarina state)
-            freeCam = 1;
-        }
-        else {
-            gGlobalContext->view = storedView;
-            PLAYER->actor.update = storedPlayerUpdateFunction;
-            PLAYER->stateFlags2 &= ~0x08000000; //unfreeze actors
-            freeCam = 0;
-        }
-        menuOpen = 0;
-        releasedABbuttons = 0;
-    }
-}
-
-void Scene_FreeCamDescription(void) {
+static void Scene_FreeCamDescription(void) {
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -191,12 +238,14 @@ void Scene_FreeCamDescription(void) {
                                         "Link behind.\n"
                                         "Press A to start, B to cancel.\n\n"
                                         "Commands:\n"
-                                        "Circle Pad   - Move horizontally\n"
+                                        "Circle Pad   - Move forward/sideways\n"
                                         "L+Circle Pad - Rotate in place\n"
                                         "C Stick      - Rotate while moving\n"
                                         "DPad Up/Down - Move vertically\n"
-                                        "Hold R       - Move fast\n"
-                                        "B            - Quit");
+                                        "Hold X       - Move fast\n"
+                                        "Y            - Freeze/Unfreeze non-player actors\n"
+                                        "A            - Quit and lock camera in place\n"
+                                        "B            - Quit and disable Free Camera");
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
@@ -208,16 +257,47 @@ void Scene_FreeCamDescription(void) {
             break;
         }
         if (pressed & BUTTON_A){
-            Scene_FreeCamToggle();
+            FreeCam_Toggle();
+            menuOpen = false;
+            waitingButtonRelease = 1;
         }
-    }while(menuOpen);
+    }while(onMenuLoop());
 }
 
-void Scene_HideEntitiesMenuShow() {
+static void Scene_ToggleFreeCamSetting(s32 selected) {
+    switch (selected) {
+        case FREECAMSETTING_ENABLE:
+            FreeCam_Toggle();
+            FreeCamSettingsMenu.items[selected].on = freeCam.enabled;
+            break;
+        case FREECAMSETTING_LOCK:
+            FreeCam_ToggleLock();
+            FreeCamSettingsMenu.items[selected].on = freeCam.locked;
+            break;
+        case FREECAMSETTING_MODE:
+            FreeCamSettingsMenu.items[selected].on = freeCam.mode ^= 1;
+            break;
+        case FREECAMSETTING_BEHAVIOR:
+            FreeCamSettingsMenu.items[selected].on = freeCam.behavior ^= 1;
+            break;
+        case FREECAMSETTING_REMEMBER_POS:
+            FreeCamSettingsMenu.items[selected].on = freeCam.rememberPos ^= 1;
+            break;
+    }
+}
+
+static void Scene_HideEntitiesMenuShow() {
+    HideEntitiesMenu.items[HIDEENTITIES_ROOMS].on = gStaticContext.disableRoomDraw;
     ToggleMenuShow(&HideEntitiesMenu);
 }
 
-void Scene_HideRoomsToggle(s32 selected) {
-    gStaticContext.renderGeometryDisable = !gStaticContext.renderGeometryDisable;
-    HideEntitiesMenu.items[0].on = !HideEntitiesMenu.items[0].on;
+static void Scene_HideEntityToggle(s32 selected) {
+    HideEntitiesMenu.items[selected].on ^= 1;
+    if (selected == HIDEENTITIES_ROOMS) {
+        gStaticContext.disableRoomDraw = HideEntitiesMenu.items[selected].on;
+    }
+}
+
+s32 Scene_HaltActorsEnabled() {
+    return haltActors;
 }

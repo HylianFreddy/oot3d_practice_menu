@@ -38,6 +38,16 @@
 #define CORE_SYSTEM       1
 #define CORE_DEFAULT     -2
 
+typedef enum {
+    VARTYPE_S8,
+    VARTYPE_U8,
+    VARTYPE_S16,
+    VARTYPE_U16,
+    VARTYPE_S32,
+    VARTYPE_U32,
+    VARTYPE_MAX,
+} VarType;
+
 typedef enum MenuItemAction {
     METHOD,
     MENU
@@ -77,8 +87,11 @@ typedef struct ToggleMenu {
 
 typedef struct AmountMenuItem {
     u16 amount; //current amount
-    u16 hex;    //display in hex or decimal
-    u16 max;    //max amount, 0 = no limit
+    bool isSigned;
+    s32 min;    //min amount, 0 = no limit
+    s32 max;    //max amount, 0 = no limit
+    s32 nDigits;//number of digits to display
+    bool hex;   //display in hex or decimal
     char *title;
     void (*method)(s32);
 } AmountMenuItem;
@@ -94,10 +107,12 @@ typedef struct AmountMenu {
 #define TOGGLE_MENU_MAX_SHOW 18
 #define AMOUNT_MENU_MAX_SHOW 18
 
-void menuShow();
+void menuShow(Menu* rootMenu);
 void ToggleMenuShow(ToggleMenu *menu);
 void AmountMenuShow(AmountMenu *menu);
-
+void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max,
+                     s32 digitCount, bool isHex, void (*method)(s32), s32 amountMenuIndex);
 u32 KeyboardFill(char* buf, u32 len);
+bool onMenuLoop();
 
 extern bool menuOpen;

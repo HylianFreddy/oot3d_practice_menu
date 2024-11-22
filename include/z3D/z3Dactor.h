@@ -5,20 +5,14 @@
 
 struct Actor;
 struct GlobalContext;
-
 struct LightMapper;
 struct ZARInfo;
+struct CollisionPoly;
 
 typedef struct {
     Vec3f pos;
     Vec3s rot;
 } PosRot; // size = 0x14
-
-typedef struct {
-    /* 0x00 */ char   unk_00[0x8];
-    /* 0x08 */ Vec3s  norm;  // Normal vector
-    /* 0x0E */ s16    dist;  // Plane distance from origin
-} CollisionPoly; // size = 0x10
 
 struct SkeletonAnimationModel;
 typedef void (*SkeletonAnimationModelFunc)(struct SkeletonAnimationModel*);
@@ -41,19 +35,29 @@ typedef struct SkeletonAnimationModel_unk_0C {
     /* 0x11 */ char unk_11[0x87];
 } SkeletonAnimationModel_unk_0C; // size = 0x98
 
+typedef struct SkeletonAnimationModel_unk_14 {
+    void * vtable_4EBD98;
+    void * cmbManager;
+    void * unk_08;
+    void * unk_0C;
+    void * unkAutoClass1;
+} SkeletonAnimationModel_unk_14;
+
 typedef struct SkeletonAnimationModel {
     /* 0x00 */ SkeletonAnimationModel_VTable* vtbl;
     /* 0x04 */ char            unk_04[0x08];
     /* 0x0C */ SkeletonAnimationModel_unk_0C* unk_0C;
     /* 0x10 */ SkeletonAnimationModel_unk_10* unk_10;
-    /* 0x14 */ char            unk_14[0x68];
+    /* 0x14 */ SkeletonAnimationModel_unk_14* unk_14;
+    /* 0x18 */ char            unk_18[0x64];
     /* 0x7C */ nn_math_MTX34   mtx;
     /* 0xAC */ s8              unk_AC;
     /* 0xAD */ char            unk_AD[0x03];
 } SkeletonAnimationModel; // size = 0xB0
+_Static_assert(sizeof(SkeletonAnimationModel) == 0xB0, "SkeletonAnimationModel size");
 
 typedef struct SkelAnime {
-    /* 0x00 */ char unk_00[0x04];
+    /* 0x00 */ char** cmbMan;
     /* 0x04 */ struct ZARInfo* zarInfo;
     /* 0x08 */ char unk_08[0x20];
     /* 0x28 */ SkeletonAnimationModel* unk_28;
@@ -144,8 +148,8 @@ typedef struct Actor {
     /* 0x06C */ f32     speedXZ; // How fast the actor is traveling along the XZ plane
     /* 0x070 */ f32     gravity; // Acceleration due to gravity. Value is added to Y velocity every frame
     /* 0x074 */ f32     minVelocityY; // Sets the lower bounds cap on velocity along the Y axis
-    /* 0x078 */ CollisionPoly* wallPoly; // Wall polygon an actor is touching
-    /* 0x07C */ CollisionPoly* floorPoly; // Floor polygon directly below the actor
+    /* 0x078 */ struct CollisionPoly* wallPoly; // Wall polygon an actor is touching
+    /* 0x07C */ struct CollisionPoly* floorPoly; // Floor polygon directly below the actor
     /* 0x080 */ u8      wallBgId; // Bg ID of the wall polygon the actor is touching
     /* 0x081 */ u8      floorBgId; // Bg ID of the floor polygon directly below the actor
     /* 0x082 */ s16     wallYaw; // Y rotation of the wall polygon the actor is touching
@@ -170,7 +174,9 @@ typedef struct Actor {
     /* 0x115 */ u8      targetPriority; // Lower values have higher priority. Resets to 0 when player stops targeting
     /* 0x116 */ u16     textId; // Text ID to pass to link/display when interacting with the actor
     /* 0x118 */ u16     freezeTimer; // Actor does not update when set. Timer decrements automatically
-    /* 0x120 */ char    unk_118[0x7];
+    /* 0x11A */ s16     colorFilterTimer;
+    /* 0x11C */ u32     colorFilterParams;
+    /* 0x120 */ char    unk_120;
     /* 0x121 */ u8      isDrawn; // Set to true if the actor is currently being drawn. Always stays false for lens actors
     /* 0x122 */ u8      unk_122; // Set within a routine that deals with collision
     /* 0x123 */ u8      naviEnemyId; // Sets what 0600 dialog to display when talking to navi. Default 0xFF
@@ -194,46 +200,78 @@ typedef struct Actor {
     /* 0x1A0 */ f32           unk_1A0;
    /* From here on, the structure and size varies for each actor */
 } Actor; // size = 0x1A4
+_Static_assert(sizeof(Actor) == 0x1A4, "Actor size");
 
-typedef struct {
-    /* 0x00 */ Actor* actor;
-    /* 0x04 */ char unk_04[0x10];
-    /* 0x14 */ Vec3f scale1;
-    /* 0x20 */ Vec3s rot1;
-    /* 0x28 */ Vec3f pos1;
-    /* 0x34 */ Vec3f scale2;
-    /* 0x40 */ Vec3s rot2;
-    /* 0x48 */ Vec3f pos2;
-    /* 0x54 */ char unk_54[0x18];
-} ActorMesh; // size = 0x6C
-
-typedef struct {
-    /* 0x0000 */ Actor  actor;
-    /* 0x01A4 */ char   unk_148[0x0006];
-    /* 0x01AA */ u8     heldItemId;
-    /* 0x01AB */ char   unk_1AB[0x00A1];
-    /* 0x024C */ void*  giDrawSpace;
-    /* 0x0250 */ char   unk_250[0x0004];
+typedef struct Player {
+    /* 0x0000 */ Actor actor;
+    /* 0x01A4 */ char unk_148[0x0005];
+    /* 0x01A9 */ s8 heldItemActionParam;
+    /* 0x01AA */ u8 heldItemId;
+    /* 0x01AB */ char unk_1AB[0x1];
+    /* 0x01AC */ s8 itemActionParam;
+    /* 0x01AD */ char unk_1AD[0x0003];
+    /* 0x01B0 */ u8 modelGroup;
+    /* 0x01B1 */ u8 nextModelGroup;
+    /* 0x01B2 */ s8 unk_1B2;
+    /* 0x01B3 */ u8 modelAnimType;
+    /* 0x01B4 */ u8 leftHandType;
+    /* 0x01B5 */ u8 rightHandType;
+    /* 0x01B6 */ u8 sheathType;
+    /* 0x01B7 */ u8 currentMask;
+    /* 0x01B8 */ char unk_1B8[0x0004];
+    /* 0x01BC */ void* rightHandDLists;
+    /* 0x01C0 */ void* leftHandDLists;
+    /* 0x01C4 */ void* sheathDLists;
+    /* 0x01C8 */ void* waistDLists;
+    /* 0x01CC */ char unk_1CC[0x80];
+    /* 0x024C */ void* giDrawSpace;
+    /* 0x0250 */ char unk_250[0x0004];
     /* 0x0254 */ struct SkelAnime skelAnime;
-    /* 0x02D8 */ char   unk_2D8[0x0FD4];
-    /* 0x12AC */ u8     getItemId;
-    /* 0x12AD */ char   unk_12AD[0x0001];
-    /* 0x12AE */ u16    getItemDirection;
+    /* 0x02D8 */ char unk_2D8[0x0F4C];
+    /* 0x1224 */ Actor* heldActor;
+    /* 0x1228 */ char unk_1228[0x84];
+    /* 0x12AC */ s8 getItemId;
+    /* 0x12AD */ char unk_12AD[0x0001];
+    /* 0x12AE */ u16 getItemDirection;
     /* 0x12B0 */ Actor* interactRangeActor;
-    /* 0x12B4 */ char   unk_12B4[0x045C];
-    /* 0x1710 */ u32    stateFlags1;
-    /* 0x1714 */ u32    stateFlags2;
-    /* 0x1718 */ char   unk_1718[0x0013];
-    /* 0x172B */ s8     exchangeItemId;
-    /* 0x172C */ char   unk_172C[0x0AF0];
-    /* 0x221C */ float  xzSpeed; //probably
-    /* 0x2220 */ char   unk_2220[0x0007];
-    /* 0x2227 */ u8     meleeWeaponState;
-    /* 0x2228 */ char   unk_2228[0x260];
-    /* 0x2488 */ s8     invincibilityTimer; // prevents damage when nonzero (positive = visible, counts towards zero each frame)
-    /* 0x2489 */ char   unk_2489[0x27B];
+    /* 0x12B4 */ s8 mountSide;
+    /* 0x12B5 */ char unk_12B5[0x0003];
+    /* 0x12B8 */ Actor* rideActor;
+    /* 0x12BC */ u8 csAction;
+    /* 0x12BD */ u8 prevCsAction;
+    /* 0x12BE */ char unk_12BE[0x044A];
+    /* 0x1708 */ void* actionFunc;
+    /* 0x170C */ char unk_170C[0x0004];
+    /* 0x1710 */ u32 stateFlags1;
+    /* 0x1714 */ u32 stateFlags2;
+    /* 0x1718 */ Actor* unk_1718;
+    /* 0x171C */ Actor* boomerangActor;
+    /* 0x1720 */ Actor* unk_1720;
+    /* 0x1724 */ Actor* naviActor;
+    /* 0x1728 */ s16 naviTextId;
+    /* 0x172A */ u8 stateFlags3;
+    /* 0x172B */ s8 exchangeItemId;
+    /* 0x172C */ char unk_172C[0x0AF0];
+    /* 0x221C */ float xzSpeed; // probably
+    /* 0x2220 */ char unk_2220[0x0007];
+    /* 0x2227 */ s8 meleeWeaponState;
+    /* 0x2228 */ char unk_2228[0x20];
+    union {
+        /* 0x2248 */ s16 fpsItemType; // value manipulated by action swap
+        /* 0x2248 */ s16 stickFlameTimer;
+        /* 0x2248 */ s16 fishingState;
+    };
+    /* 0x224A */ char unk_224A[0x0004];
+    /* 0x224E */ s16 giDrawIdPlusOne; // used to change mesh for rupee models
+    /* 0x2250 */ char unk_2250[0x0234];
+    /* 0x2484 */ void* miniCsFunc;
+    /* 0x2488 */ s8 invincibilityTimer; // prevents damage when nonzero
+                                        // (positive = visible, counts towards zero each frame)
+    /* 0x2489 */ char unk_2489[0x27B];
     /* 0x2704 */ struct SkeletonAnimationModel_unk_0C* bodyTexAnim;
+    /* 0x2708 */ char unk_2708[0x344];
 } Player; //total size (from init vars): 2A4C
+_Static_assert(sizeof(Player) == 0x2A4C, "Player size");
 
 typedef enum {
     /* 0x00 */ ACTORTYPE_SWITCH,
@@ -256,10 +294,15 @@ typedef struct ActorHeapNode {
     u32 size;
     struct ActorHeapNode* next;
     struct ActorHeapNode* prev;
+    Actor actor;
 } ActorHeapNode;
 
 void Actor_Kill(Actor* actor);
-#define gActorOverlayTable ((ActorOverlay*)0x50CD84)
+#if Version_KOR || Version_TWN
+    #define gActorOverlayTable ((ActorOverlay*)0x5184AC)
+#else
+    #define gActorOverlayTable ((ActorOverlay*)0x50CD84)
+#endif
 
 typedef u32 (*Actor_HasParent_proc)(Actor* actor, struct GlobalContext* globalCtx);
 #define Actor_HasParent_addr 0x371E40

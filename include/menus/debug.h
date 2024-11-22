@@ -6,21 +6,9 @@ extern Menu DebugMenu;
 
 extern u32 memoryEditorAddress;
 
-extern void DebugActors_ShowActors();
-extern void Debug_ShowObjects();
-extern void Debug_FlagsEditor();
-extern void Debug_PlayerStatesMenuShow();
-extern void Debug_MemoryEditor();
-extern void MemoryEditor_EditAddress();
-extern void MemoryEditor_EditValue();
-extern bool MemoryEditor_ConfirmPermissionOverride();
-extern void pushHistory(u32 addr);
-void MemoryEditor_GoToPreset(void);
-void MemoryEditor_FollowPointer(void);
-void MemoryEditor_TableSettings(void);
-void MemoryEditor_JumpToTableElementFromIndex(void);
-void MemoryEditor_JumpToTableElement(void);
-void MemoryEditor_BoundTableIndexValue(void);
+void Debug_MemoryEditor(void);
+void MemoryEditor_PushHistory(u32 addr);
+u32 MemoryEditor_GetSelectedByteAddress(void);
 
 typedef enum {
     FLAGS_SWITCH,
@@ -45,19 +33,12 @@ typedef enum {
     PLAYERSTATES_PART2,
     PLAYERSTATES_PART3,
     PLAYERSTATES_PART4,
+    PLAYERSTATES_PART5,
     PLAYERSTATES_HELD_ITEM,
 } PlayerStatesOptions;
 
-typedef enum {
-    TABLEINDEX_U8,
-    TABLEINDEX_S8,
-    TABLEINDEX_U16,
-    TABLEINDEX_S16,
-} TableIndexType;
-
-static const char* const TableIndexTypeNames[] = {
-    "U8 ",
-    "S8 ",
-    "U16",
-    "S16",
-};
+typedef enum MemEditorSideInfo {
+    SIDEINFO_NOTHING,
+    SIDEINFO_CHARACTERS,
+    SIDEINFO_TABLE_DATA,
+} MemEditorSideInfo;
