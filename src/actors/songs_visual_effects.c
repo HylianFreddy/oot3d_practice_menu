@@ -2,7 +2,13 @@
 #include "menus/cheats.h"
 #include "actors/songs_visual_effects.h"
 
-#define OceffSpot_End_addr 0x10FBD0
+#if Version_USA || Version_EUR || Version_JPN
+    #define OceffSpot_End_addr 0x10FBD0
+#elif Version_KOR
+    #define OceffSpot_End_addr 0x1C0844
+#elif Version_TWN
+    #define OceffSpot_End_addr 0x1C0944
+#endif
 #define OceffSpot_End ((ActorFunc)OceffSpot_End_addr)
 
 ActorInit vanillaActorInit_OceffSpot  = {0};
@@ -66,7 +72,7 @@ void OceffStorm_rUpdate(Actor* thisx, GlobalContext* globalCtx) {
     if (!cheats[CHEATS_SKIP_SONGS_PLAYBACK]) {
         vanillaActorInit_OceffStorm.update(thisx, globalCtx);
     } else {
-        Flags_SetEnv(globalCtx, 5);
+        CutsceneFlags_Set(globalCtx, 5);
         Actor_Kill(thisx);
     }
 }

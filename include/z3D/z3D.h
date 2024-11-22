@@ -605,11 +605,11 @@ _Static_assert(sizeof(SubMainClass_32A0) == 0x20, "SubMainClass_32A0 size");
 
 typedef struct MainClass {
     /* 0x0000 */ char unk_00[0x180];
-    /* 0x0180 */ SubMainClass_180 sub180;
-    /* 0x01A8 */ char unk_1A8[0x30F8];
 #if Version_KOR || Version_TWN
     /* 0x???? */ char unk_kor_twn[0x4]; // the stuff below is 4 bytes ahead on KOR/TWN
 #endif
+    /* 0x0180 */ SubMainClass_180 sub180;
+    /* 0x01A8 */ char unk_1A8[0x30F8];
     /* 0x32A0 */ SubMainClass_32A0 sub32A0;
     /* ... size unknown*/
 } MainClass;
@@ -721,13 +721,17 @@ typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* p
 #endif
 #define Player_SetEquipmentData ((Player_SetEquipmentData_proc)Player_SetEquipmentData_addr)
 
-typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
-#if Version_JPN
-    #define Flags_SetEnv_addr 0x36621C
-#else //USA & EUR
-    #define Flags_SetEnv_addr 0x366704
+typedef void (*CutsceneFlags_Set_proc)(GlobalContext* globalCtx, s16 flag);
+#if Version_USA || Version_EUR
+    #define CutsceneFlags_Set_addr 0x366704
+#elif Version_JPN
+    #define CutsceneFlags_Set_addr 0x36621C
+#elif Version_KOR
+    #define CutsceneFlags_Set_addr 0x2CEC18
+#elif Version_TWN
+    #define CutsceneFlags_Set_addr 0x2CED18
 #endif
-#define Flags_SetEnv ((Flags_SetEnv_proc)Flags_SetEnv_addr)
+#define CutsceneFlags_Set ((CutsceneFlags_Set_proc)CutsceneFlags_Set_addr)
 
 typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor* actor);
 #define DisplayTextbox_addr 0x367C7C
@@ -924,10 +928,6 @@ typedef u32 (*Inventory_HasEmptyBottle_proc)(void);
 typedef void (*FireDamage_proc)(Actor* player, GlobalContext* globalCtx, int flamesColor);
 #define FireDamage_addr 0x35D8D8
 #define FireDamage ((FireDamage_proc)FireDamage_addr)
-
-typedef void (*Flags_SetEnv_proc)(GlobalContext* globalCtx, s16 flag);
-#define Flags_SetEnv_addr 0x366704
-#define Flags_SetEnv ((Flags_SetEnv_proc)Flags_SetEnv_addr)
 
 typedef void (*GiveItem_proc)(Actor* actor, GlobalContext* globalCtx, s32 getItemId, f32 xzRange, f32 yRange)
     __attribute__((pcs("aapcs-vfp")));
