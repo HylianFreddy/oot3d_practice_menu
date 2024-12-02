@@ -12,7 +12,7 @@ fi
 # If the commit string doesn't change, don't rewrite the file to avoid useless rebuilds.
 new_content="#define COMMIT_STRING \"$commit_string\""
 old_content="$(cat src/commit_string.h 2> /dev/null)"
-if ([[ $new_content != $old_content ]])
+if ([[ "$new_content" != "$old_content" ]])
 then
     echo $new_content > src/commit_string.h
 fi
