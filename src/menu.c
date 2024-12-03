@@ -496,6 +496,7 @@ void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType, s3
         Draw_DrawFormattedString(posX + (digitCount - digitIndex + (isHex ? 2 : 0)) * SPACING_X, posY, COLOR_RED, formatCursor,
             ((longValue < 0 ? -longValue : longValue) / digitValue) % (isHex ? 16 : 10));
 
+        Draw_FlushFramebuffer();
         Draw_Unlock();
 
         // Handle input

@@ -861,6 +861,7 @@ static void MemoryEditor_EditValue(void) {
     {
         Draw_Lock();
         Draw_DrawFormattedString(posX, posY, COLOR_RED, "%02X", value);
+        Draw_FlushFramebuffer();
         Draw_Unlock();
 
         u32 pressed = Input_WaitWithTimeout(1000);
