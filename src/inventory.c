@@ -996,7 +996,7 @@ void Inventory_HeartPiecesAmount(s32 selected){
 
     u32 posY = 30 + (selected % TOGGLE_MENU_MAX_SHOW) * SPACING_Y;
     Draw_DrawString(30 + 19 * SPACING_X, posY, COLOR_WHITE, ":                         ");
-    Menu_EditAmount(30 + 21 * SPACING_X, posY, &curHearts, VARTYPE_U16, 0, 15, 2, false, NULL, 0);
+    Menu_EditAmount(30 + 21 * SPACING_X, posY, &curHearts, VARTYPE_U16, 0, 15, 2, FALSE);
 
     gSaveContext.questItems &= 0xFFFFFF;
     gSaveContext.questItems |= (curHearts << 28);
@@ -1007,7 +1007,7 @@ void Inventory_GoldSkulltulaAmount(s32 selected){
 
     u32 posY = 30 + (selected % TOGGLE_MENU_MAX_SHOW) * SPACING_Y;
     Draw_DrawString(30 + 19 * SPACING_X, posY, COLOR_WHITE, ":                         ");
-    Menu_EditAmount(30 + 21 * SPACING_X, posY, &gSaveContext.gsTokens, VARTYPE_S16, 0, 0, 5, false, NULL, 0);
+    Menu_EditAmount(30 + 21 * SPACING_X, posY, &gSaveContext.gsTokens, VARTYPE_S16, 0, 0, 5, FALSE);
 
     gSaveContext.questItems &= ~(1 << 23);
     gSaveContext.questItems |= ((gSaveContext.gsTokens != 0) << 23);

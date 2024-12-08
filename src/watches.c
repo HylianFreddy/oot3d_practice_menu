@@ -132,7 +132,7 @@ static void Watches_EditWatch(s32 selected) {
             if (selectedItem == WATCHEDIT_NAME)
                 Watches_EditName(watches[selected].name);
             else if(selectedItem == WATCHEDIT_ADDR)
-                Menu_EditAmount(66, 30 + selectedItem * SPACING_Y, &watches[selected].addr, VARTYPE_U32, 0, 0, 8, true, NULL, 0);
+                Menu_EditAmount(66, 30 + selectedItem * SPACING_Y, &watches[selected].addr, VARTYPE_U32, 0, 0, 8, TRUE);
             else if(selectedItem == WATCHEDIT_POS)
                 Watches_EditPos(selected);
             else if(selectedItem == WATCHEDIT_DISPLAY)

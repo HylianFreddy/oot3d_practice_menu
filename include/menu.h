@@ -110,8 +110,9 @@ typedef struct AmountMenu {
 void menuShow(Menu* rootMenu);
 void ToggleMenuShow(ToggleMenu *menu);
 void AmountMenuShow(AmountMenu *menu);
-void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max,
-                     s32 digitCount, bool isHex, void (*method)(s32), s32 amountMenuIndex);
+void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount, bool isHex);
+void Menu_EditAmountWithMethod(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount,
+                               bool isHex, void (*method)(s32), s32 amountMenuIndex);
 u32 KeyboardFill(char* buf, u32 len);
 bool onMenuLoop();
 

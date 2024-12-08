@@ -172,7 +172,7 @@ void EntranceSelectMenuShow(EntrancesByScene* entrances, const u8 manualSelectio
             {
                 if (manualSelection && selected == Entrance_Select_Menu_Etcs) {
                     Menu_EditAmount(30 + 15 * SPACING_X, 30 + SPACING_Y * Entrance_Select_Menu_Etcs,
-                                    &chosenEntranceIndex, VARTYPE_U16, 0, 0, 4, TRUE, NULL, 0);
+                                    &chosenEntranceIndex, VARTYPE_U16, 0, 0, 4, TRUE);
                     if (ADDITIONAL_FLAG_BUTTON) {
                         gGlobalContext->nextEntranceIndex = chosenEntranceIndex;
                     }

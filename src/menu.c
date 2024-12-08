@@ -302,13 +302,10 @@ void AmountMenuShow(AmountMenu* menu){ //displays an amount menu
             bool isHex = menu->items[selected].hex;
             u32 posX = 10 + ((isHex ? 4 : 6) - menu->items[selected].nDigits) * SPACING_X;
             u32 posY = 30 + (selected % AMOUNT_MENU_MAX_SHOW) * SPACING_Y;
-            Menu_EditAmount(posX, posY, &menu->items[selected].amount,
-                            menu->items[selected].isSigned ? VARTYPE_S16 : VARTYPE_U16,
-                            menu->items[selected].min,
-                            menu->items[selected].max,
-                            menu->items[selected].nDigits,
-                            isHex,
-                            menu->items[selected].method, selected);
+            Menu_EditAmountWithMethod(posX, posY, &menu->items[selected].amount,
+                                      menu->items[selected].isSigned ? VARTYPE_S16 : VARTYPE_U16,
+                                      menu->items[selected].min, menu->items[selected].max,
+                                      menu->items[selected].nDigits, isHex, menu->items[selected].method, selected);
         }
         else if (pressed & BUTTON_L1) {
             selected = 0;
@@ -432,7 +429,7 @@ u32 KeyboardFill(char * buf, u32 len){
  * @brief Allow the user to edit a numeric value displayed at an arbitrary position on the screen
  */
 void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType, s32 customMin, s32 customMax,
-                     s32 digitCount, bool isHex, void (*method)(s32), s32 amountMenuIndex) {
+                     s32 digitCount, bool isHex) {
 
     static void* lastEditedValue = 0;
     static s32 digitIndex = 0;
@@ -482,9 +479,6 @@ void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType, s3
             digitCount + ((isHex || longValue >= 0) ? 0 : 1),
             (isHex && longValue < 0) ? -longValue : longValue
         );
-        if (method) {
-            method(amountMenuIndex);
-        }
 
         // Calculate the positional value of the selected digit
         s32 digitValue = 1;
@@ -546,5 +540,13 @@ void Menu_EditAmount(u32 posX, u32 posY, void* valueAddress, VarType varType, s3
             *(u32*)valueAddress = longValue;
         }
 
-    } while(menuOpen);
+    } while(onMenuLoop());
+}
+
+void Menu_EditAmountWithMethod(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount,
+                               bool isHex, void (*method)(s32), s32 amountMenuIndex) {
+    Menu_EditAmount(posX, posY, value, varType, min, max, digitCount, isHex);
+    if (method != NULL) {
+        method(amountMenuIndex);
+    }
 }

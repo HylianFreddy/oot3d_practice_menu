@@ -229,8 +229,7 @@ static bool DebugActors_SpawnActor(void) {
             Menu_EditAmount(xCoords[selected], 70, values[selected], VARTYPE_U16, 0,
                             selected == 2 ? 8 : 0,
                             digitCounts[selected],
-                            selected != 2,
-                            NULL, 0);
+                            selected != 2);
             if (selected == 2) {
                 selectedPosRot = storedPosRot[storedPosRotIndex];
             }
@@ -836,7 +835,7 @@ void Debug_MemoryEditor(void) {
 static void MemoryEditor_EditAddress(void) {
     u32 oldAddress = memoryEditorAddress;
 
-    Menu_EditAmount(30 - 3 * SPACING_X, 30, &memoryEditorAddress, VARTYPE_U32, 0, 0, 8, TRUE, NULL, 0);
+    Menu_EditAmount(30 - 3 * SPACING_X, 30, &memoryEditorAddress, VARTYPE_U32, 0, 0, 8, TRUE);
 
     if (memoryEditorAddress != oldAddress)
         MemoryEditor_PushHistory(oldAddress);
@@ -1099,13 +1098,13 @@ static void MemoryEditor_TableSettings(void) {
         else if (pressed & BUTTON_A) {
             switch (selected) {
                 case 0:
-                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true, NULL, 0);
+                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y, &tableElementSize, VARTYPE_U16, 0, 0, 4, true);
                     if (tableElementSize != 0) {
                         sideInfo = SIDEINFO_TABLE_DATA;
                     }
                     break;
                 case 2:
-                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true, NULL, 0);
+                    Menu_EditAmount(30 + SPACING_X * 19, 120 + SPACING_Y * 3, &tableIndex, tableIndexType, 0, 0, 4, true);
                     UpdateTableIndexValueSign();
                     break;
                 case 3:

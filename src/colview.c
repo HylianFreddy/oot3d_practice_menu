@@ -121,10 +121,10 @@ static void ColView_AdvancedOptionsMenuShow(s32 ignoredParam) {
         if (pressed & BUTTON_A) {
             switch (selected) {
                 case OPT_POLY_COUNT_MAX:
-                    Menu_EditAmount(24, OPT_HEIGHT, &sPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE, NULL, 0);
+                    Menu_EditAmount(24, OPT_HEIGHT, &sPolyMax, VARTYPE_S16, 64, 2000, 4, FALSE);
                     break;
                 case OPT_DISTANCE_MAX:
-                    Menu_EditAmount(18, OPT_HEIGHT + SPACING_Y, &sDistanceMax, VARTYPE_U16, 0, 0, 5, FALSE, NULL, 0);
+                    Menu_EditAmount(18, OPT_HEIGHT + SPACING_Y, &sDistanceMax, VARTYPE_U16, 0, 0, 5, FALSE);
                     break;
                 case OPT_ALL_STATIC:
                     sDrawAllStatic ^= 1;
