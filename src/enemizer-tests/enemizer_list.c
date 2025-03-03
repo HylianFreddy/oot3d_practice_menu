@@ -606,6 +606,7 @@ void EnemyLocations_Init(void) {
         enemyLocations[6][0][26][4]  = ACTOR_LIZALFOS;
         enemyLocations[6][0][27][0]  = ACTOR_ANUBIS_SPAWNER;
 
+        enemyLocations[7][0][0][5]   = ACTOR_FLYING_POT;
         enemyLocations[7][0][1][0]   = ACTOR_KEESE;
         enemyLocations[7][0][1][1]   = ACTOR_KEESE;
         enemyLocations[7][0][1][2]   = ACTOR_REDEAD;
@@ -641,6 +642,8 @@ void EnemyLocations_Init(void) {
         enemyLocations[7][0][19][1]  = ACTOR_REDEAD;
         enemyLocations[7][0][20][0]  = ACTOR_REDEAD;
         enemyLocations[7][0][20][1]  = ACTOR_REDEAD;
+        enemyLocations[7][0][20][4]  = ACTOR_FLYING_POT;
+        enemyLocations[7][0][20][5]  = ACTOR_FLYING_POT;
         enemyLocations[7][0][21][13] = ACTOR_STALFOS;
         enemyLocations[7][0][21][14] = ACTOR_STALFOS;
 
