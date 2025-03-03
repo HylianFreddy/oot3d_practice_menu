@@ -23,7 +23,8 @@ u8 ActorSetup_OverrideEntry(ActorEntry* actorEntry, s32 actorEntryIndex) {
 
     for (u32 i = 0; i < ARRAY_SIZE(enemyTypes); i++) {
         if (actorEntry->id == enemyTypes[i].actorId &&
-            (actorEntry->id != ACTOR_ARMOS || actorEntry->params == 0xFFFF)) {
+            (actorEntry->id != ACTOR_ARMOS || actorEntry->params == 0xFFFF) &&
+            (actorEntry->id != ACTOR_SKULLWALLTULA || (actorEntry->params & 0xE000) == 0)) {
             foundEnemy = enemyTypes[i];
         }
     }
