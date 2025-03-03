@@ -18,7 +18,7 @@ typedef struct {
 } ActorEntry; // size = 0x10
 
 extern u16 enemyLocations[100][4][30][100];
-extern EnemyType enemyTypes[58];
+extern EnemyType enemyTypes[47];
 extern s32 rSceneLayer;
 
 void EnemyLocations_Init(void);

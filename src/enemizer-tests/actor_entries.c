@@ -26,12 +26,13 @@ u8 ActorSetup_OverrideEntry(ActorEntry* actorEntry, s32 actorEntryIndex) {
             (actorEntry->id != ACTOR_ARMOS || actorEntry->params == 0xFFFF) &&
             (actorEntry->id != ACTOR_SKULLWALLTULA || (actorEntry->params & 0xE000) == 0)) {
             foundEnemy = enemyTypes[i];
+            break;
         }
     }
 
     if (foundEnemy.actorId != 0 && locationActor == 0) {
-        CitraPrint("Missing location: %d %d %d %d, should be 0x%X (%s)", gGlobalContext->sceneNum, rSceneLayer,
-                   (u8)gGlobalContext->roomCtx.curRoom.num, (u8)actorEntryIndex, foundEnemy.actorId, foundEnemy.name);
+        CitraPrint("Missing location: %d %d %d %d, should be 0x%X (%s) params=0x%X", gGlobalContext->sceneNum, rSceneLayer,
+                   (u8)gGlobalContext->roomCtx.curRoom.num, (u8)actorEntryIndex, foundEnemy.actorId, foundEnemy.name, actorEntry->params);
     } else if (foundEnemy.actorId != 0 && locationActor != actorEntry->id) {
         CitraPrint("Wrong actor at location: %d %d %d %d, real actor is 0x%X (%s), location is 0x%X", gGlobalContext->sceneNum,
                    rSceneLayer, (u8)gGlobalContext->roomCtx.curRoom.num, (u8)actorEntryIndex, foundEnemy.actorId,
