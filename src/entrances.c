@@ -11,6 +11,7 @@
 #include "utils.h"
 #include <stdio.h>
 #include "camera.h"
+#include "enemizer-tests/enemizer.h"
 
 #define ENTRANCE_MENU_MAX_SHOW 15
 #define SCENE_MENU_MAX_SHOW 18
@@ -68,6 +69,7 @@ void EntranceWarp(s16 chosenEntranceIndex, s32 chosenAge, s32 chosenCutsceneInde
             gSaveContext.seqIndex = 0xFF;
             gSaveContext.nightSeqIndex = 0xFF;
         }
+        Enemizer_OnPlayDestroy();
     }
 }
 
