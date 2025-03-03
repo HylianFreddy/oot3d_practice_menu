@@ -17,6 +17,7 @@ SECTIONS
 	.patch_TurboTextSignalNPC 0x3469F4 : {}
 	.patch_PlaySound 0x35C528 : {}
 	.patch_SetBGMEvent 0x36EC40 : {}
+	.patch_AltHeadersCommand 0x379020 : {}
 	.patch_SleepQueryCallback 0x3FD6C4 : {}
 	.patch_before_GameState_Loop 0x416340 : {}
 	.patch_after_GameState_Update 0x416398 : {}
@@ -24,8 +25,10 @@ SECTIONS
 	.patch_ItemUsability_AnyAction 0x42E544 : {}
 	.patch_LoadGame 0x447380 : {}
 	.patch_OverrideSceneSetup 0x4487B8 : {}
+	.patch_OnActorSetup_SceneChange 0x452250 : {}
 	.patch_before_Play_Update 0x452390 : {}
 	.patch_after_Play_Update 0x452434 : {}
+	.patch_OnActorSetup_RoomChange 0x4613C4 : {}
 	.patch_InitSubMainClass32A0 0x4644FC : {}
 	.patch_ItemUsability_AnyArea 0x4762C4 : {}
 	.patch_TurboTextAdvance 0x480928 : {}

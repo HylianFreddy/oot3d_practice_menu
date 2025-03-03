@@ -22,6 +22,7 @@
 #include "camera.h"
 #include "commit_string.h"
 #include "colview.h"
+#include "enemizer-tests/enemizer.h"
 
 #define NOCLIP_SLOW_SPEED 8
 #define NOCLIP_FAST_SPEED 30
@@ -49,7 +50,14 @@ void before_Play_Update(GlobalContext* globalCtx) {
         Actor_Init();
         irrstInit();
         Settings_UpdateWatchAddresses();
+        EnemyLocations_Init();
         gInit = 1;
+    }
+    if (rInputCtx.pressed.zr) {
+        Enemizer_ChangeRoom();
+    }
+    if (globalCtx->state.running == 0) {
+        Enemizer_OnPlayDestroy();
     }
 }
 

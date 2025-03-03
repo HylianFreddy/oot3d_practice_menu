@@ -92,3 +92,18 @@ loader_patch:
     bl ColView_InitSubMainClass32A0
     pop {r0-r12, lr}
     add pc,pc,#0x18 @ 0x464530 on USA
+
+.section .patch_OnActorSetup_SceneChange
+.global OnActorSetup_SceneChange_patch
+OnActorSetup_SceneChange_patch:
+    bl hook_OnActorSetup_SceneChange
+
+.section .patch_OnActorSetup_RoomChange
+.global OnActorSetup_RoomChange_patch
+OnActorSetup_RoomChange_patch:
+    bl hook_OnActorSetup_RoomChange
+
+.section .patch_AltHeadersCommand
+.global AltHeadersCommand_patch
+AltHeadersCommand_patch:
+    bl hook_AltHeadersCommand

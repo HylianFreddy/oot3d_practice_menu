@@ -333,6 +333,53 @@ hook_GameButtonInputs:
     bx lr
 .endif
 
+.global hook_OnActorSetup_SceneChange
+hook_OnActorSetup_SceneChange:
+    cpy r4,r5
+    push {r0-r12, lr}
+    cpy r0,r5
+    cpy r1,r6
+    bl ActorSetup_OverrideEntry
+    cmp r0,#0x1
+    pop {r0-r12, lr}
+    # Continue like normal
+    bxne lr
+    # Iterate actor entry pointer and skip
+    add r5,#0x10
+.if _EUR_==1
+    b 0x4522C4
+.else
+    b 0x4522A4
+.endif
+
+.global hook_OnActorSetup_RoomChange
+hook_OnActorSetup_RoomChange:
+    cpy r4,r6
+    push {r0-r12, lr}
+    cpy r0,r6
+    cpy r1,r7
+    bl ActorSetup_OverrideEntry
+    cmp r0,#0x1
+    pop {r0-r12, lr}
+    # Continue like normal
+    bxne lr
+    # Iterate actor entry pointer and skip
+    add r6,#0x10
+.if _EUR_==1
+    b 0x461444
+.else
+    b 0x461424
+.endif
+
+.global hook_AltHeadersCommand
+hook_AltHeadersCommand:
+    add r2,r7,r1
+    push {r0-r12, lr}
+    cpy r0,r2 @ alt headers pointers list
+    bl Scene_GetLoadedLayer
+    pop {r0-r12, lr}
+    bx lr
+
 @---------------------
 @---------------------
 
