@@ -559,7 +559,7 @@ void EnemyLocations_Init(void) {
         enemyLocations[6][0][4][3]   = ACTOR_SKULLWALLTULA;
         enemyLocations[6][0][4][4]   = ACTOR_LIZALFOS;
         enemyLocations[6][0][4][5]   = ACTOR_LIZALFOS;
-        enemyLocations[6][0][5][11]  = ACTOR_ARMOS;
+        enemyLocations[6][0][5][1]   = ACTOR_ARMOS;
         enemyLocations[6][0][5][19]  = ACTOR_FLYING_POT;
         enemyLocations[6][0][5][20]  = ACTOR_FLYING_POT;
         enemyLocations[6][0][8][4]   = ACTOR_BEAMOS;
@@ -568,9 +568,9 @@ void EnemyLocations_Init(void) {
         enemyLocations[6][0][10][0]  = ACTOR_IRON_KNUCKLE;
         enemyLocations[6][0][12][0]  = ACTOR_LIKE_LIKE;
         enemyLocations[6][0][14][0]  = ACTOR_WOLFOS;
-        enemyLocations[6][0][15][8]  = ACTOR_WALLMASTER;
-        enemyLocations[6][0][15][9]  = ACTOR_FLOORMASTER;
-        // enemyLocations[6][0][15][12] = ACTOR_LIKE_LIKE; WHAT?
+        enemyLocations[6][0][15][0]  = ACTOR_WALLMASTER;
+        enemyLocations[6][0][15][1]  = ACTOR_FLOORMASTER;
+        enemyLocations[6][0][15][2]  = ACTOR_LIKE_LIKE;
         enemyLocations[6][0][15][11] = ACTOR_FLYING_POT;
         enemyLocations[6][0][15][12] = ACTOR_FLYING_POT;
         enemyLocations[6][0][16][0]  = ACTOR_BEAMOS;
