@@ -10,6 +10,7 @@ void Scene_GetLoadedLayer(void** altHeaders) {
     } else {
         rSceneLayer = 0;
     }
+    CitraPrint("rSceneLayer: %X", rSceneLayer);
 }
 
 // Return true to skip spawning this actor entry

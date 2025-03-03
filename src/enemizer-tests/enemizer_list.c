@@ -108,20 +108,16 @@ void EnemyLocations_Init(void) {
     enemyLocations[81][0][0][12] = ACTOR_PEAHAT;
     enemyLocations[81][0][0][13] = ACTOR_PEAHAT;
     enemyLocations[81][0][0][14] = ACTOR_PEAHAT;
-    enemyLocations[83][2][1][2]  = ACTOR_KEESE;
-    enemyLocations[83][2][1][3]  = ACTOR_KEESE;
-    enemyLocations[83][2][1][4]  = ACTOR_KEESE;
-    enemyLocations[83][2][1][5]  = ACTOR_KEESE;
-    enemyLocations[83][2][1][6]  = ACTOR_KEESE;
-    enemyLocations[83][2][1][7]  = ACTOR_SKULLWALLTULA;
-    enemyLocations[83][2][1][8]  = ACTOR_SKULLWALLTULA;
-    enemyLocations[83][3][1][2]  = ACTOR_KEESE;
-    enemyLocations[83][3][1][3]  = ACTOR_KEESE;
-    enemyLocations[83][3][1][4]  = ACTOR_KEESE;
-    enemyLocations[83][3][1][5]  = ACTOR_KEESE;
-    enemyLocations[83][3][1][6]  = ACTOR_KEESE;
-    enemyLocations[83][3][1][7]  = ACTOR_SKULLWALLTULA;
-    enemyLocations[83][3][1][8]  = ACTOR_SKULLWALLTULA;
+    // enemyLocations[83][2][1][2]  = ACTOR_KEESE;
+    // enemyLocations[83][2][1][3]  = ACTOR_KEESE;
+    // enemyLocations[83][2][1][4]  = ACTOR_KEESE;
+    // enemyLocations[83][2][1][5]  = ACTOR_KEESE;
+    // enemyLocations[83][2][1][6]  = ACTOR_KEESE;
+    // enemyLocations[83][2][1][7]  = ACTOR_SKULLWALLTULA;
+    // enemyLocations[83][2][1][8]  = ACTOR_SKULLWALLTULA;
+    enemyLocations[83][2][1][12] = ACTOR_POE;
+    enemyLocations[83][2][1][13] = ACTOR_POE;
+    enemyLocations[83][2][1][14] = ACTOR_POE;
     enemyLocations[84][0][0][4]  = ACTOR_OCTOROK;
     enemyLocations[84][0][0][5]  = ACTOR_OCTOROK;
     enemyLocations[84][0][0][42] = ACTOR_TEKTITE;
@@ -256,6 +252,18 @@ void EnemyLocations_Init(void) {
     enemyLocations[81][1][0][8]  = enemyLocations[81][0][0][12];
     enemyLocations[81][1][0][9]  = enemyLocations[81][0][0][13];
     enemyLocations[81][1][0][10] = enemyLocations[81][0][0][14];
+
+    // Enemies in Graveyard as adult
+    // enemyLocations[83][3][1][2]  = enemyLocations[83][2][1][2];
+    // enemyLocations[83][3][1][3]  = enemyLocations[83][2][1][3];
+    // enemyLocations[83][3][1][4]  = enemyLocations[83][2][1][4];
+    // enemyLocations[83][3][1][5]  = enemyLocations[83][2][1][5];
+    // enemyLocations[83][3][1][6]  = enemyLocations[83][2][1][6];
+    // enemyLocations[83][3][1][7]  = enemyLocations[83][2][1][7];
+    // enemyLocations[83][3][1][8]  = enemyLocations[83][2][1][8];
+    enemyLocations[83][3][1][12] = enemyLocations[83][2][1][12];
+    enemyLocations[83][3][1][13] = enemyLocations[83][2][1][13];
+    enemyLocations[83][3][1][14] = enemyLocations[83][2][1][14];
 
     if (1) { // Vanilla dungeons
         enemyLocations[0][0][0][0]  = ACTOR_SKULLWALLTULA;
