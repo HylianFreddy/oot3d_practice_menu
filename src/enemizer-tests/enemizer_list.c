@@ -822,6 +822,9 @@ void EnemyLocations_Init(void) {
         enemyLocations[1][0][3][2]   = ACTOR_LIZALFOS;
         enemyLocations[1][0][3][3]   = ACTOR_LIZALFOS;
         enemyLocations[1][0][3][4]   = ACTOR_LIZALFOS;
+        enemyLocations[1][0][4][0]   = ACTOR_POE;
+        enemyLocations[1][0][4][1]   = ACTOR_POE;
+        enemyLocations[1][0][4][2]   = ACTOR_POE;
         enemyLocations[1][0][5][4]   = ACTOR_DODONGO;
         enemyLocations[1][0][5][5]   = ACTOR_DODONGO;
         enemyLocations[1][0][5][6]   = ACTOR_DODONGO;
@@ -856,6 +859,7 @@ void EnemyLocations_Init(void) {
         enemyLocations[1][0][13][2]  = ACTOR_MAD_SCRUB;
         enemyLocations[1][0][13][3]  = ACTOR_MAD_SCRUB;
         enemyLocations[1][0][13][4]  = ACTOR_KEESE;
+        enemyLocations[1][0][14][1]  = ACTOR_POE;
         enemyLocations[1][0][15][0]  = ACTOR_SKULLWALLTULA;
         enemyLocations[1][0][15][1]  = ACTOR_SKULLTULA;
         enemyLocations[1][0][15][2]  = ACTOR_SKULLTULA;
@@ -867,14 +871,14 @@ void EnemyLocations_Init(void) {
         enemyLocations[2][0][0][9]   = ACTOR_SHABOM;
         enemyLocations[2][0][1][3]   = ACTOR_BIRI;
         enemyLocations[2][0][1][4]   = ACTOR_BIRI;
-        enemyLocations[2][0][1][16]  = ACTOR_STINGER_FLOOR;
+        enemyLocations[2][0][1][16]  = ACTOR_STINGER_WATER;
         enemyLocations[2][0][2][2]   = ACTOR_BIRI;
         enemyLocations[2][0][2][3]   = ACTOR_BIRI;
         enemyLocations[2][0][3][3]   = ACTOR_BIRI;
         enemyLocations[2][0][3][10]  = ACTOR_SHABOM;
         enemyLocations[2][0][4][7]   = ACTOR_LIZALFOS;
         enemyLocations[2][0][5][4]   = ACTOR_LIKE_LIKE;
-        enemyLocations[2][0][5][5]   = ACTOR_LIKE_LIKE;
+        enemyLocations[2][0][5][3]   = ACTOR_LIKE_LIKE;
         enemyLocations[2][0][6][0]   = ACTOR_BARI;
         enemyLocations[2][0][7][0]   = ACTOR_LIZALFOS;
         enemyLocations[2][0][11][5]  = ACTOR_LIKE_LIKE;
@@ -888,10 +892,10 @@ void EnemyLocations_Init(void) {
         enemyLocations[2][0][13][1]  = ACTOR_KEESE;
         enemyLocations[2][0][13][2]  = ACTOR_KEESE;
         enemyLocations[2][0][13][3]  = ACTOR_KEESE;
-        enemyLocations[2][0][13][5]  = ACTOR_STINGER_FLOOR;
-        enemyLocations[2][0][13][6]  = ACTOR_STINGER_FLOOR;
-        enemyLocations[2][0][14][0]  = ACTOR_STINGER_WATER;
-        enemyLocations[2][0][14][1]  = ACTOR_STINGER_WATER;
+        enemyLocations[2][0][13][5]  = ACTOR_STINGER_WATER;
+        enemyLocations[2][0][13][6]  = ACTOR_STINGER_WATER;
+        enemyLocations[2][0][14][0]  = ACTOR_STINGER_FLOOR;
+        enemyLocations[2][0][14][1]  = ACTOR_STINGER_FLOOR;
         enemyLocations[2][0][14][3]  = ACTOR_LIKE_LIKE;
         enemyLocations[2][0][14][4]  = ACTOR_LIZALFOS;
 
@@ -953,6 +957,19 @@ void EnemyLocations_Init(void) {
         enemyLocations[4][0][15][3] = ACTOR_STALFOS;
         enemyLocations[4][0][17][2] = ACTOR_LIKE_LIKE;
         enemyLocations[4][0][18][0] = ACTOR_IRON_KNUCKLE;
+        enemyLocations[4][0][18][1] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][18][2] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][18][3] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][18][4] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][18][5] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][0] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][1] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][2] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][3] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][4] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][5] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][6] = ACTOR_FLYING_FLOOR_TILE;
+        enemyLocations[4][0][19][7] = ACTOR_FLYING_FLOOR_TILE;
         enemyLocations[4][0][24][0] = ACTOR_FLARE_DANCER;
         enemyLocations[4][0][25][0] = ACTOR_LIZALFOS;
 
@@ -1050,6 +1067,10 @@ void EnemyLocations_Init(void) {
         enemyLocations[6][0][26][7]  = ACTOR_BUBBLE;
         enemyLocations[6][0][27][7]  = ACTOR_STALFOS;
 
+        enemyLocations[7][0][0][6]   = ACTOR_FLYING_POT;
+        enemyLocations[7][0][0][7]   = ACTOR_FLYING_POT;
+        enemyLocations[7][0][0][8]   = ACTOR_FLYING_POT;
+        enemyLocations[7][0][0][9]   = ACTOR_FLYING_POT;
         enemyLocations[7][0][1][0]   = ACTOR_REDEAD;
         enemyLocations[7][0][1][1]   = ACTOR_REDEAD;
         enemyLocations[7][0][1][2]   = ACTOR_REDEAD;
@@ -1094,6 +1115,8 @@ void EnemyLocations_Init(void) {
         enemyLocations[7][0][19][3]  = ACTOR_REDEAD;
         enemyLocations[7][0][20][0]  = ACTOR_REDEAD;
         enemyLocations[7][0][20][1]  = ACTOR_REDEAD;
+        enemyLocations[7][0][20][5]  = ACTOR_FLYING_POT;
+        enemyLocations[7][0][20][6]  = ACTOR_FLYING_POT;
         enemyLocations[7][0][21][3]  = ACTOR_SKULLWALLTULA;
         enemyLocations[7][0][21][4]  = ACTOR_SKULLTULA;
         enemyLocations[7][0][21][16] = ACTOR_STALFOS;
@@ -1114,6 +1137,7 @@ void EnemyLocations_Init(void) {
         enemyLocations[8][0][1][8] = ACTOR_REDEAD;
         enemyLocations[8][0][1][9] = ACTOR_REDEAD;
         enemyLocations[8][0][2][0] = ACTOR_REDEAD;
+        enemyLocations[8][0][2][1] = ACTOR_POE;
         enemyLocations[8][0][3][0] = ACTOR_WALLMASTER;
         enemyLocations[8][0][3][1] = ACTOR_FLOORMASTER;
         enemyLocations[8][0][6][0] = ACTOR_KEESE;
@@ -1165,8 +1189,8 @@ void EnemyLocations_Init(void) {
         enemyLocations[11][0][7][3]  = ACTOR_DODONGO;
         enemyLocations[11][0][7][4]  = ACTOR_DODONGO;
         enemyLocations[11][0][7][5]  = ACTOR_ARMOS;
-        enemyLocations[11][0][9][0]  = ACTOR_STINGER_FLOOR;
-        enemyLocations[11][0][9][1]  = ACTOR_STINGER_FLOOR;
+        enemyLocations[11][0][9][0]  = ACTOR_STINGER_WATER;
+        enemyLocations[11][0][9][1]  = ACTOR_STINGER_WATER;
         enemyLocations[11][0][9][3]  = ACTOR_BARI;
         enemyLocations[11][0][9][4]  = ACTOR_SHELL_BLADE;
         enemyLocations[11][0][10][0] = ACTOR_FREEZARD;
@@ -1180,6 +1204,7 @@ void EnemyLocations_Init(void) {
         enemyLocations[13][0][0][2]   = ACTOR_IRON_KNUCKLE;
         enemyLocations[13][0][0][9]   = ACTOR_BUBBLE;
         enemyLocations[13][0][0][10]  = ACTOR_BUBBLE;
+        enemyLocations[13][0][2][0]   = ACTOR_DEAD_HAND_HAND;
         enemyLocations[13][0][2][1]   = ACTOR_FREEZARD;
         enemyLocations[13][0][2][2]   = ACTOR_FREEZARD;
         enemyLocations[13][0][2][3]   = ACTOR_FREEZARD;
