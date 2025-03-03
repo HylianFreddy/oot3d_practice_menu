@@ -368,10 +368,9 @@ void EnemyLocations_Init(void) {
         enemyLocations[2][0][8][2]   = ACTOR_BIRI;
         enemyLocations[2][0][8][3]   = ACTOR_BIRI;
         enemyLocations[2][0][8][4]   = ACTOR_BIRI;
-        enemyLocations[2][0][9][0]   = ACTOR_STINGER_WATER;
-        enemyLocations[2][0][9][1]   = ACTOR_STINGER_WATER;
-        enemyLocations[2][0][9][2]   = ACTOR_STINGER_WATER;
-        enemyLocations[2][0][9][3]   = ACTOR_STINGER_WATER;
+        enemyLocations[2][0][9][0]   = ACTOR_STINGER_FLOOR;
+        enemyLocations[2][0][9][1]   = ACTOR_STINGER_FLOOR;
+        enemyLocations[2][0][9][2]   = ACTOR_STINGER_FLOOR;
         enemyLocations[2][0][12][2]  = ACTOR_SHABOM;
         enemyLocations[2][0][12][3]  = ACTOR_SHABOM;
         enemyLocations[2][0][12][4]  = ACTOR_SHABOM;
@@ -383,9 +382,9 @@ void EnemyLocations_Init(void) {
         enemyLocations[2][0][12][10] = ACTOR_SHABOM;
         enemyLocations[2][0][13][0]  = ACTOR_OCTOROK;
         enemyLocations[2][0][13][1]  = ACTOR_OCTOROK;
-        enemyLocations[2][0][14][0]  = ACTOR_STINGER_WATER;
-        enemyLocations[2][0][14][1]  = ACTOR_STINGER_WATER;
-        enemyLocations[2][0][14][2]  = ACTOR_STINGER_WATER;
+        enemyLocations[2][0][14][0]  = ACTOR_STINGER_FLOOR;
+        enemyLocations[2][0][14][1]  = ACTOR_STINGER_FLOOR;
+        enemyLocations[2][0][14][2]  = ACTOR_STINGER_FLOOR;
         enemyLocations[2][0][14][10] = ACTOR_SHABOM;
         enemyLocations[2][0][14][11] = ACTOR_SHABOM;
         enemyLocations[2][0][14][12] = ACTOR_SHABOM;
