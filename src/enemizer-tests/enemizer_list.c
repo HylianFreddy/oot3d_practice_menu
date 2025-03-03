@@ -265,7 +265,7 @@ void EnemyLocations_Init(void) {
     enemyLocations[83][3][1][13] = enemyLocations[83][2][1][13];
     enemyLocations[83][3][1][14] = enemyLocations[83][2][1][14];
 
-    if (0) { // Vanilla dungeons
+    if (1) { // Vanilla dungeons
         enemyLocations[0][0][0][0]  = ACTOR_SKULLWALLTULA;
         enemyLocations[0][0][0][1]  = ACTOR_SKULLWALLTULA;
         enemyLocations[0][0][0][2]  = ACTOR_SKULLWALLTULA;
@@ -675,11 +675,15 @@ void EnemyLocations_Init(void) {
         enemyLocations[8][0][5][2]  = ACTOR_KEESE;
         enemyLocations[8][0][5][3]  = ACTOR_KEESE;
         enemyLocations[8][0][6][0]  = ACTOR_DEKU_BABA;
+        enemyLocations[8][0][6][2]  = ACTOR_FLYING_POT;
+        enemyLocations[8][0][6][3]  = ACTOR_FLYING_POT;
+        enemyLocations[8][0][6][4]  = ACTOR_FLYING_POT;
 
         enemyLocations[9][0][1][1]  = ACTOR_FREEZARD;
         enemyLocations[9][0][1][10] = ACTOR_FREEZARD;
         enemyLocations[9][0][1][11] = ACTOR_FREEZARD;
         enemyLocations[9][0][1][12] = ACTOR_FREEZARD;
+        enemyLocations[9][0][3][11] = ACTOR_FLYING_POT;
         enemyLocations[9][0][5][3]  = ACTOR_KEESE;
         enemyLocations[9][0][5][4]  = ACTOR_KEESE;
         enemyLocations[9][0][5][5]  = ACTOR_KEESE;
@@ -748,9 +752,7 @@ void EnemyLocations_Init(void) {
         enemyLocations[13][0][18][18] = ACTOR_WALLMASTER;
         enemyLocations[13][0][18][20] = ACTOR_WALLMASTER;
         enemyLocations[13][0][18][22] = ACTOR_WALLMASTER;
-    }
-
-    if (1) { // MQ dungeons
+    } else { // MQ dungeons
         enemyLocations[0][0][0][0]   = ACTOR_WITHERED_DEKU_BABA;
         enemyLocations[0][0][0][1]   = ACTOR_WITHERED_DEKU_BABA;
         enemyLocations[0][0][0][2]   = ACTOR_KEESE;
