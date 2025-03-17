@@ -73,8 +73,8 @@ u8 ActorSetup_OverrideEntry(ActorEntry* actorEntry, s32 actorEntryIndex) {
     if (!gInit) {
         return FALSE;
     }
-    u16 locationActor = enemyLocations[gGlobalContext->sceneNum][rSceneLayer][(u8)gGlobalContext->roomCtx.curRoom.num]
-                                      [(u8)actorEntryIndex];
+    EnemyLocation locationActor = enemyLocations[gGlobalContext->sceneNum][rSceneLayer][(u8)gGlobalContext->roomCtx.curRoom.num][(u8)actorEntryIndex];
+    u16 locationActorId = locationActor.actorId;
     EnemyType foundEnemy = { "", 0 };
 
     for (u32 i = 0; i < ARRAY_SIZE(enemyTypes); i++) {
@@ -86,20 +86,66 @@ u8 ActorSetup_OverrideEntry(ActorEntry* actorEntry, s32 actorEntryIndex) {
         }
     }
 
-    if (foundEnemy.actorId != 0 && locationActor == 0) {
+    f32 yGroundIntersect;
+    s32 waterBoxFound;
+    f32 yWaterSurface;
+    CollisionPoly floorPoly;
+    u8 isInvalidGround;
+    void* waterBox;
+    Vec3f actorPos = (Vec3f){
+        .x = actorEntry->pos.x,
+        .y = actorEntry->pos.y + 50, // Check for ground even slightly above the actor entry's real position
+        .z = actorEntry->pos.z,
+    };
+
+    // Ground height below actor.
+    yGroundIntersect        = BgCheck_RaycastDown1(&gGlobalContext->colCtx, &floorPoly, &actorPos);
+    SurfaceType surfaceType = gGlobalContext->colCtx.stat.colHeader->surfaceTypeList[floorPoly.type];
+    isInvalidGround         = yGroundIntersect <= BGCHECK_Y_MIN || SurfaceType_IsLoadingZoneOrVoidPlane(surfaceType);
+
+    // If there is a water box, set yWaterSurface.
+    waterBoxFound = WaterBox_GetSurfaceImpl(gGlobalContext, &gGlobalContext->colCtx, actorPos.x, actorPos.z,
+                                            &yWaterSurface, &waterBox);
+    // Ignore water boxes below the ground.
+    if (waterBoxFound && yWaterSurface < yGroundIntersect) {
+        waterBoxFound = FALSE;
+    }
+
+    const char* locTypeNames[] = {
+        "ABOVE_GROUND",
+        "ABOVE_VOID  ",
+        "UNDERWATER  ",
+        "ABOVE_WATER ",
+    };
+    u16 locTypeId = 0;
+    if (waterBoxFound && yWaterSurface >= actorEntry->pos.y + 10) {
+        locTypeId = UNDERWATER;
+    } else if (waterBoxFound) {
+        locTypeId = ABOVE_WATER;
+    } else if (!waterBoxFound && !isInvalidGround) {
+        locTypeId = ABOVE_GROUND;
+    } else {
+        locTypeId = ABOVE_VOID;
+    }
+
+    if (foundEnemy.actorId != 0 && locationActorId == 0) {
         CitraPrint("Missing location: %d %d %d %d, should be 0x%X (%s) params=0x%X", gGlobalContext->sceneNum, rSceneLayer,
                    (u8)gGlobalContext->roomCtx.curRoom.num, (u8)actorEntryIndex, foundEnemy.actorId, foundEnemy.name, actorEntry->params);
-    } else if (foundEnemy.actorId != 0 && locationActor != actorEntry->id) {
+    } else if (foundEnemy.actorId != 0 && locationActorId != actorEntry->id) {
         CitraPrint("Wrong actor at location: %d %d %d %d, real actor is 0x%X (%s), location is 0x%X", gGlobalContext->sceneNum,
                    rSceneLayer, (u8)gGlobalContext->roomCtx.curRoom.num, (u8)actorEntryIndex, foundEnemy.actorId,
-                   foundEnemy.name, locationActor);
-    } else if (foundEnemy.actorId == 0 && locationActor != 0) {
+                   foundEnemy.name, locationActorId);
+    } else if (foundEnemy.actorId == 0 && locationActorId != 0) {
         CitraPrint("Bad Location (not an enemy) at: %d %d %d %d, actorId=0x%X params=0x%X", gGlobalContext->sceneNum,
                    rSceneLayer, (u8)gGlobalContext->roomCtx.curRoom.num, (u8)actorEntryIndex, actorEntry->id,
                    actorEntry->params);
+    } else if (foundEnemy.actorId != 0 && locationActor.locType != locTypeId) {
+        CitraPrint("Bad Location Type at: %d %d %d %d, real loc type is %s, stored loc type is %s", gGlobalContext->sceneNum,
+                   rSceneLayer, (u8)gGlobalContext->roomCtx.curRoom.num, (u8)actorEntryIndex, locTypeNames[locTypeId], locTypeNames[locationActor.locType],
+                   actorEntry->id, actorEntry->params);
     } else if (foundEnemy.actorId != 0) {
-        CitraPrint("Location: [%d][%d][%d][%d] %s 0x%X", gGlobalContext->sceneNum, rSceneLayer, (u8)gGlobalContext->roomCtx.curRoom.num,
-                    (u8)actorEntryIndex, actorEnumNames[actorEntry->id], actorEntry->params);
+        CitraPrint("Location: [%d][%d][%d][%d] %s  %s 0x%X", gGlobalContext->sceneNum, rSceneLayer, (u8)gGlobalContext->roomCtx.curRoom.num,
+                    (u8)actorEntryIndex, locTypeNames[locTypeId], actorEnumNames[actorEntry->id], actorEntry->params);
     }
 
     return FALSE;
