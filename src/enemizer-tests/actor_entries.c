@@ -2,7 +2,7 @@
 
 s32 rSceneLayer;
 
-static const char* actorEnumNames[] = {
+const char* actorEnumNames[] = {
     [ACTOR_STALFOS] = "ACTOR_STALFOS",
     [ACTOR_POE] = "ACTOR_POE",
     [ACTOR_OCTOROK] = "ACTOR_OCTOROK",
@@ -112,16 +112,19 @@ u8 ActorSetup_OverrideEntry(ActorEntry* actorEntry, s32 actorEntryIndex) {
     }
 
     const char* locTypeNames[] = {
-        "ABOVE_GROUND",
-        "ABOVE_VOID  ",
-        "UNDERWATER  ",
-        "ABOVE_WATER ",
+        "ABOVE_GROUND ",
+        "ABOVE_VOID   ",
+        "UNDERWATER   ",
+        "ABOVE_WATER  ",
+        "SHALLOW_WATER",
     };
     u16 locTypeId = 0;
     if (waterBoxFound && yWaterSurface >= actorEntry->pos.y + 10) {
         locTypeId = UNDERWATER;
-    } else if (waterBoxFound) {
+    } else if (waterBoxFound && (yWaterSurface >= yGroundIntersect + 30)) {
         locTypeId = ABOVE_WATER;
+    } else if (waterBoxFound && (yWaterSurface < yGroundIntersect + 30)) {
+        locTypeId = SHALLOW_WATER;
     } else if (!waterBoxFound && !isInvalidGround) {
         locTypeId = ABOVE_GROUND;
     } else {

@@ -36,6 +36,7 @@ enum LocType {
     ABOVE_VOID,   // Location is over a void plane. Enemy must be able to fly.
     UNDERWATER,   // Location is underwater. Enemy must be defeatable with hookshot and iron boots.
     ABOVE_WATER,  // Location is in the air above a water surface. Enemy must be able to float or fly.
+    SHALLOW_WATER,// Location is above shallow water.
     SPAWNER,      // Location is a grounded enemy spawner (stalchildren, leevers).
 };
 
