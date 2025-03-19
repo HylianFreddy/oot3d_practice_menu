@@ -119,12 +119,12 @@ u8 ActorSetup_OverrideEntry(ActorEntry* actorEntry, s32 actorEntryIndex) {
         "SHALLOW_WATER",
     };
     u16 locTypeId = 0;
-    if (waterBoxFound && yWaterSurface >= actorEntry->pos.y + 10) {
+    if (waterBoxFound && (yWaterSurface < yGroundIntersect + 30)) {
+        locTypeId = SHALLOW_WATER;
+    } else if (waterBoxFound && (yWaterSurface >= actorEntry->pos.y + 30)) {
         locTypeId = UNDERWATER;
     } else if (waterBoxFound && (yWaterSurface >= yGroundIntersect + 30)) {
         locTypeId = ABOVE_WATER;
-    } else if (waterBoxFound && (yWaterSurface < yGroundIntersect + 30)) {
-        locTypeId = SHALLOW_WATER;
     } else if (!waterBoxFound && !isInvalidGround) {
         locTypeId = ABOVE_GROUND;
     } else {
