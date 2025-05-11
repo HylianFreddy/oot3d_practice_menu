@@ -1,6 +1,21 @@
 .arm
 .text
 
+.section .loader
+.global hook_into_loader
+hook_into_loader:
+    push {r0-r12, lr}
+    bl loader_main
+    pop {r0-r12, lr}
+.if (_KOR_ || _TWN_)
+    bl 0x100024
+.else
+    bl 0x100028
+.endif
+    b  0x100004
+
+.section .text.asm_hooks
+
 .global hook_into_Gfx_Update
 hook_into_Gfx_Update:
     push {r0-r12, lr}
@@ -332,19 +347,3 @@ hook_GameButtonInputs:
     add r0,r0,r9,lsl#0x4
     bx lr
 .endif
-
-@---------------------
-@---------------------
-
-.section .loader
-.global hook_into_loader
-hook_into_loader:
-    push {r0-r12, lr}
-    bl loader_main
-    pop {r0-r12, lr}
-.if (_KOR_ || _TWN_)
-    bl 0x100024
-.else
-    bl 0x100028
-.endif
-    b  0x100004

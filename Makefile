@@ -168,7 +168,8 @@ $(BUILD):
 	@$(TOPDIR)/write_commit_string.sh
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@python patch.py $(OUTPUT).elf $(REGION) $(citra)
+	@python3 --version &> /dev/null && _python_="python3" || _python_="python"; \
+		eval $$_python_ patch.py $(OUTPUT).elf $(REGION) $(citra);
 
 #---------------------------------------------------------------------------------
 clean:
