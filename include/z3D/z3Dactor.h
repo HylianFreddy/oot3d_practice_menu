@@ -2,6 +2,7 @@
 #define _Z3DACTOR_H_
 
 #include "z3Dvec.h"
+#include "z3Dcollision_check.h"
 
 struct Actor;
 struct GlobalContext;
@@ -239,7 +240,12 @@ typedef struct Player {
     /* 0x12B8 */ Actor* rideActor;
     /* 0x12BC */ u8 csAction;
     /* 0x12BD */ u8 prevCsAction;
-    /* 0x12BE */ char unk_12BE[0x044A];
+    /* 0x12BE */ char unk_12BE[0x0052];
+    /* 0x1310 */ ColliderCylinder cylinder;
+    /* 0x1368 */ ColliderQuad meleeWeaponQuads[4];
+    /* 0x1568 */ ColliderQuad shieldQuad;
+    /* 0x15E8 */ Collider unkMeleeWeaponCollider;
+    /* 0x1600 */ char unk_1600[0x108];
     /* 0x1708 */ void* actionFunc;
     /* 0x170C */ char unk_170C[0x0004];
     /* 0x1710 */ u32 stateFlags1;

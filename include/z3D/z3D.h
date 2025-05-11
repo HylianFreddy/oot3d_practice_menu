@@ -7,6 +7,7 @@
 #include "z3Dcutscene.h"
 #include "z3Ditem.h"
 #include "z3Dbgcheck.h"
+#include "z3Dcollision_check.h"
 #include "color.h"
 
 // #include "hid.h"
@@ -322,7 +323,6 @@ typedef struct CutsceneContext {
     /* 0x44 */ CsCmdActorAction* actorActions[10]; // "npcdemopnt"
 } CutsceneContext; // size = 0x6C
 
-typedef struct Collider Collider; //TODO
 typedef struct OcLine OcLine; //TODO
 #define COLLISION_CHECK_AT_MAX 50
 #define COLLISION_CHECK_AC_MAX 60
