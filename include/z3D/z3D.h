@@ -8,7 +8,9 @@
 #include "z3Ditem.h"
 #include "z3Dbgcheck.h"
 #include "z3Dcollision_check.h"
-#include "color.h"
+#include "z3Deffect.h"
+#include "z3Dcolor.h"
+#include "z3Dmath.h"
 
 // #include "hid.h"
 
