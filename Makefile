@@ -87,11 +87,6 @@ CFLAGS	+=	-D Version_USA=$(IS_USA) -D Version_EUR=$(IS_EUR) -D Version_JPN=$(IS_
 GZ3D_EXTRAS ?= 0
 CFLAGS += -D GZ3D_EXTRAS=$(GZ3D_EXTRAS)
 
-citra ?= 0
-ifneq ($(citra), 0)
-	CFLAGS += -g -DCITRA
-endif
-
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
@@ -168,8 +163,7 @@ $(BUILD):
 	@$(TOPDIR)/write_commit_string.sh
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	@python3 --version &> /dev/null && _python_="python3" || _python_="python"; \
-		eval $$_python_ patch.py $(OUTPUT).elf $(REGION) $(citra);
+	@py patch.py $(OUTPUT).elf $(REGION);
 
 #---------------------------------------------------------------------------------
 clean:

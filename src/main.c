@@ -41,16 +41,24 @@ u8 gInit = 0;
 void autoLoadSaveFile(void);
 void NoClip_Update(void);
 
+static void init(void) {
+    gStoredActorHeapAddress = gActorHeapAddress;
+    Actor_Init();
+    irrstInit();
+    Settings_UpdateWatchAddresses();
+
+    s64 output = 0;
+    svcGetSystemInfo(&output, 0x20000, 0);
+    playingOnCitra = (output != 0);
+}
+
 // Called once for every update on the `PlayState` GameState.
 void before_Play_Update(GlobalContext* globalCtx) {
     if (!gInit) {
-        gGlobalContext = globalCtx;
-        gStoredActorHeapAddress = gActorHeapAddress;
-        Actor_Init();
-        irrstInit();
-        Settings_UpdateWatchAddresses();
+        init();
         gInit = 1;
     }
+    gGlobalContext = globalCtx;
 }
 
 // Called between the `PlayState` update and draw functions.

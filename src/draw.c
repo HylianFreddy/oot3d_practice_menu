@@ -35,6 +35,8 @@
 #include <string.h>
 #include <z3D/z3D.h>
 
+#include "common.h"
+
 static u8* FRAMEBUFFER[6];
 
 static RecursiveLock lock;
@@ -225,20 +227,22 @@ void Draw_SetupFramebuffer(void)
 
 void Draw_FlushFramebuffer(void)
 {
-    #ifndef CITRA
+    if (playingOnCitra) {
+        return;
+    }
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[0], FB_BOTTOM_SIZE);
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[1], FB_BOTTOM_SIZE);
-    #endif
 }
 
 void Draw_FlushFramebufferTop(void)
 {
-    #ifndef CITRA
+    if (playingOnCitra) {
+        return;
+    }
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[2], FB_TOP_SIZE);
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[3], FB_TOP_SIZE);
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[4], FB_TOP_SIZE);
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[5], FB_TOP_SIZE);
-    #endif
 }
 
 void Draw_DrawOverlaidCharacter(u32 posX, u32 posY, u32 color, char character)

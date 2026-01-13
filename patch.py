@@ -7,7 +7,6 @@ print()
 
 elf = sys.argv[1]
 region = sys.argv[2]
-citra = int(sys.argv[3]) != 0
 
 result = subprocess.run([os.environ["DEVKITARM"] + r'/bin/arm-none-eabi-objdump', '--section-headers', elf], stdout=subprocess.PIPE)
 lines = str(result.stdout).split('\\n')
@@ -51,30 +50,33 @@ with open("code.ips", 'wb') as patchFile:
 print("created code.ips")
 
 # Create exheader file by adding code size info to the template
-exhRegion = 'KOR' if region in ['KOR', 'TWN'] else 'USA'
-exhTemplatePath = os.path.join('exheader', 'exheader_template_%s.bin' % exhRegion)
-with open(exhTemplatePath, 'rb') as exhTemplate, open('exheader.bin', 'wb') as exh:
-    exh.write(exhTemplate.read(0x34))
+for citra in [False, True]:
+    exhRegion = 'KOR' if region in ['KOR', 'TWN'] else 'USA'
+    exhTemplatePath = os.path.join('exheader', 'exheader_template_%s.bin' % exhRegion)
+    exhFileName = 'exheader_%s.bin' % ('citra' if citra else '3ds')
+    with open(exhTemplatePath, 'rb') as exhTemplate, open(exhFileName, 'wb') as exh:
+        exh.write(exhTemplate.read(0x34))
 
-    numDataPages = struct.unpack("<I", exhTemplate.read(4))[0]
-    dataSize = struct.unpack("<I", exhTemplate.read(4))[0]
-    bssSize = struct.unpack("<I", exhTemplate.read(4))[0]
+        numDataPages = struct.unpack("<I", exhTemplate.read(4))[0]
+        dataSize = struct.unpack("<I", exhTemplate.read(4))[0]
+        bssSize = struct.unpack("<I", exhTemplate.read(4))[0]
 
-    # The new code needs to be in BSS section on Citra, and in Data section on 3DS.
-    # A buffer of 0x1000 bytes is added because the new code is injected at the first
-    # multiple of 0x1000 after the BSS section.
-    if citra:
-        bssSize += memoryExtension + 0x1000
-    else:
-        dataSize += bssSize + memoryExtension + 0x1000
-        numDataPages = ((dataSize + 0xFFF) & ~0xFFF) >> 0xC
-        bssSize = 0
+        # The new code needs to be in BSS section on Citra, and in Data section on 3DS.
+        # A buffer of 0x1000 bytes is added because the new code is injected at the first
+        # multiple of 0x1000 after the BSS section.
+        if citra:
+            bssSize += memoryExtension + 0x1000
+        else:
+            dataSize += bssSize + memoryExtension + 0x1000
+            numDataPages = ((dataSize + 0xFFF) & ~0xFFF) >> 0xC
+            bssSize = 0
 
-    exh.write(struct.pack("<I", numDataPages))
-    exh.write(struct.pack("<I", dataSize))
-    exh.write(struct.pack("<I", bssSize))
+        exh.write(struct.pack("<I", numDataPages))
+        exh.write(struct.pack("<I", dataSize))
+        exh.write(struct.pack("<I", bssSize))
 
-    exh.write(exhTemplate.read())
+        exh.write(exhTemplate.read())
 
-print("created exheader.bin")
+    print("created %s" % exhFileName)
+
 print()

@@ -31,5 +31,6 @@ f32 arctan(f32 x);
 f32 getAngleBetween(Vec3f v1, Vec3f v2);
 
 extern u8 gInit;
+extern u8 playingOnCitra;
 
 #endif //_COMMON_H_

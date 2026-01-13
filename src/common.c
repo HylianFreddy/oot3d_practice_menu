@@ -2,6 +2,8 @@
 #include "z3D/z3D.h"
 #include <math.h>
 
+u8 playingOnCitra = 0;
+
 MemInfo query_memory_permissions(u32 address) {
     MemInfo memory_info = {};
     PageInfo page_info = {};
