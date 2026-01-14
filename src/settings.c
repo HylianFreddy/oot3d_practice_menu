@@ -61,7 +61,7 @@ void Settings_InitExtSaveData(void) {
     memcpy(gExtSaveData.watches, watches, sizeof(watches));
     gExtSaveData.info.memAddrs.globalCtx = gGlobalContext;
     gExtSaveData.info.memAddrs.actorHeap = gStoredActorHeapAddress;
-    gExtSaveData.info.region = CURRENT_REGION;
+    gExtSaveData.info.region = CURRENT_REGION_ID;
     for (s32 i = 0; i < SETTINGS_MAX; i++) {
         gExtSaveData.settings[i] = SettingsMenu.items[i].on;
     }
@@ -151,7 +151,7 @@ void Settings_LoadExtSaveData(void) {
 }
 
 void Settings_UpdateWatchAddresses(void) {
-    if (gExtSaveData.info.region == REGION_UNDEFINED) {
+    if (gExtSaveData.info.region == REGION_ID_UNDEFINED) {
         // Show the alert only if there are saved watches.
         for (u32 i = 0; i < WATCHES_MAX; i++) {
             if (watches[i].addr != NULL) {
@@ -171,20 +171,6 @@ void Settings_UpdateWatchAddresses(void) {
         }
         else if (watchAddr >= gExtSaveData.info.memAddrs.globalCtx) {
             offset = globalCtxOffset;
-        }
-        else if (gExtSaveData.info.region == REGION_EUR && CURRENT_REGION == REGION_USA) {
-            if (watchAddr >= (void*)0x41A168 && watchAddr <= (void*)0x4366AF) {
-                offset = -0x24;
-            } else if (watchAddr >= (void*)0x4366B0 && watchAddr <= (void*)0x4A5AFF) {
-                offset = -0x20;
-            }
-        }
-        else if (gExtSaveData.info.region == REGION_USA && CURRENT_REGION == REGION_EUR) {
-            if (watchAddr >= (void*)0x41A144 && watchAddr <= (void*)0x43668B) {
-                offset = 0x24;
-            } else if (watchAddr >= (void*)0x436690 && watchAddr <= (void*)0x4A5ADF) {
-                offset = 0x20;
-            }
         }
 
         if (offset != 0) {

@@ -60,7 +60,7 @@ static void Command_Break(void){
         }
 
         // "aggressive" break
-#if !Version_KOR && !Version_TWN
+#if !REGION_KOR_TWN
         Message_CloseTextbox(gGlobalContext);
 #endif
         gGlobalContext->mainCamera.setting   = 1;

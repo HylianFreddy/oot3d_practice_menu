@@ -446,7 +446,7 @@ static void Debug_ShowObjects(void) {
         if(pressed & BUTTON_B)
             break;
         else if((pressed & BUTTON_Y) && objectId != 0 && gGlobalContext->objectCtx.num < OBJECT_EXCHANGE_BANK_MAX) {
-#if Version_KOR || Version_TWN
+#if REGION_KOR_TWN
             setAlert(UNSUPPORTED_WARNING, 90);
 #else
             Object_Spawn(&(gGlobalContext->objectCtx), (s16)objectId);
@@ -936,12 +936,14 @@ static void MemoryEditor_GoToPreset(void) {
         "Global Context / PlayState",
         "Inventory Items",
         "Current Scene Segment",
+        "Actor Overlay Table",
+#if !REGION_KOR_TWN
         "Gear Usability Table",
         "Item Usability Table",
-        "Actor Overlay Table",
         "Entrance Table",
         "Scene Table",
         "Draw Item Table",
+#endif
     };
     const void* const addresses[] = {
         &gSaveContext,
@@ -949,12 +951,14 @@ static void MemoryEditor_GoToPreset(void) {
         gGlobalContext,
         &gSaveContext.items,
         gGlobalContext->sceneSegment,
+        gActorOverlayTable,
+#if !REGION_KOR_TWN
         gGearUsabilityTable,
         gItemUsabilityTable,
-        gActorOverlayTable,
         gEntranceTable,
         gSceneTable,
         gDrawItemTable,
+#endif
     };
     const s32 addressesCount = sizeof(addresses)/sizeof(addresses[0]);
 

@@ -12,7 +12,7 @@
 #include "z3Dcolor.h"
 #include "z3Dmath.h"
 
-// #include "hid.h"
+#include "hid.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -61,7 +61,6 @@ typedef enum {
     /* 0xFF */ BTN_DISABLED = 0xFF
 } ButtonStatus;
 
-// Save Context (ram start: 0x00587958)
 typedef struct SaveContext {
     /* 0x0000 */ s32          entranceIndex;
     /* 0x0004 */ s32          linkAge; // 0: Adult; 1: Child
@@ -607,7 +606,7 @@ _Static_assert(sizeof(SubMainClass_32A0) == 0x20, "SubMainClass_32A0 size");
 
 typedef struct MainClass {
     /* 0x0000 */ char unk_00[0x180];
-#if Version_KOR || Version_TWN
+#if REGION_KOR_TWN
     /* 0x???? */ char unk_kor_twn[0x4]; // the stuff below is 4 bytes ahead on KOR/TWN
 #endif
     /* 0x0180 */ SubMainClass_180 sub180;
@@ -615,7 +614,7 @@ typedef struct MainClass {
     /* 0x32A0 */ SubMainClass_32A0 sub32A0;
     /* ... size unknown*/
 } MainClass;
-#define MAIN_CLASS_TEMP_SIZE (0x32C0 + (Version_KOR || Version_TWN) * 4)
+#define MAIN_CLASS_TEMP_SIZE (0x32C0 + REGION_KOR_TWN * 4)
 _Static_assert(sizeof(MainClass) == MAIN_CLASS_TEMP_SIZE, "MainClass size");
 
 extern GlobalContext* gGlobalContext;
@@ -623,33 +622,25 @@ extern void* gStoredActorHeapAddress;
 extern const u32 ItemSlots[];
 extern const char DungeonNames[][25];
 
-#define gStaticContext (*(StaticContext*)0x08080010)
-#define gObjectTable ((ObjectFile*)0x53CCF4)
-#define gEntranceTable ((EntranceInfo*)0x543BB8)
-#define gItemUsabilityTable ((u8*)0x506C58)
-#define gGearUsabilityTable ((u32*)0x4D47C8)
-#define gDungeonSceneTable ((Scene*)0x4DC400)
-#define gMQDungeonSceneTable ((Scene*)0x4DCBA8)
-#define gSceneTable ((Scene*)0x545484)
-#define gRandInt (*(u32*)0x50C0C4)
-#define gRandFloat (*(f32*)0x50C0C8)
-#define gDrawItemTable ((DrawItemTableEntry*)0x4D88C8)
-#define gRestrictionFlags ((RestrictionFlags*)0x539DC4)
-#define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
+extern SaveContext gSaveContext;
+extern StaticContext gStaticContext;
+extern ObjectFile gObjectTable[];
+extern EntranceInfo gEntranceTable[];
+extern u8 gItemUsabilityTable[];
+extern u32 gGearUsabilityTable[];
+extern Scene gDungeonSceneTable[];
+extern Scene gMQDungeonSceneTable[];
+extern Scene gSceneTable[];
+extern u32 gRandInt;
+extern f32 gRandFloat;
+extern DrawItemTableEntry gDrawItemTable[];
+extern RestrictionFlags gRestrictionFlags[];
+extern f32 ControlStick_X;
+extern f32 ControlStick_Y;
+extern void* gActorHeapAddress;
+extern MainClass gMainClass;
 
-#if Version_KOR || Version_TWN
-    #define gSaveContext (*(SaveContext*)0x595FD0)
-    #define ControlStick_X (*(f32*)0x573C38)
-    #define ControlStick_Y (*(f32*)0x573C3C)
-    #define gActorHeapAddress (*(void**)0x5B14B4)
-    #define gMainClass ((MainClass*)0x5C5AA4)
-#else
-    #define gSaveContext (*(SaveContext*)0x587958)
-    #define ControlStick_X (*(f32*)0x5655C0)
-    #define ControlStick_Y (*(f32*)0x5655C4)
-    #define gActorHeapAddress (*(void**)0x5A2E3C)
-    #define gMainClass ((MainClass*)0x5BE5B8)
-#endif
+#define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
 
 typedef enum {
     DUNGEON_DEKU_TREE = 0,
@@ -674,267 +665,42 @@ typedef enum {
     DUNGEON_JABUJABUS_BELLY_BOSS_ROOM,
 } DungeonId;
 
-/* TODO: figure out what to do with this stuff */
-#define real_hid_addr   0x10002000
-#define real_hid        (*(hid_mem_t *) real_hid_addr)
+extern hid_mem_t real_hid;
+extern u8 Z3D_TOP_SCREEN_LEFT_1[];
+extern u8 Z3D_TOP_SCREEN_LEFT_2[];
+extern u8 Z3D_TOP_SCREEN_RIGHT_1[];
+extern u8 Z3D_TOP_SCREEN_RIGHT_2[];
+extern u8 Z3D_BOTTOM_SCREEN_1[];
+extern u8 Z3D_BOTTOM_SCREEN_2[];
 
-#if Version_KOR || Version_TWN
-    #define Z3D_TOP_SCREEN_LEFT_1 0x1430A900
-    #define Z3D_TOP_SCREEN_LEFT_2 0x14350E10
-    #define Z3D_TOP_SCREEN_RIGHT_1 0x14407DD0
-    #define Z3D_TOP_SCREEN_RIGHT_2 0x1444E2E0
-    #define Z3D_BOTTOM_SCREEN_1 0x14397380
-    #define Z3D_BOTTOM_SCREEN_2 0x143CF790
-#else
-    #define Z3D_TOP_SCREEN_LEFT_1 0x14313890
-    #define Z3D_TOP_SCREEN_LEFT_2 0x14359DA0
-    #define Z3D_TOP_SCREEN_RIGHT_1 0x14410AD0
-    #define Z3D_TOP_SCREEN_RIGHT_2 0x14456FE0
-    #define Z3D_BOTTOM_SCREEN_1 0x143A02B0
-    #define Z3D_BOTTOM_SCREEN_2 0x143D86C0
-#endif
-
-typedef Actor* (*Actor_Spawn_proc)(ActorContext *actorCtx,GlobalContext *globalCtx,s16 actorId,float posX,float posY,float posZ,s16 rotX,s16 rotY,s16 rotZ,s16 params)
+Actor* Actor_Spawn(ActorContext* actorCtx, GlobalContext* globalCtx, s16 actorId, float posX, float posY, float posZ,
+                   s16 rotX, s16 rotY, s16 rotZ, s16 params) __attribute__((pcs("aapcs-vfp")));
+s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId);
+void Player_SetEquipmentData(GlobalContext* globalCtx, Player* player);
+void CutsceneFlags_Set(GlobalContext* globalCtx, s16 flag);
+void DisplayTextbox(GlobalContext* globalCtx, u16 textId, Actor* actor);
+void Message_CloseTextbox(GlobalContext* globalCtx);
+void PlaySound(u32 sfxId); // This function plays sound effects and music tracks, overlaid on top of the current BGM
+void Play_Init(GameState* gameState);
+void Play_Main(GameState* gameState);
+void FileSelect_LoadGame(GameState* gameState, s32 fileNum);
+void Load_Savefiles_Buffer(void);
+void Actor_DrawContext(GlobalContext* globalCtx, ActorContext* actorCtx);
+void CollisionCheck_DrawCollision(GlobalContext* globalCtx, CollisionCheckContext* colChkCtx);
+s32 Room_StartTransition(GlobalContext* globalCtx, RoomContext* roomCtx, s32 roomNum);
+s32 Room_ClearPrevRoom(GlobalContext* globalCtx, RoomContext* roomCtx);
+void WriteDungeonSceneTable(void);
+void Collider_DrawPolyImpl(SubMainClass_32A0* sub32A0, Vec3f* vA, Vec3f* vB, Vec3f* vC, Color_RGBAf* rgba);
+void BgCheck_GetStaticLookupIndicesFromPos(CollisionContext* col_ctx, Vec3f* pos, Vec3i* sector);
+void* SystemArena_Malloc(u32 size);
+void Item_Give(GlobalContext* globalCtx, u8 item);
+u32 Flags_GetEventChkInf(u32 flag);
+void Flags_SetEventChkInf(u32 flag);
+void Rupees_ChangeBy(s16 rupeeChange);
+void LinkDamage(GlobalContext* globalCtx, Player* player, s32 arg2, f32 arg3, f32 arg4, s16 arg5, s32 arg6);
+u32 Inventory_HasEmptyBottle(void);
+void FireDamage(Actor* player, GlobalContext* globalCtx, int flamesColor);
+void Actor_OfferGetItem(Actor* actor, GlobalContext* globalCtx, s32 getItemId, f32 xzRange, f32 yRange)
     __attribute__((pcs("aapcs-vfp")));
-#if Version_USA || Version_EUR
-    #define Actor_Spawn_addr 0x3738D0
-#elif Version_JPN
-    #define Actor_Spawn_addr 0x3733E8
-#elif Version_KOR
-    #define Actor_Spawn_addr 0x2F7CAC
-#elif Version_TWN
-    #define Actor_Spawn_addr 0x2F7DAC
-#endif
-#define Actor_Spawn ((Actor_Spawn_proc)Actor_Spawn_addr)
-
-typedef s32 (*Object_proc)(ObjectContext* objectCtx, s16 objectId);
-#if Version_JPN
-    #define Object_Spawn_addr 0x32DD34
-#else //USA & EUR
-    #define Object_Spawn_addr 0x32E21C
-#endif
-#define Object_Spawn ((Object_proc)Object_Spawn_addr)
-
-typedef void (*Player_SetEquipmentData_proc)(GlobalContext* globalCtx, Player* player);
-#if Version_JPN
-    #define Player_SetEquipmentData_addr 0x348C54
-#else //USA & EUR
-    #define Player_SetEquipmentData_addr 0x34913C
-#endif
-#define Player_SetEquipmentData ((Player_SetEquipmentData_proc)Player_SetEquipmentData_addr)
-
-typedef void (*CutsceneFlags_Set_proc)(GlobalContext* globalCtx, s16 flag);
-#if Version_USA || Version_EUR
-    #define CutsceneFlags_Set_addr 0x366704
-#elif Version_JPN
-    #define CutsceneFlags_Set_addr 0x36621C
-#elif Version_KOR
-    #define CutsceneFlags_Set_addr 0x2CEC18
-#elif Version_TWN
-    #define CutsceneFlags_Set_addr 0x2CED18
-#endif
-#define CutsceneFlags_Set ((CutsceneFlags_Set_proc)CutsceneFlags_Set_addr)
-
-typedef void (*DisplayTextbox_proc)(GlobalContext* globalCtx, u16 textId, Actor* actor);
-#define DisplayTextbox_addr 0x367C7C
-#define DisplayTextbox ((DisplayTextbox_proc)DisplayTextbox_addr)
-
-typedef void (*CloseTextbox_proc)(GlobalContext* globalCtx);
-#if Version_JPN
-    #define CloseTextbox_addr 0x3720F8
-#else //USA & EUR
-    #define CloseTextbox_addr 0x3725E0
-#endif
-#define Message_CloseTextbox ((CloseTextbox_proc)CloseTextbox_addr)
-
-typedef void (*PlaySound_proc)(u32);
-#if Version_USA || Version_EUR
-    #define PlaySound_addr 0x35C528
-#elif Version_JPN
-    #define PlaySound_addr 0x35C040
-#else //KOR & TWN
-    #define PlaySound_addr 0
-#endif
-#define PlaySound ((PlaySound_proc)PlaySound_addr) //this function plays sound effects and music tracks, overlaid on top of the current BGM
-
-typedef void (*Play_Init_proc)(GameState*);
-#if Version_EUR
-    #define Play_Init_addr 0x435314
-#elif Version_JPN
-    #define Play_Init_addr 0x4352C8
-#elif Version_KOR
-    #define Play_Init_addr 0x11EE6C
-#elif Version_TWN
-    #define Play_Init_addr 0x11EF44
-#else // Version_USA
-    #define Play_Init_addr 0x4352F0
-#endif
-#define Play_Init ((Play_Init_proc)Play_Init_addr)
-
-typedef void (*Play_Main_proc)(GameState*);
-#if Version_EUR
-    #define Play_Main_addr 0x4523AC
-#elif Version_JPN
-    #define Play_Main_addr 0x452364
-#elif Version_KOR
-    #define Play_Main_addr 0x13A1E8
-#elif Version_TWN
-    #define Play_Main_addr 0x13A2C0
-#else // Version_USA
-    #define Play_Main_addr 0x45238C
-#endif
-#define Play_Main ((Play_Main_proc)Play_Main_addr)
-
-typedef void (*FileSelect_LoadGame_proc)(GameState* gameState, s32 fileNum);
-#if Version_EUR
-    #define FileSelect_LoadGame_addr 0x44737C
-#elif Version_JPN
-    #define FileSelect_LoadGame_addr 0x447334
-#elif Version_KOR
-    #define FileSelect_LoadGame_addr 0x12E5BC
-#elif Version_TWN
-    #define FileSelect_LoadGame_addr 0x12E694
-#else // Version_USA
-    #define FileSelect_LoadGame_addr 0x44735C
-#endif
-#define FileSelect_LoadGame ((FileSelect_LoadGame_proc)FileSelect_LoadGame_addr)
-
-typedef void (*Load_Savefiles_Buffer_proc)();
-#if Version_EUR
-    #define Load_Savefiles_Buffer_addr 0x447170
-#elif Version_JPN
-    #define Load_Savefiles_Buffer_addr 0x447128
-#elif Version_KOR
-    #define Load_Savefiles_Buffer_addr 0x12E3C0
-#elif Version_TWN
-    #define Load_Savefiles_Buffer_addr 0x12E498
-#else // Version_USA
-    #define Load_Savefiles_Buffer_addr 0x447150
-#endif
-#define Load_Savefiles_Buffer ((Load_Savefiles_Buffer_proc)Load_Savefiles_Buffer_addr)
-
-typedef void (*Actor_DrawContext_proc)(GlobalContext*, ActorContext*);
-#if Version_EUR
-    #define Actor_DrawContext_addr 0x461904
-#elif Version_JPN
-    #define Actor_DrawContext_addr 0x4618BC
-#elif Version_KOR
-    #define Actor_DrawContext_addr 0x1491C4
-#elif Version_TWN
-    #define Actor_DrawContext_addr 0x14929C
-#else // Version_USA
-    #define Actor_DrawContext_addr 0x4618E4
-#endif
-#define Actor_DrawContext ((Actor_DrawContext_proc)Actor_DrawContext_addr)
-
-typedef void (*CollisionCheck_DrawCollision_proc)(GlobalContext*, CollisionCheckContext*);
-#if Version_EUR
-    #define CollisionCheck_DrawCollision_addr 0x47CAEC
-#elif Version_JPN
-    #define CollisionCheck_DrawCollision_addr 0x47CAA4
-#elif Version_KOR
-    #define CollisionCheck_DrawCollision_addr 0x15E6AC
-#elif Version_TWN
-    #define CollisionCheck_DrawCollision_addr 0x15E784
-#else // Version_USA
-    #define CollisionCheck_DrawCollision_addr 0x47CACC
-#endif
-#define CollisionCheck_DrawCollision ((CollisionCheck_DrawCollision_proc)CollisionCheck_DrawCollision_addr)
-
-typedef s32 (*Room_StartTransition_proc)(GlobalContext*, RoomContext*, s32);
-#if Version_JPN
-    #define Room_StartTransition_addr 0x33B1D4
-#else //USA & EUR
-    #define Room_StartTransition_addr 0x33B6BC
-#endif
-#define Room_StartTransition ((Room_StartTransition_proc)Room_StartTransition_addr)
-
-typedef s32 (*Room_ClearPrevRoom_proc)(GlobalContext*, RoomContext*);
-#if Version_JPN
-    #define Room_ClearPrevRoom_addr 0x36C038
-#else //USA & EUR
-    #define Room_ClearPrevRoom_addr 0x36C520
-#endif
-#define Room_ClearPrevRoom ((Room_ClearPrevRoom_proc)Room_ClearPrevRoom_addr)
-
-typedef void (*WriteDungeonSceneTable_proc)(void);
-#if Version_JPN
-    #define WriteDungeonSceneTable_addr 0x2EAACC
-#else //USA & EUR
-    #define WriteDungeonSceneTable_addr 0x2EAFB4
-#endif
-#define WriteDungeonSceneTable ((WriteDungeonSceneTable_proc)WriteDungeonSceneTable_addr)
-
-typedef void (*Collider_DrawPolyImpl_proc)(SubMainClass_32A0* sub32A0, Vec3f* vA, Vec3f* vB, Vec3f* vC,
-                                           Color_RGBAf* rgba);
-#if Version_USA || Version_EUR
-    #define Collider_DrawPolyImpl_addr 0x2C56C4
-#elif Version_JPN
-    #define Collider_DrawPolyImpl_addr 0x2C51DC
-#elif Version_KOR
-    #define Collider_DrawPolyImpl_addr 0x2D15D4
-#elif Version_TWN
-    #define Collider_DrawPolyImpl_addr 0x2D16D4
-#endif
-#define Collider_DrawPolyImpl ((Collider_DrawPolyImpl_proc)Collider_DrawPolyImpl_addr)
-
-typedef void (*BgCheck_GetStaticLookupIndicesFromPos_Proc)(CollisionContext *col_ctx,Vec3f *pos,Vec3i *sector);
-#if Version_USA || Version_EUR
-    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF5B0
-#elif Version_JPN
-    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2BF0C8
-#elif Version_KOR
-    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C17C4
-#elif Version_TWN
-    #define BgCheck_GetStaticLookupIndicesFromPos_addr 0x2C18C4
-#endif
-#define BgCheck_GetStaticLookupIndicesFromPos ((BgCheck_GetStaticLookupIndicesFromPos_Proc)BgCheck_GetStaticLookupIndicesFromPos_addr)
-
-typedef void* (*SystemArena_Malloc_Proc)(u32 size);
-#if Version_USA || Version_EUR
-    #define SystemArena_Malloc_addr 0x35010C
-#elif Version_JPN
-    #define SystemArena_Malloc_addr 0x34FC24
-#elif Version_KOR
-    #define SystemArena_Malloc_addr 0x3232C0
-#elif Version_TWN
-    #define SystemArena_Malloc_addr 0x3233C0
-#endif
-#define SystemArena_Malloc ((SystemArena_Malloc_Proc)SystemArena_Malloc_addr)
-
-/*
-typedef void (*Item_Give_proc)(GlobalContext* globalCtx, u8 item);
-#define Item_Give_addr 0x376A78
-#define Item_Give ((Item_Give_proc)Item_Give_addr)
-
-typedef u32 (*EventCheck_proc)(u32 param_1);
-#define EventCheck_addr 0x350CF4
-#define EventCheck ((EventCheck_proc)EventCheck_addr)
-
-typedef void (*EventSet_proc)(u32 param_1);
-#define EventSet_addr 0x34CBF8
-#define EventSet ((EventSet_proc)EventSet_addr)
-
-typedef void (*Rupees_ChangeBy_proc)(s16 rupeeChange);
-#define Rupees_ChangeBy_addr 0x376A60
-#define Rupees_ChangeBy ((Rupees_ChangeBy_proc)Rupees_ChangeBy_addr)
-
-typedef void (*LinkDamage_proc)(GlobalContext* globalCtx, Player* player, s32 arg2, f32 arg3, f32 arg4, s16 arg5, s32 arg6);
-#define LinkDamage_addr 0x35D304
-#define LinkDamage ((LinkDamage_proc)LinkDamage_addr)
-
-typedef u32 (*Inventory_HasEmptyBottle_proc)(void);
-#define Inventory_HasEmptyBottle_addr 0x377A04
-#define Inventory_HasEmptyBottle ((Inventory_HasEmptyBottle_proc)Inventory_HasEmptyBottle_addr)
-
-typedef void (*FireDamage_proc)(Actor* player, GlobalContext* globalCtx, int flamesColor);
-#define FireDamage_addr 0x35D8D8
-#define FireDamage ((FireDamage_proc)FireDamage_addr)
-
-typedef void (*GiveItem_proc)(Actor* actor, GlobalContext* globalCtx, s32 getItemId, f32 xzRange, f32 yRange)
-    __attribute__((pcs("aapcs-vfp")));
-#define GiveItem_addr 0x3724DC
-#define GiveItem ((GiveItem_proc)0x3724DC)
-*/
 
 #endif //_Z3D_H_

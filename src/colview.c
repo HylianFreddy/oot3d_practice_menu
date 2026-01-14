@@ -298,7 +298,7 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
 }
 
 static void ColView_DrawPoly(ColViewPoly poly) {
-    Collider_DrawPolyImpl(&gMainClass->sub32A0, &poly.verts[0], &poly.verts[1], &poly.verts[2], &poly.color);
+    Collider_DrawPolyImpl(&gMainClass.sub32A0, &poly.verts[0], &poly.verts[1], &poly.verts[2], &poly.color);
 }
 
 static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {

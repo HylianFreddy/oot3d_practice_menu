@@ -35,10 +35,9 @@ Clone the repository with this command: `git clone https://github.com/HylianFred
 Open the MSYS2 terminal bundled with the devkitPro toolchains, then run `make` in the project directory to build the patch files. You can pass the following arguments to the command:
 
 * `REGION=X` to select what regional version of the game to build the patch for. `X` must be one of `USA`, `EUR`, `JPN`, `KOR`, `TWN`. The default is `USA`.
-* `citra=1` if you want to build patches to use on the Citra emulator.
 
 To speed up the build using more threads you can use the `-jN` flag (e.g. `make -j12`).
 
-To delete all build artifacts you can run `make clean`. This is necessary when you want to change the `REGION` or `citra` flags.
+To delete all build artifacts you can run `make clean`.
 
 The repo also includes the bash script `makeAll.sh` to automatically run the build for all regions and platforms and place the output in the `patch_files` folder.

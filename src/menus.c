@@ -50,7 +50,7 @@ static u32 sfxId = 0;
 AmountMenu PlaySFXMenu;
 
 void PlaySFX(s32 selected) {
-#if Version_KOR || Version_TWN
+#if REGION_KOR_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
     return;
 #endif
@@ -81,7 +81,7 @@ void quitGame(void) {
         return;
     }
 
-#if Version_KOR || Version_TWN
+#if REGION_KOR_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
     return;
 #endif

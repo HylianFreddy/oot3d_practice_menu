@@ -131,7 +131,7 @@ static void Scene_SelectRoomNumber(void) {
 }
 
 static void Scene_LoadRoom(void) {
-#if Version_KOR || Version_TWN
+#if REGION_KOR_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
     return;
 #endif

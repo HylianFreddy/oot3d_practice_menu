@@ -303,15 +303,9 @@ typedef struct ActorHeapNode {
     Actor actor;
 } ActorHeapNode;
 
-void Actor_Kill(Actor* actor);
-#if Version_KOR || Version_TWN
-    #define gActorOverlayTable ((ActorOverlay*)0x5184AC)
-#else
-    #define gActorOverlayTable ((ActorOverlay*)0x50CD84)
-#endif
+extern ActorOverlay gActorOverlayTable[];
 
-typedef u32 (*Actor_HasParent_proc)(Actor* actor, struct GlobalContext* globalCtx);
-#define Actor_HasParent_addr 0x371E40
-#define Actor_HasParent ((Actor_HasParent_proc)Actor_HasParent_addr)
+void Actor_Kill(Actor* actor);
+u32 Actor_HasParent(Actor* actor, struct GlobalContext* globalCtx);
 
 #endif

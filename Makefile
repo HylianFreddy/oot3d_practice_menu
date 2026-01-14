@@ -38,34 +38,12 @@ INCLUDES    +=  assets
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-IS_USA      := 0
-IS_EUR      := 0
-IS_JPN      := 0
-IS_KOR      := 0
-IS_TWN      := 0
-REGION      := USA
-
-ifeq ($(REGION), USA)
-  IS_USA := 1
-else ifeq ($(REGION), JPN)
-  IS_JPN := 1
-else ifeq ($(REGION), EUR)
-  IS_EUR := 1
-else ifeq ($(REGION), KOR)
-  IS_KOR := 1
-else ifeq ($(REGION), TWN)
-  IS_TWN := 1
-else
-  $(error "Invalid region!")
-endif
-
-LINK_SCRIPT	:= linker_scripts/$(REGION).ld
 
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=softfp -mtp=soft -mfpu=vfpv2
 
 CFLAGS	:=	-g -Wall -mword-relocations -D DEBUG \
 			-fomit-frame-pointer -ffunction-sections \
-			$(ARCH)
+			-fdiagnostics-color=always $(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -O1
 
@@ -76,16 +54,49 @@ LDFLAGS	=	-g $(ARCH) -Wl,-Map,$(notdir $*.map) -T $(TOPDIR)/$(LINK_SCRIPT) -nost
 
 LIBS	:=	-lgcc
 
-# Define version for the Assembly code
-ASFLAGS	+=	-D _USA_=$(IS_USA) -D _EUR_=$(IS_EUR) -D _JPN_=$(IS_JPN) \
-			-D _KOR_=$(IS_KOR) -D _TWN_=$(IS_TWN)
+# Region selection
+REGION	?= USA
 
-# Define version for the C code
-CFLAGS	+=	-D Version_USA=$(IS_USA) -D Version_EUR=$(IS_EUR) -D Version_JPN=$(IS_JPN) \
-			-D Version_KOR=$(IS_KOR) -D Version_TWN=$(IS_TWN)
+VALID_REGIONS	:=	USA EUR JPN KOR TWN
+MAIN_REGIONS	:=	USA EUR JPN
 
+ifeq ($(filter $(REGION),$(VALID_REGIONS)),)
+	$(error "Invalid region: $(REGION)")
+endif
+
+REGION_INDEX		:=	$(shell py -c 'print("$(VALID_REGIONS)".split().index("$(REGION)") + 1)')
+UNSELECTED_REGIONS	:=	$(subst $(REGION),,$(VALID_REGIONS))
+
+ifneq ($(findstring $(REGION),$(MAIN_REGIONS)),)
+	LINK_SCRIPT	:=	linker_scripts/main.ld
+	KOR_TWN		:=	0
+else
+	LINK_SCRIPT	:=	linker_scripts/$(REGION).ld
+	KOR_TWN		:=	1
+endif
+
+# Define region for the Assembly code
+ASFLAGS	+=	-D _KOR_TWN_=$(KOR_TWN)
+
+# Define region for the C code
+CFLAGS	+=	-D REGION_KOR_TWN=$(KOR_TWN)
+
+# Define region for the Linker Script
+LDFLAGS +=	-Wl,--defsym,_LD_$(REGION)=1 $(foreach region,$(UNSELECTED_REGIONS),-Wl,--defsym,_LD_$(region)=0)
+LDFLAGS +=	-Wl,--defsym,_LD_CURRENT_REGION_ID=$(REGION_INDEX)
+
+# Define extra flags
 GZ3D_EXTRAS ?= 0
 CFLAGS += -D GZ3D_EXTRAS=$(GZ3D_EXTRAS)
+
+#---------------------------------------------------------------------------------
+# Check existing build flags
+#---------------------------------------------------------------------------------
+LAST_BUILD_FLAGS_PATH	:=	$(BUILD)/flags.txt
+LAST_BUILD_FLAGS		:=	$(shell cat $(LAST_BUILD_FLAGS_PATH) 2> /dev/null)
+LAST_BUILD_REGION		:=	$(word 1,$(LAST_BUILD_FLAGS))
+LAST_BUILD_KOR_TWN		:=	$(word 2,$(LAST_BUILD_FLAGS))
+LAST_BUILD_GZ3D_EXTRAS	:=	$(word 3,$(LAST_BUILD_FLAGS))
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -154,14 +165,18 @@ else
 endif
 
 
-.PHONY: $(BUILD) clean all
+.PHONY: clean all
 
 #---------------------------------------------------------------------------------
-all: $(BUILD)
-
-$(BUILD):
+all:
 	@$(TOPDIR)/write_commit_string.sh
-	@[ -d $@ ] || mkdir -p $@
+ifneq ($(LAST_BUILD_KOR_TWN)$(LAST_BUILD_GZ3D_EXTRAS),$(KOR_TWN)$(GZ3D_EXTRAS))
+	@rm -fr $(BUILD)
+else ifneq ($(LAST_BUILD_REGION),$(REGION))
+	@rm -fr $(TARGET).elf
+endif
+	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
+	@echo $(REGION) $(KOR_TWN) $(GZ3D_EXTRAS) > $(LAST_BUILD_FLAGS_PATH)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	@py patch.py $(OUTPUT).elf $(REGION);
 

@@ -6,17 +6,8 @@
 
 #define EXTSAVEDATA_VERSION 0
 
-#if Version_USA
-    #define CURRENT_REGION REGION_USA
-#elif Version_EUR
-    #define CURRENT_REGION REGION_EUR
-#elif Version_JPN
-    #define CURRENT_REGION REGION_JPN
-#elif Version_KOR
-    #define CURRENT_REGION REGION_KOR
-#elif Version_TWN
-    #define CURRENT_REGION REGION_TWN
-#endif
+extern char _LD_CURRENT_REGION_ID;
+#define CURRENT_REGION_ID ((u32)&_LD_CURRENT_REGION_ID)
 
 extern ToggleMenu SettingsMenu;
 extern Menu ProfilesMenu;
@@ -32,13 +23,14 @@ void Settings_Toggle(s32 selected);
 void Settings_ShowSettingsMenu(void);
 void Settings_UpdateWatchAddresses(void);
 
+// Regions order defined in Makefile
 enum Region {
-    REGION_UNDEFINED,
-    REGION_USA,
-    REGION_EUR,
-    REGION_JPN,
-    REGION_KOR,
-    REGION_TWN,
+    REGION_ID_UNDEFINED,
+    REGION_ID_USA,
+    REGION_ID_EUR,
+    REGION_ID_JPN,
+    REGION_ID_KOR,
+    REGION_ID_TWN,
 };
 
 enum SettingsEnum {

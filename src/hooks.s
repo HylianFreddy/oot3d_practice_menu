@@ -7,14 +7,11 @@ hook_into_loader:
     push {r0-r12, lr}
     bl loader_main
     pop {r0-r12, lr}
-.if (_KOR_ || _TWN_)
-    bl 0x100024
-.else
-    bl 0x100028
-.endif
-    b  0x100004
+    bl nninitRegion
+    b  hookReturn_Loader
 
-.section .text.asm_hooks
+@ Place hooks in this section if they're valid for all versions (USA, EUR, JPN, KOR, TWN)
+.section .asm_hooks.all_versions
 
 .global hook_into_Gfx_Update
 hook_into_Gfx_Update:
@@ -28,7 +25,7 @@ hook_before_Play_Update:
     push {r0-r12, lr}
     bl before_Play_Update
     pop {r0-r12, lr}
-.if (_KOR_ || _TWN_)
+.if _KOR_TWN_
     cpy r8,r0
 .else
     cpy r7,r0
@@ -41,23 +38,78 @@ hook_after_Play_Update:
     push {r0-r12}
     bl after_Play_Update
     pop {r0-r12}
-    @ Call Play_Draw
-.if (_USA_ || _EUR_)
-    bl 0x2E25F0
-.endif
-.if _JPN_
-    bl 0x2E2108
-.endif
-.if _TWN_
-    bl 0x2FC1A0
-.endif
-.if _KOR_
-    bl 0x2FC0A0
-.endif
+    bl Play_Draw
     push {r0-r12}
     bl after_Play_Draw
     pop {r0-r12}
     pop {pc}
+
+.global hook_HaltActors
+hook_HaltActors:
+    push {r0-r12,lr}
+    bl Scene_HaltActorsEnabled
+    cmp r0,#0x0
+    pop {r0-r12,lr}
+    bne PlayUpdate_PostActorUpdate
+    cmp r0,#0x0
+    bx lr
+
+.global hook_before_GameState_Loop
+hook_before_GameState_Loop:
+.if _KOR_TWN_
+    push {r0-r12, lr}
+    cpy r0,r4
+    bl before_GameState_Loop
+    pop {r0-r12, lr}
+    cpy r0,r9
+    bx lr
+.else
+    push {r0-r12, lr}
+    cpy r0,r5
+    bl before_GameState_Loop
+    pop {r0-r12, lr}
+    cpy r0,r4
+    bx lr
+.endif
+
+.global hook_after_GameState_Update
+hook_after_GameState_Update:
+    push {r0-r12, lr}
+    bl checkFastForward
+    cmp r0,#0x0
+    pop {r0-r12, lr}
+    beq GameState_Draw @ handles drawing screen
+    bx lr
+
+.global hook_ActorDrawContext
+hook_ActorDrawContext:
+    push {r0-r12, lr}
+    bl Actor_rDrawContext
+    pop {r0-r12, lr}
+    bx lr
+
+.global hook_GameButtonInputs
+hook_GameButtonInputs:
+.if _KOR_TWN_
+    push {r0-r12,lr}
+    cpy r0,r1
+    bl Commands_OverrideGameButtonInputs
+    pop {r0-r12,lr}
+    str r0,[r4,#0x4]
+    bx lr
+.else
+    push {r0-r12,lr}
+    cpy r0,r4
+    bl Commands_OverrideGameButtonInputs
+    pop {r0-r12,lr}
+    add r0,r0,r9,lsl#0x4
+    bx lr
+.endif
+
+
+
+@ Place hooks in this section to exclude them from KOR and TWN builds
+.section .asm_hooks.main_versions_only
 
 .global hook_PlaySound
 hook_PlaySound:
@@ -65,11 +117,7 @@ hook_PlaySound:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r3-r7, lr}
-.if _JPN_
-    b 0x35C044
-.else
-    b 0x35C52C
-.endif
+    b hookReturn_PlaySound
 
 .global hook_SetBGMEntrance
 hook_SetBGMEntrance:
@@ -77,11 +125,7 @@ hook_SetBGMEntrance:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
-.if _JPN_
-    b 0x330B64
-.else
-    b 0x33104C
-.endif
+    b hookReturn_SetBGMEntrance
 
 .global hook_SetBGMDayNight
 hook_SetBGMDayNight:
@@ -89,15 +133,7 @@ hook_SetBGMDayNight:
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
-.if _USA_
-    b 0x483C8C
-.endif
-.if _EUR_
-    b 0x483CAC
-.endif
-.if _JPN_
-    b 0x483C64
-.endif
+    b hookReturn_SetBGMDayNight
 
 .global hook_SetBGMEvent
 hook_SetBGMEvent:
@@ -107,11 +143,7 @@ hook_SetBGMEvent:
     cpy r1,r0
     pop {r0, r2-r12, lr}
     push {r4-r11, lr}
-.if _JPN_
-    b 0x36E75C
-.else
-    b 0x36EC44
-.endif
+    b hookReturn_SetBGMEvent
 
 .global hook_InstantTextFirstLine
 hook_InstantTextFirstLine:
@@ -139,11 +171,7 @@ hook_InstantTextBoxBreak:
     bl Cheats_IsInstantText
     cmp r0,#0x1
     pop {r0-r12, lr}
-.if _JPN_
-    bne 0x2DFE60
-.else
-    bne 0x2E0EE0
-.endif
+    bne hookReturn_InstantTextBoxBreak
     push {r0-r12, lr}
     ldr r0,[r5,#0x0]
     ldr r1,[r0,#0x20]
@@ -151,11 +179,7 @@ hook_InstantTextBoxBreak:
     blx r1
     strb r11,[r4,#0x24]
     pop {r0-r12, lr}
-.if _JPN_
-    bne 0x2DFE60
-.else
-    bne 0x2E0EE0
-.endif
+    bne hookReturn_InstantTextBoxBreak
 
 .global hook_InstantTextRemoveOff
 hook_InstantTextRemoveOff:
@@ -163,15 +187,9 @@ hook_InstantTextRemoveOff:
     bl Cheats_IsInstantText
     cmp r0,#0x1
     pop {r0-r12, lr}
-.if _JPN_
-    beq 0x2DFE54
+    beq InstantText_SkipControlCode
     ldr r0,[r5,#0x0]
-    b 0x2DF64C
-.else
-    beq 0x2E0ED4
-    ldr r0,[r5,#0x0]
-    b 0x2E06CC
-.endif
+    b hookReturn_InstantTextRemoveOff
 
 .global hook_TurboTextAdvance
 hook_TurboTextAdvance:
@@ -233,7 +251,7 @@ hook_Gfx_SleepQueryCallback:
     bl Gfx_SleepQueryCallback
     pop {r0-r12, lr}
     add r0,r0,#0x9C
-    b 0x3FD6C8
+    b hookReturn_SleepQueryCallback
 
 .global hook_OverrideSceneSetup
 hook_OverrideSceneSetup:
@@ -261,58 +279,6 @@ hook_CameraUpdate:
     bxeq lr
     ldmia sp!,{r4-r11,pc}
 
-.global hook_HaltActors
-hook_HaltActors:
-    push {r0-r12,lr}
-    bl Scene_HaltActorsEnabled
-    cmp r0,#0x0
-    pop {r0-r12,lr}
-.if (_USA_ || _EUR_)
-    bne 0x2E4090
-.endif
-.if (_JPN_)
-    bne 0x2E3BA8
-.endif
-.if (_KOR_)
-    bne 0x2FDD08
-.endif
-.if (_TWN_)
-    bne 0x2FDE08
-.endif
-    cmp r0,#0x0
-    bx lr
-
-.global hook_before_GameState_Loop
-hook_before_GameState_Loop:
-.if (_KOR_ || _TWN_)
-    push {r0-r12, lr}
-    cpy r0,r4
-    bl before_GameState_Loop
-    pop {r0-r12, lr}
-    cpy r0,r9
-    bx lr
-.else
-    push {r0-r12, lr}
-    cpy r0,r5
-    bl before_GameState_Loop
-    pop {r0-r12, lr}
-    cpy r0,r4
-    bx lr
-.endif
-
-.global hook_after_GameState_Update
-hook_after_GameState_Update:
-    push {r0-r12, lr}
-    bl checkFastForward
-    cmp r0,#0x0
-    pop {r0-r12, lr}
-.if (_KOR_ || _TWN_)
-    beq 0x102880
-.else
-    beq 0x418B88 @ handles drawing screen
-.endif
-    bx lr
-
 .global hook_BlackScreenFix
 hook_BlackScreenFix:
     cmp r0,#0x0 @ cutscene pointer, if 0 the fade-in will start
@@ -322,28 +288,3 @@ hook_BlackScreenFix:
     cmp r0,#0x1
     pop {r0-r12, lr}
     bx lr
-
-.global hook_ActorDrawContext
-hook_ActorDrawContext:
-    push {r0-r12, lr}
-    bl Actor_rDrawContext
-    pop {r0-r12, lr}
-    bx lr
-
-.global hook_GameButtonInputs
-hook_GameButtonInputs:
-.if (_KOR_ || _TWN_)
-    push {r0-r12,lr}
-    cpy r0,r1
-    bl Commands_OverrideGameButtonInputs
-    pop {r0-r12,lr}
-    str r0,[r4,#0x4]
-    bx lr
-.else
-    push {r0-r12,lr}
-    cpy r0,r4
-    bl Commands_OverrideGameButtonInputs
-    pop {r0-r12,lr}
-    add r0,r0,r9,lsl#0x4
-    bx lr
-.endif

@@ -3,11 +3,8 @@
 
 #include "3ds/types.h"
 
-#if Version_KOR || Version_TWN
-    #define NEWCODE_OFFSET 0x005CE000
-#else
-    #define NEWCODE_OFFSET 0x005C7000
-#endif
+extern char _LD_SYMBOL_TEXT_START;
+#define NEWCODE_OFFSET ((u32)&_LD_SYMBOL_TEXT_START)
 
 /*
  * Code size can only be known at link time, so the linker will need a way to

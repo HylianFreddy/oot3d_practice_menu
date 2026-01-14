@@ -5,7 +5,6 @@ build_patch() {
     PATCH_PATH_3DS="./patch_files/3DS/00040000000$TITLE_ID"
     PATCH_PATH_CITRA="./patch_files/Citra/00040000000$TITLE_ID"
 
-    make clean
     make -j12 REGION=$REGION
     mkdir -p "$PATCH_PATH_3DS"
     mkdir -p "$PATCH_PATH_CITRA"

@@ -165,8 +165,8 @@ void advance_main(void) {
     drawAlert();
 
     if (CollisionOption(COLVIEW_SHOW_COLLISION) && gColViewDisplayCountInfo && isInGame()) {
-        s16 polyMax   = gMainClass->sub32A0.coll2DModelsMax;
-        s16 polyCount = gMainClass->sub32A0.coll2DModelsCount;
+        s16 polyMax   = gMainClass.sub32A0.coll2DModelsMax;
+        s16 polyCount = gMainClass.sub32A0.coll2DModelsCount;
         Draw_DrawFormattedString(3, SCREEN_BOT_HEIGHT - SPACING_Y, polyCount >= polyMax ? COLOR_RED : COLOR_WHITE,
                                  "%d/%d", polyCount, polyMax);
     }
@@ -293,7 +293,7 @@ void autoLoadSaveFile(void) {
         if (gSaveContext.saveCount > 0) {
             setAlert("Autoload File 1", 90);
             gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
-#if GZ3D_EXTRAS && !Version_KOR && !Version_TWN
+#if GZ3D_EXTRAS && !REGION_KOR_TWN
             if (gSaveContext.masterQuestFlag) {
                 // These static variables are used at some point during the load to overwrite the MQ flag.
                 // Setting them like this is kind of broken (saving the game will save onto MQ slot 1),

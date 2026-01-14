@@ -27,11 +27,11 @@ void PlayerActor_rDestroy(Actor* thisx, GlobalContext* globalCtx) {
 }
 
 void PlayerActor_rDraw(Actor* thisx, GlobalContext* globalCtx) {
-    s32 modelCountBeforePlayer = gMainClass->sub180.saModels3DCount;
+    s32 modelCountBeforePlayer = gMainClass.sub180.saModels3DCount;
 
     vanillaActorInit_Player.draw(thisx, globalCtx);
 
-    if (gMainClass->sub180.saModels3DCount > modelCountBeforePlayer) {
-        Player_SamPlusUnk = &gMainClass->sub180.saModels3DList[modelCountBeforePlayer];
+    if (gMainClass.sub180.saModels3DCount > modelCountBeforePlayer) {
+        Player_SamPlusUnk = &gMainClass.sub180.saModels3DList[modelCountBeforePlayer];
     }
 }
