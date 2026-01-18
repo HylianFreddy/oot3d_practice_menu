@@ -13,27 +13,27 @@ u8 selectedProfile = 0;
 
 ToggleMenu SettingsMenu = {
     "Settings",
-    .nbItems = SETTINGS_MAX,
+    .nbItems          = SETTINGS_MAX,
     .initialCursorPos = 0,
     {
-        {0, "Hide Pause/Commands Display", Settings_Toggle},
-        {0, "Reset cursor position when leaving menu", Settings_Toggle},
-        {0, "Use light blue color in menu", Settings_Toggle},
-    }
+        { 0, "Hide Pause/Commands Display", Settings_Toggle },
+        { 0, "Reset cursor position when leaving menu", Settings_Toggle },
+        { 0, "Use light blue color in menu", Settings_Toggle },
+    },
 };
 
 Menu ProfilesMenu = {
     "Profiles",
-    .nbItems = PROFILES_MAX,
+    .nbItems          = PROFILES_MAX,
     .initialCursorPos = 0,
     {
-        {"Profile: 0", METHOD, .method = Settings_CycleProfile},
-        {"Save Profile", METHOD, .method = Settings_SaveExtSaveData},
-        {"Load Profile", METHOD, .method = Settings_LoadExtSaveData},
-    }
+        { "Profile: 0", METHOD, .method = Settings_CycleProfile },
+        { "Save Profile", METHOD, .method = Settings_SaveExtSaveData },
+        { "Load Profile", METHOD, .method = Settings_LoadExtSaveData },
+    },
 };
 
-void Settings_ShowSettingsMenu(void){
+void Settings_ShowSettingsMenu(void) {
     ToggleMenuShow(&SettingsMenu);
 }
 
@@ -61,7 +61,7 @@ void Settings_InitExtSaveData(void) {
     memcpy(gExtSaveData.watches, watches, sizeof(watches));
     gExtSaveData.info.memAddrs.globalCtx = gGlobalContext;
     gExtSaveData.info.memAddrs.actorHeap = gStoredActorHeapAddress;
-    gExtSaveData.info.region = CURRENT_REGION_ID;
+    gExtSaveData.info.region             = CURRENT_REGION_ID;
     for (s32 i = 0; i < SETTINGS_MAX; i++) {
         gExtSaveData.settings[i] = SettingsMenu.items[i].on;
     }
@@ -91,7 +91,7 @@ void Settings_SaveExtSaveData(void) {
     Result res;
     FS_Archive fsa;
 
-    if(!R_SUCCEEDED(res = extDataMount(&fsa))) {
+    if (!R_SUCCEEDED(res = extDataMount(&fsa))) {
         setAlert("Failed to save! ", 90);
         return;
     }
@@ -103,7 +103,7 @@ void Settings_SaveExtSaveData(void) {
     extDataUnmount(fsa);
 
     char* alert = "Profile X saved";
-    alert[8] = selectedProfile + '0';
+    alert[8]    = selectedProfile + '0';
     setAlert(alert, 90);
 }
 
@@ -160,16 +160,15 @@ void Settings_UpdateWatchAddresses(void) {
         }
         return;
     }
-    bool updated = false;
+    bool updated        = false;
     s32 actorHeapOffset = gStoredActorHeapAddress - gExtSaveData.info.memAddrs.actorHeap;
     s32 globalCtxOffset = (void*)gGlobalContext - gExtSaveData.info.memAddrs.globalCtx;
     for (int i = 0; i < WATCHES_MAX; i++) {
-        #define watchAddr watches[i].addr
+#define watchAddr watches[i].addr
         s32 offset = 0;
         if (watchAddr >= gExtSaveData.info.memAddrs.actorHeap) {
             offset = actorHeapOffset;
-        }
-        else if (watchAddr >= gExtSaveData.info.memAddrs.globalCtx) {
+        } else if (watchAddr >= gExtSaveData.info.memAddrs.globalCtx) {
             offset = globalCtxOffset;
         }
 
@@ -177,7 +176,7 @@ void Settings_UpdateWatchAddresses(void) {
             watchAddr += offset;
             updated = true;
         }
-        #undef watchAddr
+#undef watchAddr
     }
 
     Settings_AlertProfileLoad(updated ? WATCHUPDATE_SUCCESS : WATCHUPDATE_NONE);
@@ -190,8 +189,8 @@ static void Settings_AlertProfileLoad(WatchUpdateResult res) {
         "Profile X loaded, cannot verify watches",
     };
 
-    char* alert = messages[res];
-    alert[8] = selectedProfile + '0';
+    char* alert     = messages[res];
+    alert[8]        = selectedProfile + '0';
     u32 alertFrames = (res == WATCHUPDATE_NONE ? 90 : 120);
     setAlert(alert, alertFrames);
 }

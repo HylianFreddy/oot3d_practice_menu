@@ -11,9 +11,9 @@
 #define STORED_POS_COUNT 9
 
 typedef enum {
-    COMMAND_HOLD_TYPE, //command works as long as combo is held
-    COMMAND_PRESS_TYPE, //command can be repeated with only the final input
-    COMMAND_PRESS_ONCE_TYPE, //command is only repeated after redoing full combo
+    COMMAND_HOLD_TYPE,       // command works as long as combo is held
+    COMMAND_PRESS_TYPE,      // command can be repeated with only the final input
+    COMMAND_PRESS_ONCE_TYPE, // command is only repeated after redoing full combo
 } commandType;
 
 typedef enum {
@@ -53,10 +53,10 @@ typedef struct Command {
     u32 comboLen;
     u32 curIdx;
     u32 inputs[COMMAND_COMBO_MAX];
-    void(*method)(void);
+    void (*method)(void);
     commandType type;
-    u32 waiting; //to prevent press types from re-executing. unused for other types
-    u32 strict; //whether the button combo is strict or not
+    u32 waiting; // to prevent press types from re-executing. unused for other types
+    u32 strict;  // whether the button combo is strict or not
 } Command;
 
 extern Command commandList[NUMBER_OF_COMMANDS];

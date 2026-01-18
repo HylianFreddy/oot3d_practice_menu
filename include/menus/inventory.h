@@ -35,7 +35,7 @@ void Inventory_SongsToggle(s32);
 void Inventory_AmountsMenuFunc(void);
 void Inventory_AmountsSelect(s32);
 
-enum { //Right Side Gear Menu Choices
+enum { // Right Side Gear Menu Choices
     Gear_Menu_Kokiri_Sword = 0,
     Gear_Menu_Master_Sword,
     Gear_Menu_Giants_Knife,
@@ -72,7 +72,7 @@ enum { //Right Side Gear Menu Choices
     Gear_Menu_Unused_Wallet,
 };
 
-enum { //Left Side Gear Menu Choices
+enum { // Left Side Gear Menu Choices
     Gear_Menu_Forest_Medallion,
     Gear_Menu_Fire_Medallion,
     Gear_Menu_Water_Medallion,
@@ -88,7 +88,7 @@ enum { //Left Side Gear Menu Choices
     Gear_Menu_Gold_Skulltulas,
 };
 
-enum { //Songs Menu Choices
+enum { // Songs Menu Choices
     Songs_Menu_Zeldas_Lullaby,
     Songs_Menu_Eponas_Song,
     Songs_Menu_Sarias_Song,
@@ -103,7 +103,7 @@ enum { //Songs Menu Choices
     Songs_Menu_Prelude,
 };
 
-enum { //Amounts Menu Choices
+enum { // Amounts Menu Choices
     Amounts_Menu_Deku_Sticks,
     Amounts_Menu_Deku_Nuts,
     Amounts_Menu_Bombs,

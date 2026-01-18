@@ -4,12 +4,12 @@
 
 void OceffSpot_End(Actor* thisx, GlobalContext* globalCtx);
 
-ActorInit vanillaActorInit_OceffSpot  = {0};
-ActorInit vanillaActorInit_OceffWipe  = {0};
-ActorInit vanillaActorInit_OceffStorm = {0};
-ActorInit vanillaActorInit_OceffWipe2 = {0};
-ActorInit vanillaActorInit_OceffWipe3 = {0};
-ActorInit vanillaActorInit_OceffWipe4 = {0};
+ActorInit vanillaActorInit_OceffSpot  = { 0 };
+ActorInit vanillaActorInit_OceffWipe  = { 0 };
+ActorInit vanillaActorInit_OceffStorm = { 0 };
+ActorInit vanillaActorInit_OceffWipe2 = { 0 };
+ActorInit vanillaActorInit_OceffWipe3 = { 0 };
+ActorInit vanillaActorInit_OceffWipe4 = { 0 };
 
 // Zelda's Lullaby, Song of Time
 void OceffWipe_rUpdate(Actor* thisx, GlobalContext* globalCtx) {

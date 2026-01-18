@@ -33,7 +33,7 @@ typedef struct Watch {
     u32 posX;
     u32 posY;
     void* addr;
-    u8 display; //whether to display on top screen
+    u8 display; // whether to display on top screen
     char name[WATCHES_MAXNAME + 1];
 } Watch;
 

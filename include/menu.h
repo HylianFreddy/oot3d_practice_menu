@@ -1,42 +1,42 @@
 /*
-*   This file is a modified part of Luma3DS
-*   Copyright (C) 2016-2019 Aurora Wright, TuxSH
-*   Modified 2020 Gamestabled
-*   Modified 2021 HylianFreddy
-*
-*   This program is free software: you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation, either version 3 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*   Additional Terms 7.b and 7.c of GPLv3 apply to this file:
-*       * Requiring preservation of specified reasonable legal notices or
-*         author attributions in that material or in the Appropriate Legal
-*         Notices displayed by works containing it.
-*       * Prohibiting misrepresentation of the origin of that material,
-*         or requiring that modified versions of such material be marked in
-*         reasonable ways as different from the original version.
-*/
+ *   This file is a modified part of Luma3DS
+ *   Copyright (C) 2016-2019 Aurora Wright, TuxSH
+ *   Modified 2020 Gamestabled
+ *   Modified 2021 HylianFreddy
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *   Additional Terms 7.b and 7.c of GPLv3 apply to this file:
+ *       * Requiring preservation of specified reasonable legal notices or
+ *         author attributions in that material or in the Appropriate Legal
+ *         Notices displayed by works containing it.
+ *       * Prohibiting misrepresentation of the origin of that material,
+ *         or requiring that modified versions of such material be marked in
+ *         reasonable ways as different from the original version.
+ */
 
 #pragma once
 
 #include <stdbool.h>
 #include "utils.h"
 
-#define MIN(x,y) (x < y ? x : y)
-#define MAX(x,y) (x > y ? x : y)
+#define MIN(x, y) (x < y ? x : y)
+#define MAX(x, y) (x > y ? x : y)
 
-#define CORE_APPLICATION  0
-#define CORE_SYSTEM       1
-#define CORE_DEFAULT     -2
+#define CORE_APPLICATION 0
+#define CORE_SYSTEM 1
+#define CORE_DEFAULT -2
 
 typedef enum {
     VARTYPE_S8,
@@ -54,17 +54,17 @@ typedef enum MenuItemAction {
 } MenuItemAction;
 
 typedef struct MenuItem {
-    char *title;
+    char* title;
 
     MenuItemAction action_type;
     union {
-        struct Menu *menu;
+        struct Menu* menu;
         void (*method)(void);
     };
 } MenuItem;
 
 typedef struct Menu {
-    const char *title;
+    const char* title;
 
     u32 nbItems;
     u32 initialCursorPos;
@@ -73,12 +73,12 @@ typedef struct Menu {
 
 typedef struct ToggleMenuItem {
     u8 on;
-    char *title;
+    char* title;
     void (*method)(s32);
 } ToggleMenuItem;
 
 typedef struct ToggleMenu {
-    const char *title;
+    const char* title;
 
     u32 nbItems;
     s32 initialCursorPos;
@@ -86,18 +86,18 @@ typedef struct ToggleMenu {
 } ToggleMenu;
 
 typedef struct AmountMenuItem {
-    u16 amount; //current amount
+    u16 amount; // current amount
     bool isSigned;
-    s32 min;    //min amount, 0 = no limit
-    s32 max;    //max amount, 0 = no limit
-    s32 nDigits;//number of digits to display
-    bool hex;   //display in hex or decimal
-    char *title;
+    s32 min;     // min amount, 0 = no limit
+    s32 max;     // max amount, 0 = no limit
+    s32 nDigits; // number of digits to display
+    bool hex;    // display in hex or decimal
+    char* title;
     void (*method)(s32);
 } AmountMenuItem;
 
 typedef struct AmountMenu {
-    const char *title;
+    const char* title;
 
     u32 nbItems;
     s32 initialCursorPos;
@@ -108,8 +108,8 @@ typedef struct AmountMenu {
 #define AMOUNT_MENU_MAX_SHOW 18
 
 void menuShow(Menu* rootMenu);
-void ToggleMenuShow(ToggleMenu *menu);
-void AmountMenuShow(AmountMenu *menu);
+void ToggleMenuShow(ToggleMenu* menu);
+void AmountMenuShow(AmountMenu* menu);
 void Menu_EditAmount(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount, bool isHex);
 void Menu_EditAmountWithMethod(u32 posX, u32 posY, void* value, VarType varType, s32 min, s32 max, s32 digitCount,
                                bool isHex, void (*method)(s32), s32 amountMenuIndex);

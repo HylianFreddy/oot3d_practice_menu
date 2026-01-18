@@ -31,5 +31,5 @@ typedef enum {
     NUMBER_OF_CHEATS,
 } CheatNames;
 
-extern u8  cheats[NUMBER_OF_CHEATS];
+extern u8 cheats[NUMBER_OF_CHEATS];
 extern u16 frozenTime;

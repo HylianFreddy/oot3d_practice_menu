@@ -18,37 +18,37 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly);
 static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting);
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna);
 
-static s16 sPolyMax = 64;
-static u16 sDistanceMax = 150;
-static u8 sDrawAllStatic = 0;
+static s16 sPolyMax         = 64;
+static u16 sDistanceMax     = 150;
+static u8 sDrawAllStatic    = 0;
 u8 gColViewDisplayCountInfo = 0;
 
 ToggleMenu CollisionMenu = {
     "Collision Viewer",
-    .nbItems = COLVIEW_MAX,
+    .nbItems          = COLVIEW_MAX,
     .initialCursorPos = 0,
     {
-        {0, "Show Colliders/Hitboxes", .method = ColView_ToggleCollisionOption},
-        {1, "  Hit  (AT)", .method = ColView_ToggleCollisionOption},
-        {1, "  Hurt (AC)", .method = ColView_ToggleCollisionOption},
-        {1, "  Bump (OC)", .method = ColView_ToggleCollisionOption},
-        {0, "Show Collision Polygons", .method = ColView_ToggleCollisionOption},
-        {1, "  Static Polys", .method = ColView_ToggleCollisionOption},
-        {1, "  Dynamic Polys", .method = ColView_ToggleCollisionOption},
-        {0, "  Invisible Seams (may be inaccurate)", .method = ColView_ToggleCollisionOption},
-        {1, "  Translucent", .method = ColView_ToggleCollisionOption},
-        {0, "  Polygon Class", .method = ColView_ToggleCollisionOption},
-        {1, "  Shaded", .method = ColView_ToggleCollisionOption},
-        {0, "  Reduced", .method = ColView_ToggleCollisionOption},
-        {0, "  Advanced Performance Options Menu", .method = ColView_AdvancedOptionsMenuShow},
+        { 0, "Show Colliders/Hitboxes", .method = ColView_ToggleCollisionOption },
+        { 1, "  Hit  (AT)", .method = ColView_ToggleCollisionOption },
+        { 1, "  Hurt (AC)", .method = ColView_ToggleCollisionOption },
+        { 1, "  Bump (OC)", .method = ColView_ToggleCollisionOption },
+        { 0, "Show Collision Polygons", .method = ColView_ToggleCollisionOption },
+        { 1, "  Static Polys", .method = ColView_ToggleCollisionOption },
+        { 1, "  Dynamic Polys", .method = ColView_ToggleCollisionOption },
+        { 0, "  Invisible Seams (may be inaccurate)", .method = ColView_ToggleCollisionOption },
+        { 1, "  Translucent", .method = ColView_ToggleCollisionOption },
+        { 0, "  Polygon Class", .method = ColView_ToggleCollisionOption },
+        { 1, "  Shaded", .method = ColView_ToggleCollisionOption },
+        { 0, "  Reduced", .method = ColView_ToggleCollisionOption },
+        { 0, "  Advanced Performance Options Menu", .method = ColView_AdvancedOptionsMenuShow },
     }
 };
 
 void ColView_CollisionMenuShow(void) {
     CollisionMenu.items[COLVIEW_SHOW_COLLIDERS].on = gStaticContext.showColliders;
-    CollisionMenu.items[COLVIEW_AT].on = gStaticContext.showAT;
-    CollisionMenu.items[COLVIEW_AC].on = gStaticContext.showAC;
-    CollisionMenu.items[COLVIEW_OC].on = gStaticContext.showOC;
+    CollisionMenu.items[COLVIEW_AT].on             = gStaticContext.showAT;
+    CollisionMenu.items[COLVIEW_AC].on             = gStaticContext.showAC;
+    CollisionMenu.items[COLVIEW_OC].on             = gStaticContext.showOC;
     ToggleMenuShow(&CollisionMenu);
 }
 
@@ -161,14 +161,14 @@ void ColView_DrawCollision(void) {
 
     if (CollisionOption(COLVIEW_DYNAMIC)) {
         DynaCollisionContext* dyna = &gGlobalContext->colCtx.dyna;
-        SSNode* dynaNodeTbl = dyna->polyNodes.tbl;
+        SSNode* dynaNodeTbl        = dyna->polyNodes.tbl;
 
         for (s32 i = 0; i < BG_ACTOR_MAX; i++) {
             if (!(dyna->bgActorFlags[i] & BGACTOR_IN_USE)) {
                 continue;
             }
 
-            DynaLookup* dynaLookup = &dyna->bgActors[i].dynaLookup;
+            DynaLookup* dynaLookup           = &dyna->bgActors[i].dynaLookup;
             SurfaceType* dynaSurfaceTypeList = dyna->bgActors[i].colHeader->surfaceTypeList;
             if (dynaLookup != NULL) {
                 ColView_DrawAllFromNode(dynaLookup->floor.head, dynaNodeTbl, dynaSurfaceTypeList, TRUE);
@@ -179,7 +179,7 @@ void ColView_DrawCollision(void) {
     }
 
     if (CollisionOption(COLVIEW_STATIC)) {
-        StaticCollisionContext* stat = &gGlobalContext->colCtx.stat;
+        StaticCollisionContext* stat     = &gGlobalContext->colCtx.stat;
         SurfaceType* statSurfaceTypeList = stat->colHeader->surfaceTypeList;
         if (sDrawAllStatic) {
             for (s32 i = 0; i < stat->colHeader->numPolygons; i++) {
@@ -187,12 +187,10 @@ void ColView_DrawCollision(void) {
             }
         } else {
             SSNode* statNodeTbl = stat->polyNodes.tbl;
-            Vec3i sector = { 0 };
+            Vec3i sector        = { 0 };
             BgCheck_GetStaticLookupIndicesFromPos(&gGlobalContext->colCtx, &PLAYER->actor.world.pos, &sector);
             s32 lookupId =
-                sector.x +
-                (sector.y * stat->subdivAmount.x) +
-                (sector.z * stat->subdivAmount.x * stat->subdivAmount.y);
+                sector.x + (sector.y * stat->subdivAmount.x) + (sector.z * stat->subdivAmount.x * stat->subdivAmount.y);
             StaticLookup* staticLookup = &stat->lookupTbl[lookupId];
 
             if (staticLookup != NULL) {
@@ -206,7 +204,7 @@ void ColView_DrawCollision(void) {
 
 static void ColView_DrawAllFromNode(u16 nodeId, SSNode* nodeTbl, SurfaceType* surfaceTypeList, u8 isDyna) {
     while (nodeId != 0xFFFF) {
-        SSNode node = nodeTbl[nodeId];
+        SSNode node            = nodeTbl[nodeId];
         CollisionPoly* colPoly = isDyna ? &gGlobalContext->colCtx.dyna.polyList[node.polyId].colPoly
                                         : &gGlobalContext->colCtx.stat.colHeader->polyList[node.polyId];
         ColView_DrawFromColPoly(colPoly, surfaceTypeList, isDyna);
@@ -226,6 +224,7 @@ static void ColView_DrawFromColPoly(CollisionPoly* colPoly, SurfaceType* surface
 
 static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType* surfaceTypeList, u8 isDyna) {
     SurfaceType surfaceType = surfaceTypeList[colPoly->type];
+
     Vec3f normal = isDyna ? ((DynaCollisionPoly*)colPoly)->normF32
                           : (Vec3f){
                                 .x = colPoly->norm.x / 32767.0,
@@ -253,13 +252,11 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
             color.r = 1.0;
             color.g = 0.0;
             color.b = 0.0;
-        } else if (SurfaceType_GetExitIndex(surfaceType) != 0x0 ||
-                    SurfaceType_GetFloorProperty(surfaceType) == 0x5) {
+        } else if (SurfaceType_GetExitIndex(surfaceType) != 0x0 || SurfaceType_GetFloorProperty(surfaceType) == 0x5) {
             color.r = 0.0;
             color.g = 1.0;
             color.b = 0.0;
-        } else if (SurfaceType_GetFloorType(surfaceType) != 0x0 ||
-                    SurfaceType_GetWallDamage(surfaceType) != 0x0) {
+        } else if (SurfaceType_GetFloorType(surfaceType) != 0x0 || SurfaceType_GetWallDamage(surfaceType) != 0x0) {
             color.r = 0.75;
             color.g = 1.0;
             color.b = 0.75;
@@ -282,8 +279,8 @@ static ColViewPoly ColView_BuildColViewPoly(CollisionPoly* colPoly, SurfaceType*
         color.b -= color.b * ABS(0.30 * normal.y + 0.25 * normal.z);
     }
 
-    u8 preventZFighting = (!isDyna && !gStaticContext.disableRoomDraw) ||
-                           (isDyna && !HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on);
+    u8 preventZFighting = (!isDyna && !gStaticContext.disableRoomDraw) || //
+                          (isDyna && !HideEntitiesMenu.items[HIDEENTITIES_ACTORS].on);
 
     return (ColViewPoly){
         .verts = {
@@ -331,8 +328,8 @@ static u8 ColView_ShouldDrawPoly(ColViewPoly poly) {
 
     // Check if player is far from the closest point of the poly, for each axis
     // TODO: improve this
-    f32(*playerCoords)[3] = (f32(*)[3])&PLAYER->actor.world.pos;
-    f32(*polyVertsCoords)[3][3] = (f32(*)[3][3])&poly.verts;
+    f32(*playerCoords)[3]       = (f32(*)[3]) & PLAYER->actor.world.pos;
+    f32(*polyVertsCoords)[3][3] = (f32(*)[3][3]) & poly.verts;
     for (s32 i = 0; i < 3; i++) {
         f32 vADist = (*polyVertsCoords)[0][i] - (*playerCoords)[i];
         f32 vBDist = (*polyVertsCoords)[1][i] - (*playerCoords)[i];
@@ -352,22 +349,22 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting) {
     Vec3f pos;
     if (isDyna) {
         Vec3f* vtxListF32 = gGlobalContext->colCtx.dyna.vtxList;
-        pos.x = vtxListF32[vtxIdx].x;
-        pos.y = vtxListF32[vtxIdx].y;
-        pos.z = vtxListF32[vtxIdx].z;
+        pos.x             = vtxListF32[vtxIdx].x;
+        pos.y             = vtxListF32[vtxIdx].y;
+        pos.z             = vtxListF32[vtxIdx].z;
     } else {
         Vec3s* vtxListS16 = gGlobalContext->colCtx.stat.colHeader->vtxList;
-        pos.x = (f32)(vtxListS16[vtxIdx].x);
-        pos.y = (f32)(vtxListS16[vtxIdx].y);
-        pos.z = (f32)(vtxListS16[vtxIdx].z);
+        pos.x             = (f32)(vtxListS16[vtxIdx].x);
+        pos.y             = (f32)(vtxListS16[vtxIdx].y);
+        pos.z             = (f32)(vtxListS16[vtxIdx].z);
     }
     if (preventZFighting) {
         // Try to avoid z-fighting issues by considering each
         // vertex closer to the view point than it really is.
         Vec3f eye = gGlobalContext->view.eye;
-        pos.x = (pos.x * 49 + eye.x) / 50;
-        pos.y = (pos.y * 49 + eye.y) / 50;
-        pos.z = (pos.z * 49 + eye.z) / 50;
+        pos.x     = (pos.x * 49 + eye.x) / 50;
+        pos.y     = (pos.y * 49 + eye.y) / 50;
+        pos.z     = (pos.z * 49 + eye.z) / 50;
     }
     return pos;
 }
@@ -376,7 +373,7 @@ static Vec3f ColView_GetVtxPos(u16 vtxIdx, u8 isDyna, u8 preventZFighting) {
 // This function is based on a Python script by Gamestabled: https://pastebin.com/FuN0QsKU
 static void ColView_DrawPolyForInvisibleSeam(CollisionPoly* colPoly, Vec3f norm, f32 alpha, u8 isDyna) {
     if (norm.y > EPSILON_OOT3D) {
-        u8 pairs[3][2] = {{0,1},{1,2},{2,0}};
+        u8 pairs[3][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 } };
         for (s32 p = 0; p < 3; p++) {
             u8* pair = pairs[p];
             Vec3f v1 = ColView_GetVtxPos(colPoly->vtxData[pair[0]], isDyna, FALSE);

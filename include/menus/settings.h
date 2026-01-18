@@ -7,7 +7,7 @@
 #define EXTSAVEDATA_VERSION 0
 
 extern char _LD_CURRENT_REGION_ID;
-#define CURRENT_REGION_ID ((u32)&_LD_CURRENT_REGION_ID)
+#define CURRENT_REGION_ID ((u32) & _LD_CURRENT_REGION_ID)
 
 extern ToggleMenu SettingsMenu;
 extern Menu ProfilesMenu;
@@ -61,18 +61,18 @@ typedef struct MemAddrs {
 
 typedef struct ExtInfo {
     MemAddrs memAddrs;
-    u8       region;
-    u8       unused[11];
+    u8 region;
+    u8 unused[11];
 } ExtInfo;
 
 typedef struct {
-    u32      version;
-    u8       cheats[32];
-    char     padding[4];
-    Command  commands[32];
-    Watch    watches[30];
-    ExtInfo  info;
-    u8       settings[12];
+    u32 version;
+    u8 cheats[32];
+    char padding[4];
+    Command commands[32];
+    Watch watches[30];
+    ExtInfo info;
+    u8 settings[12];
 } ExtSaveData;
 _Static_assert(sizeof(ExtSaveData) == 0x8A8, "ExtSaveData size");
 // Non-breaking changes to this struct:

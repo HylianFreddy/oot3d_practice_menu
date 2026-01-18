@@ -23,23 +23,23 @@ enum {
 } BombBag;
 
 enum {
-    NO_STRENGTH = 0,
-    GORON_BRACELET = 1,
+    NO_STRENGTH      = 0,
+    GORON_BRACELET   = 1,
     SILVER_GAUNTLETS = 2,
     GOLDEN_GAUNTLETS = 3,
 } Strength;
 
 enum {
     NO_DIVE_UPGRADE = 0,
-    SILVER_SCALE = 1,
-    GOLDEN_SCALE = 2,
+    SILVER_SCALE    = 1,
+    GOLDEN_SCALE    = 2,
 } DiveMeter;
 
 enum {
     DEFAULT_WALLET = 0,
-    ADULTS_WALLET = 1,
-    GIANTS_WALLET = 2,
-    UNUSED_WALLET = 3,
+    ADULTS_WALLET  = 1,
+    GIANTS_WALLET  = 2,
+    UNUSED_WALLET  = 3,
 } Wallet;
 
 #endif

@@ -22,70 +22,70 @@ static void Scene_FreeCamDescription(void);
 static void Scene_ToggleFreeCamSetting(s32 selected);
 static void Scene_HideEntityToggle(s32 selected);
 
-u8 noClip = 0;
+u8 noClip               = 0;
 u8 waitingButtonRelease = 0;
-u8 haltActors = 0;
+u8 haltActors           = 0;
 
 static s32 selectedRoomNumber = -1;
 
 static Menu RoomSelectorMenu = {
     "Room Selector",
-    .nbItems = 2,
+    .nbItems          = 2,
     .initialCursorPos = 0,
     {
-        {"Room Number: --", METHOD, .method = Scene_SelectRoomNumber},
-        {"Load", METHOD, .method = Scene_LoadRoom},
-    }
+        { "Room Number: --", METHOD, .method = Scene_SelectRoomNumber },
+        { "Load", METHOD, .method = Scene_LoadRoom },
+    },
 };
 
 static Menu FreeCamMenu = {
     "Free Camera",
-    .nbItems = 2,
+    .nbItems          = 2,
     .initialCursorPos = 0,
     {
-        {"Settings", METHOD, .method = Scene_FreeCamSettingsMenuShow},
-        {"Info", METHOD, .method = Scene_FreeCamDescription},
-    }
+        { "Settings", METHOD, .method = Scene_FreeCamSettingsMenuShow },
+        { "Info", METHOD, .method = Scene_FreeCamDescription },
+    },
 };
 
 ToggleMenu FreeCamSettingsMenu = {
     "Free Camera Settings",
-    .nbItems = 5,
+    .nbItems          = 5,
     .initialCursorPos = 0,
     {
-        {0, "Enable", .method = Scene_ToggleFreeCamSetting},
-        {0, "Lock", .method = Scene_ToggleFreeCamSetting},
-        {0, "Mode: OFF=Camera / ON=View", .method = Scene_ToggleFreeCamSetting},
-        {0, "Behavior: OFF=Manual / ON=Radial", .method = Scene_ToggleFreeCamSetting},
-        {0, "Remember Position", .method = Scene_ToggleFreeCamSetting},
-    }
+        { 0, "Enable", .method = Scene_ToggleFreeCamSetting },
+        { 0, "Lock", .method = Scene_ToggleFreeCamSetting },
+        { 0, "Mode: OFF=Camera / ON=View", .method = Scene_ToggleFreeCamSetting },
+        { 0, "Behavior: OFF=Manual / ON=Radial", .method = Scene_ToggleFreeCamSetting },
+        { 0, "Remember Position", .method = Scene_ToggleFreeCamSetting },
+    },
 };
 
 ToggleMenu HideEntitiesMenu = {
     "Hide Game Entities",
-    .nbItems = HIDEENTITIES_MAX,
+    .nbItems          = HIDEENTITIES_MAX,
     .initialCursorPos = 0,
     {
-        {0, "Hide Rooms", .method = Scene_HideEntityToggle},
-        {0, "Hide Actors", .method = Scene_HideEntityToggle},
-        {0, "  Except Link", .method = Scene_HideEntityToggle},
-    }
+        { 0, "Hide Rooms", .method = Scene_HideEntityToggle },
+        { 0, "Hide Actors", .method = Scene_HideEntityToggle },
+        { 0, "  Except Link", .method = Scene_HideEntityToggle },
+    },
 };
 
 Menu SceneMenu = {
     "Scene",
-    .nbItems = 8,
+    .nbItems          = 8,
     .initialCursorPos = 0,
     {
-        {"NoClip / Move Link", METHOD, .method = Scene_NoClipDescription},
-        {"Set Entrance Point", METHOD, .method = Scene_SetEntrancePoint},
-        {"Set Flags", METHOD, .method = Scene_SetFlags},
-        {"Clear Flags", METHOD, .method = Scene_ClearFlags},
-        {"Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow},
-        {"Collision Viewer", METHOD, .method = ColView_CollisionMenuShow},
-        {"Free Camera", MENU, .menu = &FreeCamMenu},
-        {"Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow},
-    }
+        { "NoClip / Move Link", METHOD, .method = Scene_NoClipDescription },
+        { "Set Entrance Point", METHOD, .method = Scene_SetEntrancePoint },
+        { "Set Flags", METHOD, .method = Scene_SetFlags },
+        { "Clear Flags", METHOD, .method = Scene_ClearFlags },
+        { "Room Selector", METHOD, .method = Scene_RoomSelectorMenuShow },
+        { "Collision Viewer", METHOD, .method = ColView_CollisionMenuShow },
+        { "Free Camera", MENU, .menu = &FreeCamMenu },
+        { "Hide Game Entities", METHOD, .method = Scene_HideEntitiesMenuShow },
+    },
 };
 
 static void Scene_SetEntrancePoint(void) {
@@ -112,7 +112,7 @@ static void Scene_RoomSelectorMenuShow(void) {
         setAlert("Not in game", 90);
         return;
     }
-    selectedRoomNumber = gGlobalContext->roomCtx.curRoom.num;
+    selectedRoomNumber                = gGlobalContext->roomCtx.curRoom.num;
     RoomSelectorMenu.initialCursorPos = 0; // reset the cursor because it's useless to keep it on "Load"
     Scene_RoomSelectorUpdateNumber();
     menuShow(&RoomSelectorMenu);
@@ -150,22 +150,22 @@ static void Scene_LoadRoom(void) {
 }
 
 static void Scene_SetFlags(void) {
-    gGlobalContext->actorCtx.flags.swch = 0xFFFFFFFF;
-    gGlobalContext->actorCtx.flags.tempSwch = 0xFFFFFFFF;
-    gGlobalContext->actorCtx.flags.chest = 0xFFFFFFFF;
-    gGlobalContext->actorCtx.flags.clear = 0xFFFFFFFF;
-    gGlobalContext->actorCtx.flags.tempClear = 0xFFFFFFFF;
-    gGlobalContext->actorCtx.flags.collect = 0xFFFFFFFF;
+    gGlobalContext->actorCtx.flags.swch        = 0xFFFFFFFF;
+    gGlobalContext->actorCtx.flags.tempSwch    = 0xFFFFFFFF;
+    gGlobalContext->actorCtx.flags.chest       = 0xFFFFFFFF;
+    gGlobalContext->actorCtx.flags.clear       = 0xFFFFFFFF;
+    gGlobalContext->actorCtx.flags.tempClear   = 0xFFFFFFFF;
+    gGlobalContext->actorCtx.flags.collect     = 0xFFFFFFFF;
     gGlobalContext->actorCtx.flags.tempCollect = 0xFFFFFFFF;
 }
 
 static void Scene_ClearFlags(void) {
-    gGlobalContext->actorCtx.flags.swch = 0;
-    gGlobalContext->actorCtx.flags.tempSwch = 0;
-    gGlobalContext->actorCtx.flags.chest = 0;
-    gGlobalContext->actorCtx.flags.clear = 0;
-    gGlobalContext->actorCtx.flags.tempClear = 0;
-    gGlobalContext->actorCtx.flags.collect = 0;
+    gGlobalContext->actorCtx.flags.swch        = 0;
+    gGlobalContext->actorCtx.flags.tempSwch    = 0;
+    gGlobalContext->actorCtx.flags.chest       = 0;
+    gGlobalContext->actorCtx.flags.clear       = 0;
+    gGlobalContext->actorCtx.flags.tempClear   = 0;
+    gGlobalContext->actorCtx.flags.collect     = 0;
     gGlobalContext->actorCtx.flags.tempCollect = 0;
 }
 
@@ -173,95 +173,92 @@ void Scene_NoClipToggle(void) {
     if (isInGame() && !FreeCam_Moving) {
         if (!noClip) {
             haltActors = 1;
-            noClip = 1;
+            noClip     = 1;
             if (advance_ctx.advance_state == PAUSED) {
                 // Unpause automatically when entering NoClip
                 pauseUnpause = 1;
             }
-        }
-        else {
+        } else {
             haltActors = 0;
-            noClip = 0;
+            noClip     = 0;
         }
-        menuOpen = false;
+        menuOpen             = false;
         waitingButtonRelease = 1;
     }
 }
 
 static void Scene_NoClipDescription(void) {
-
     Draw_Lock();
     Draw_ClearFramebuffer();
     Draw_DrawString(10, 10, COLOR_TITLE, "NoClip");
-    Draw_DrawString(30, 30, COLOR_WHITE, "Move Link freely in the 3D space, bypassing\n"
-                                        "collision detection.\n"
-                                        "Press A to start, B to cancel.\n\n"
-                                        "Commands:\n"
-                                        "Circle Pad - Move horizontally (camera)\n"
-                                        "DPad       - Move horizontally (cardinal)\n"
-                                        "L/R        - Move vertically\n"
-                                        "Hold X     - Move fast\n"
-                                        "Y          - Freeze/Unfreeze actors\n"
-                                        "A          - Quit and confirm position\n"
-                                        "B          - Quit and cancel movement");
+    Draw_DrawString(30, 30, COLOR_WHITE,
+                    "Move Link freely in the 3D space, bypassing\n"
+                    "collision detection.\n"
+                    "Press A to start, B to cancel.\n\n"
+                    "Commands:\n"
+                    "Circle Pad - Move horizontally (camera)\n"
+                    "DPad       - Move horizontally (cardinal)\n"
+                    "L/R        - Move vertically\n"
+                    "Hold X     - Move fast\n"
+                    "Y          - Freeze/Unfreeze actors\n"
+                    "A          - Quit and confirm position\n"
+                    "B          - Quit and cancel movement");
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
-    do
-    {
+    do {
         u32 pressed = Input_WaitWithTimeout(1000);
 
-        if (pressed & BUTTON_B){
+        if (pressed & BUTTON_B) {
             break;
         }
-        if (pressed & BUTTON_A){
+        if (pressed & BUTTON_A) {
             Scene_NoClipToggle();
         }
-    }while(onMenuLoop());
+    } while (onMenuLoop());
 }
 
 static void Scene_FreeCamSettingsMenuShow(void) {
-    FreeCamSettingsMenu.items[FREECAMSETTING_ENABLE].on = freeCam.enabled;
-    FreeCamSettingsMenu.items[FREECAMSETTING_LOCK].on = freeCam.locked;
-    FreeCamSettingsMenu.items[FREECAMSETTING_MODE].on = freeCam.mode;
-    FreeCamSettingsMenu.items[FREECAMSETTING_BEHAVIOR].on = freeCam.behavior;
+    FreeCamSettingsMenu.items[FREECAMSETTING_ENABLE].on       = freeCam.enabled;
+    FreeCamSettingsMenu.items[FREECAMSETTING_LOCK].on         = freeCam.locked;
+    FreeCamSettingsMenu.items[FREECAMSETTING_MODE].on         = freeCam.mode;
+    FreeCamSettingsMenu.items[FREECAMSETTING_BEHAVIOR].on     = freeCam.behavior;
     FreeCamSettingsMenu.items[FREECAMSETTING_REMEMBER_POS].on = freeCam.rememberPos;
     ToggleMenuShow(&FreeCamSettingsMenu);
 }
 
 static void Scene_FreeCamDescription(void) {
-
     Draw_Lock();
     Draw_ClearFramebuffer();
     Draw_DrawString(10, 10, COLOR_TITLE, "Free Camera");
-    Draw_DrawString(30, 30, COLOR_WHITE, "Move the camera freely in 3D space, leaving\n"
-                                        "Link behind.\n"
-                                        "Press A to start, B to cancel.\n\n"
-                                        "Commands:\n"
-                                        "Circle Pad   - Move forward/sideways\n"
-                                        "L+Circle Pad - Rotate in place\n"
-                                        "C Stick      - Rotate while moving\n"
-                                        "DPad Up/Down - Move vertically\n"
-                                        "Hold X       - Move fast\n"
-                                        "Y            - Freeze/Unfreeze non-player actors\n"
-                                        "A            - Quit and lock camera in place\n"
-                                        "B            - Quit and disable Free Camera");
+    Draw_DrawString(30, 30, COLOR_WHITE,
+                    "Move the camera freely in 3D space, leaving\n"
+                    "Link behind.\n"
+                    "Press A to start, B to cancel.\n\n"
+                    "Commands:\n"
+                    "Circle Pad   - Move forward/sideways\n"
+                    "L+Circle Pad - Rotate in place\n"
+                    "C Stick      - Rotate while moving\n"
+                    "DPad Up/Down - Move vertically\n"
+                    "Hold X       - Move fast\n"
+                    "Y            - Freeze/Unfreeze non-player actors\n"
+                    "A            - Quit and lock camera in place\n"
+                    "B            - Quit and disable Free Camera");
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
-    do
-    {
+    do {
         u32 pressed = Input_WaitWithTimeout(1000);
 
-        if (pressed & BUTTON_B){
+        if (pressed & BUTTON_B) {
             break;
         }
-        if (pressed & BUTTON_A){
+        if (pressed & BUTTON_A) {
             FreeCam_Toggle();
-            menuOpen = false;
+            menuOpen             = false;
             waitingButtonRelease = 1;
         }
-    }while(onMenuLoop());
+    } while (onMenuLoop());
 }
 
 static void Scene_ToggleFreeCamSetting(s32 selected) {

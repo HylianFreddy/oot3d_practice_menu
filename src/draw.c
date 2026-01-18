@@ -1,29 +1,29 @@
 /*
-*   This file is a modified part of Luma3DS
-*   Copyright (C) 2016-2019 Aurora Wright, TuxSH
-*   Modified 2020 Gamestabled
-*
-*   This program is free software: you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation, either version 3 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-*   Additional Terms 7.b and 7.c of GPLv3 apply to this file:
-*       * Requiring preservation of specified reasonable legal notices or
-*         author attributions in that material or in the Appropriate Legal
-*         Notices displayed by works containing it.
-*       * Prohibiting misrepresentation of the origin of that material,
-*         or requiring that modified versions of such material be marked in
-*         reasonable ways as different from the original version.
-*/
+ *   This file is a modified part of Luma3DS
+ *   Copyright (C) 2016-2019 Aurora Wright, TuxSH
+ *   Modified 2020 Gamestabled
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *   Additional Terms 7.b and 7.c of GPLv3 apply to this file:
+ *       * Requiring preservation of specified reasonable legal notices or
+ *         author attributions in that material or in the Appropriate Legal
+ *         Notices displayed by works containing it.
+ *       * Prohibiting misrepresentation of the origin of that material,
+ *         or requiring that modified versions of such material be marked in
+ *         reasonable ways as different from the original version.
+ */
 
 // #include "fmt.h"
 #include "lib/printf.h"
@@ -43,11 +43,9 @@ static RecursiveLock lock;
 
 u32 sColorTitle = COLOR_DEFAULT_BLUE;
 
-void Draw_Lock(void)
-{
+void Draw_Lock(void) {
     static bool lockInitialized = false;
-    if(!lockInitialized)
-    {
+    if (!lockInitialized) {
         RecursiveLock_Init(&lock);
         lockInitialized = true;
     }
@@ -55,72 +53,65 @@ void Draw_Lock(void)
     RecursiveLock_Lock(&lock);
 }
 
-void Draw_Unlock(void)
-{
+void Draw_Unlock(void) {
     RecursiveLock_Unlock(&lock);
 }
 
-void Draw_DrawCharacter(u32 posX, u32 posY, u32 color, char character)
-{
-    volatile u8 *const fb0 = (volatile u8 *const)FRAMEBUFFER[0];
-    volatile u8 *const fb1 = (volatile u8 *const)FRAMEBUFFER[1];
+void Draw_DrawCharacter(u32 posX, u32 posY, u32 color, char character) {
+    volatile u8* const fb0 = (volatile u8* const)FRAMEBUFFER[0];
+    volatile u8* const fb1 = (volatile u8* const)FRAMEBUFFER[1];
 
-    for(s32 y = 0; y < 10; y++)
-    {
+    for (s32 y = 0; y < 10; y++) {
         const char charPos = ascii_font[character * 10 + y];
 
-        for(s32 x = 6; x >= 1; x--)
-        {
-            const u32 screenPos = (posX * SCREEN_BOT_HEIGHT + (SCREEN_BOT_HEIGHT - y - posY - 1)) + (5 - x) * SCREEN_BOT_HEIGHT;
+        for (s32 x = 6; x >= 1; x--) {
+            const u32 screenPos =
+                (posX * SCREEN_BOT_HEIGHT + (SCREEN_BOT_HEIGHT - y - posY - 1)) + (5 - x) * SCREEN_BOT_HEIGHT;
             const u32 pixelColor = ((charPos >> x) & 1) ? color : COLOR_BLACK;
 
-            fb0[screenPos * 3] = (pixelColor) & 0xFF;
+            fb0[screenPos * 3]     = (pixelColor) & 0xFF;
             fb0[screenPos * 3 + 1] = (pixelColor >> 8) & 0xFF;
             fb0[screenPos * 3 + 2] = (pixelColor >> 16) & 0xFF;
-            fb1[screenPos * 3] = (pixelColor) & 0xFF;
+            fb1[screenPos * 3]     = (pixelColor) & 0xFF;
             fb1[screenPos * 3 + 1] = (pixelColor >> 8) & 0xFF;
             fb1[screenPos * 3 + 2] = (pixelColor >> 16) & 0xFF;
         }
     }
 }
 
-void Draw_DrawCharacterTop(u32 posX, u32 posY, u32 color, char character)
-{
-    volatile u8 *const fb2 = (volatile u8 *const)FRAMEBUFFER[2];
-    volatile u8 *const fb3 = (volatile u8 *const)FRAMEBUFFER[3];
-    volatile u8 *const fb4 = (volatile u8 *const)FRAMEBUFFER[4];
-    volatile u8 *const fb5 = (volatile u8 *const)FRAMEBUFFER[5];
+void Draw_DrawCharacterTop(u32 posX, u32 posY, u32 color, char character) {
+    volatile u8* const fb2 = (volatile u8* const)FRAMEBUFFER[2];
+    volatile u8* const fb3 = (volatile u8* const)FRAMEBUFFER[3];
+    volatile u8* const fb4 = (volatile u8* const)FRAMEBUFFER[4];
+    volatile u8* const fb5 = (volatile u8* const)FRAMEBUFFER[5];
 
-    for(s32 y = 0; y < 10; y++)
-    {
+    for (s32 y = 0; y < 10; y++) {
         const char charPos = ascii_font[character * 10 + y];
 
-        for(s32 x = 6; x >= 1; x--)
-        {
-            const u32 screenPos = (posX * SCREEN_TOP_HEIGHT + (SCREEN_TOP_HEIGHT - y - posY - 1)) + (5 - x) * SCREEN_TOP_HEIGHT;
+        for (s32 x = 6; x >= 1; x--) {
+            const u32 screenPos =
+                (posX * SCREEN_TOP_HEIGHT + (SCREEN_TOP_HEIGHT - y - posY - 1)) + (5 - x) * SCREEN_TOP_HEIGHT;
             const u32 pixelColor = ((charPos >> x) & 1) ? color : COLOR_BLACK;
 
-            fb2[screenPos * 3] = (pixelColor) & 0xFF;
+            fb2[screenPos * 3]     = (pixelColor) & 0xFF;
             fb2[screenPos * 3 + 1] = (pixelColor >> 8) & 0xFF;
             fb2[screenPos * 3 + 2] = (pixelColor >> 16) & 0xFF;
-            fb3[screenPos * 3] = (pixelColor) & 0xFF;
+            fb3[screenPos * 3]     = (pixelColor) & 0xFF;
             fb3[screenPos * 3 + 1] = (pixelColor >> 8) & 0xFF;
             fb3[screenPos * 3 + 2] = (pixelColor >> 16) & 0xFF;
-            fb4[screenPos * 3] = (pixelColor) & 0xFF;
+            fb4[screenPos * 3]     = (pixelColor) & 0xFF;
             fb4[screenPos * 3 + 1] = (pixelColor >> 8) & 0xFF;
             fb4[screenPos * 3 + 2] = (pixelColor >> 16) & 0xFF;
-            fb5[screenPos * 3] = (pixelColor) & 0xFF;
+            fb5[screenPos * 3]     = (pixelColor) & 0xFF;
             fb5[screenPos * 3 + 1] = (pixelColor >> 8) & 0xFF;
             fb5[screenPos * 3 + 2] = (pixelColor >> 16) & 0xFF;
         }
     }
 }
 
-u32 Draw_DrawString(u32 posX, u32 posY, u32 color, const char *string)
-{
-    for(u32 i = 0, line_i = 0; i < strlen(string); i++)
-        switch(string[i])
-        {
+u32 Draw_DrawString(u32 posX, u32 posY, u32 color, const char* string) {
+    for (u32 i = 0, line_i = 0; i < strlen(string); i++)
+        switch (string[i]) {
             case '\n':
                 posY += SPACING_Y;
                 line_i = 0;
@@ -131,12 +122,12 @@ u32 Draw_DrawString(u32 posX, u32 posY, u32 color, const char *string)
                 break;
 
             default:
-                //Make sure we never get out of the screen
-                if(line_i >= ((SCREEN_BOT_WIDTH) - posX) / SPACING_X)
-                {
+                // Make sure we never get out of the screen
+                if (line_i >= ((SCREEN_BOT_WIDTH)-posX) / SPACING_X) {
                     posY += SPACING_Y;
-                    line_i = 1; //Little offset so we know the same string continues
-                    if(string[i] == ' ') break; //Spaces at the start look weird
+                    line_i = 1; // Little offset so we know the same string continues
+                    if (string[i] == ' ')
+                        break; // Spaces at the start look weird
                 }
 
                 Draw_DrawCharacter(posX + line_i * SPACING_X, posY, color, string[i]);
@@ -148,11 +139,9 @@ u32 Draw_DrawString(u32 posX, u32 posY, u32 color, const char *string)
     return posY;
 }
 
-u32 Draw_DrawStringTop(u32 posX, u32 posY, u32 color, const char *string)
-{
-    for(u32 i = 0, line_i = 0; i < strlen(string); i++)
-        switch(string[i])
-        {
+u32 Draw_DrawStringTop(u32 posX, u32 posY, u32 color, const char* string) {
+    for (u32 i = 0, line_i = 0; i < strlen(string); i++)
+        switch (string[i]) {
             case '\n':
                 posY += SPACING_Y;
                 line_i = 0;
@@ -163,12 +152,12 @@ u32 Draw_DrawStringTop(u32 posX, u32 posY, u32 color, const char *string)
                 break;
 
             default:
-                //Make sure we never get out of the screen
-                if(line_i >= ((SCREEN_TOP_WIDTH) - posX) / SPACING_X)
-                {
+                // Make sure we never get out of the screen
+                if (line_i >= ((SCREEN_TOP_WIDTH)-posX) / SPACING_X) {
                     posY += SPACING_Y;
-                    line_i = 1; //Little offset so we know the same string continues
-                    if(string[i] == ' ') break; //Spaces at the start look weird
+                    line_i = 1; // Little offset so we know the same string continues
+                    if (string[i] == ' ')
+                        break; // Spaces at the start look weird
                 }
 
                 Draw_DrawCharacterTop(posX + line_i * SPACING_X, posY, color, string[i]);
@@ -180,8 +169,7 @@ u32 Draw_DrawStringTop(u32 posX, u32 posY, u32 color, const char *string)
     return posY;
 }
 
-u32 Draw_DrawFormattedString(u32 posX, u32 posY, u32 color, const char *fmt, ...)
-{
+u32 Draw_DrawFormattedString(u32 posX, u32 posY, u32 color, const char* fmt, ...) {
     char buf[DRAW_MAX_FORMATTED_STRING_SIZE + 1];
     va_list args;
     va_start(args, fmt);
@@ -192,8 +180,7 @@ u32 Draw_DrawFormattedString(u32 posX, u32 posY, u32 color, const char *fmt, ...
     return Draw_DrawString(posX, posY, color, buf);
 }
 
-u32 Draw_DrawFormattedStringTop(u32 posX, u32 posY, u32 color, const char *fmt, ...)
-{
+u32 Draw_DrawFormattedStringTop(u32 posX, u32 posY, u32 color, const char* fmt, ...) {
     char buf[DRAW_MAX_FORMATTED_STRING_SIZE + 1];
     va_list args;
     va_start(args, fmt);
@@ -204,19 +191,16 @@ u32 Draw_DrawFormattedStringTop(u32 posX, u32 posY, u32 color, const char *fmt, 
     return Draw_DrawStringTop(posX, posY, color, buf);
 }
 
-void Draw_FillFramebuffer(u32 value)
-{
+void Draw_FillFramebuffer(u32 value) {
     memset(FRAMEBUFFER[0], value, FB_BOTTOM_SIZE);
     memset(FRAMEBUFFER[1], value, FB_BOTTOM_SIZE);
 }
 
-void Draw_ClearFramebuffer(void)
-{
+void Draw_ClearFramebuffer(void) {
     Draw_FillFramebuffer(0);
 }
 
-void Draw_SetupFramebuffer(void)
-{
+void Draw_SetupFramebuffer(void) {
     FRAMEBUFFER[0] = Z3D_BOTTOM_SCREEN_1;
     FRAMEBUFFER[1] = Z3D_BOTTOM_SCREEN_2;
     FRAMEBUFFER[2] = Z3D_TOP_SCREEN_LEFT_1;
@@ -225,8 +209,7 @@ void Draw_SetupFramebuffer(void)
     FRAMEBUFFER[5] = Z3D_TOP_SCREEN_RIGHT_2;
 }
 
-void Draw_FlushFramebuffer(void)
-{
+void Draw_FlushFramebuffer(void) {
     if (playingOnCitra) {
         return;
     }
@@ -234,8 +217,7 @@ void Draw_FlushFramebuffer(void)
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[1], FB_BOTTOM_SIZE);
 }
 
-void Draw_FlushFramebufferTop(void)
-{
+void Draw_FlushFramebufferTop(void) {
     if (playingOnCitra) {
         return;
     }
@@ -245,25 +227,29 @@ void Draw_FlushFramebufferTop(void)
     svcFlushProcessDataCache(CUR_PROCESS_HANDLE, FRAMEBUFFER[5], FB_TOP_SIZE);
 }
 
-void Draw_DrawOverlaidCharacter(u32 posX, u32 posY, u32 color, char character)
-{
-    volatile u8 *const fb0 = (volatile u8 *const)FRAMEBUFFER[0];
-    volatile u8 *const fb1 = (volatile u8 *const)FRAMEBUFFER[1];
+void Draw_DrawOverlaidCharacter(u32 posX, u32 posY, u32 color, char character) {
+    volatile u8* const fb0 = (volatile u8* const)FRAMEBUFFER[0];
+    volatile u8* const fb1 = (volatile u8* const)FRAMEBUFFER[1];
 
-    for(s32 y = 0; y < 10; y++)
-    {
+    for (s32 y = 0; y < 10; y++) {
         const char charPos = ascii_font[character * 10 + y];
 
-        for(s32 x = 6; x >= 1; x--)
-        {
-            const u32 screenPos = (posX * SCREEN_BOT_HEIGHT + (SCREEN_BOT_HEIGHT - y - posY - 1)) + (5 - x) * SCREEN_BOT_HEIGHT;
+        for (s32 x = 6; x >= 1; x--) {
+            const u32 screenPos =
+                (posX * SCREEN_BOT_HEIGHT + (SCREEN_BOT_HEIGHT - y - posY - 1)) + (5 - x) * SCREEN_BOT_HEIGHT;
 
-            if((charPos >> x) & 1) fb0[screenPos * 3] = (color) & 0xFF;
-            if((charPos >> x) & 1) fb0[screenPos * 3 + 1] = (color >> 8) & 0xFF;
-            if((charPos >> x) & 1) fb0[screenPos * 3 + 2] = (color >> 16) & 0xFF;
-            if((charPos >> x) & 1) fb1[screenPos * 3] = (color) & 0xFF;
-            if((charPos >> x) & 1) fb1[screenPos * 3 + 1] = (color >> 8) & 0xFF;
-            if((charPos >> x) & 1) fb1[screenPos * 3 + 2] = (color >> 16) & 0xFF;
+            if ((charPos >> x) & 1)
+                fb0[screenPos * 3] = (color) & 0xFF;
+            if ((charPos >> x) & 1)
+                fb0[screenPos * 3 + 1] = (color >> 8) & 0xFF;
+            if ((charPos >> x) & 1)
+                fb0[screenPos * 3 + 2] = (color >> 16) & 0xFF;
+            if ((charPos >> x) & 1)
+                fb1[screenPos * 3] = (color) & 0xFF;
+            if ((charPos >> x) & 1)
+                fb1[screenPos * 3 + 1] = (color >> 8) & 0xFF;
+            if ((charPos >> x) & 1)
+                fb1[screenPos * 3 + 2] = (color >> 16) & 0xFF;
         }
     }
 }

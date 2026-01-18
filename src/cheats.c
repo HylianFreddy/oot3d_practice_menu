@@ -6,8 +6,8 @@
 
 #define SEQ_AUDIO_BLANK 0x1000142
 
-u8 cheats[NUMBER_OF_CHEATS] = {0};
-u16 frozenTime = 0;
+u8 cheats[NUMBER_OF_CHEATS] = { 0 };
+u16 frozenTime              = 0;
 
 void Cheats_CheatsMenuInit() {
     for (int i = 0; i < NUMBER_OF_CHEATS; i++) {
@@ -15,13 +15,13 @@ void Cheats_CheatsMenuInit() {
     }
 };
 
-void Cheats_ShowCheatsMenu(){
+void Cheats_ShowCheatsMenu() {
     Cheats_CheatsMenuInit();
     ToggleMenuShow(&CheatsMenu);
 }
 
-void Cheats_Toggle(s32 selected){
-    cheats[selected] = !cheats[selected];
+void Cheats_Toggle(s32 selected) {
+    cheats[selected]              = !cheats[selected];
     CheatsMenu.items[selected].on = !CheatsMenu.items[selected].on;
 
     switch (selected) {
@@ -39,71 +39,76 @@ void Cheats_Toggle(s32 selected){
 
 ToggleMenu CheatsMenu = {
     "Cheats",
-    .nbItems = NUMBER_OF_CHEATS,
+    .nbItems          = NUMBER_OF_CHEATS,
     .initialCursorPos = 0,
     {
-        {0, "Infinite Health", .method = Cheats_Toggle},
-        {0, "Infinite Magic", .method = Cheats_Toggle},
-        {0, "Infinite Deku Sticks", .method = Cheats_Toggle},
-        {0, "Infinite Deku Nuts", .method = Cheats_Toggle},
-        {0, "Infinite Bombs", .method = Cheats_Toggle},
-        {0, "Infinite Arrows", .method = Cheats_Toggle},
-        {0, "Infinite Deku Seeds", .method = Cheats_Toggle},
-        {0, "Infinite Bombchus", .method = Cheats_Toggle},
-        {0, "Infinite Beans", .method = Cheats_Toggle},
-        {0, "Infinite Keys", .method = Cheats_Toggle},
-        {0, "Infinite Rupees", .method = Cheats_Toggle},
-        {0, "Infinite Nayru's Love", .method = Cheats_Toggle},
-        {0, "Freeze time of day", .method = Cheats_Toggle},
-        {0, "No music", .method = Cheats_Toggle},
-        {0, "Items usable in any area", .method = Cheats_Toggle},
-        {0, "Items usable at all times", .method = Cheats_Toggle},
-        {0, "ISG", .method = Cheats_Toggle},
-        {0, "Turbo Text", .method = Cheats_Toggle},
-        {0, "Skip Songs Playback", .method = Cheats_Toggle},
-        {0, "Fix Black Screen Glitch", .method = Cheats_Toggle},
-    }
+        { 0, "Infinite Health", .method = Cheats_Toggle },
+        { 0, "Infinite Magic", .method = Cheats_Toggle },
+        { 0, "Infinite Deku Sticks", .method = Cheats_Toggle },
+        { 0, "Infinite Deku Nuts", .method = Cheats_Toggle },
+        { 0, "Infinite Bombs", .method = Cheats_Toggle },
+        { 0, "Infinite Arrows", .method = Cheats_Toggle },
+        { 0, "Infinite Deku Seeds", .method = Cheats_Toggle },
+        { 0, "Infinite Bombchus", .method = Cheats_Toggle },
+        { 0, "Infinite Beans", .method = Cheats_Toggle },
+        { 0, "Infinite Keys", .method = Cheats_Toggle },
+        { 0, "Infinite Rupees", .method = Cheats_Toggle },
+        { 0, "Infinite Nayru's Love", .method = Cheats_Toggle },
+        { 0, "Freeze time of day", .method = Cheats_Toggle },
+        { 0, "No music", .method = Cheats_Toggle },
+        { 0, "Items usable in any area", .method = Cheats_Toggle },
+        { 0, "Items usable at all times", .method = Cheats_Toggle },
+        { 0, "ISG", .method = Cheats_Toggle },
+        { 0, "Turbo Text", .method = Cheats_Toggle },
+        { 0, "Skip Songs Playback", .method = Cheats_Toggle },
+        { 0, "Fix Black Screen Glitch", .method = Cheats_Toggle },
+    },
 };
 
 void applyCheats() {
-    if(cheats[CHEATS_HEALTH]) {
+    if (cheats[CHEATS_HEALTH]) {
         gSaveContext.health = gSaveContext.healthCapacity;
     }
-    if(cheats[CHEATS_MAGIC]) {
+    if (cheats[CHEATS_MAGIC]) {
         gSaveContext.magic = 0x30 * gSaveContext.magicLevel;
     }
-    if(cheats[CHEATS_STICKS]) {
+    if (cheats[CHEATS_STICKS]) {
         gSaveContext.ammo[SLOT_STICK] = 10 * ((gSaveContext.upgrades >> 17) & 0x7);
-        if (gSaveContext.ammo[SLOT_STICK] == 0) gSaveContext.ammo[SLOT_STICK] = 1;
+        if (gSaveContext.ammo[SLOT_STICK] == 0)
+            gSaveContext.ammo[SLOT_STICK] = 1;
     }
-    if(cheats[CHEATS_NUTS]) {
+    if (cheats[CHEATS_NUTS]) {
         gSaveContext.ammo[SLOT_NUT] = 10 + 10 * ((gSaveContext.upgrades >> 20) & 0x7);
-        if (gSaveContext.ammo[SLOT_NUT] == 10) gSaveContext.ammo[SLOT_NUT] = 1;
+        if (gSaveContext.ammo[SLOT_NUT] == 10)
+            gSaveContext.ammo[SLOT_NUT] = 1;
     }
-    if(cheats[CHEATS_BOMBS]) {
+    if (cheats[CHEATS_BOMBS]) {
         gSaveContext.ammo[SLOT_BOMB] = 10 + 10 * ((gSaveContext.upgrades >> 3) & 0x7);
-        if (gSaveContext.ammo[SLOT_BOMB] == 10) gSaveContext.ammo[SLOT_BOMB] = 1;
+        if (gSaveContext.ammo[SLOT_BOMB] == 10)
+            gSaveContext.ammo[SLOT_BOMB] = 1;
     }
-    if(cheats[CHEATS_ARROWS]) {
+    if (cheats[CHEATS_ARROWS]) {
         gSaveContext.ammo[SLOT_BOW] = 20 + 10 * (gSaveContext.upgrades & 0x7);
-        if (gSaveContext.ammo[SLOT_BOW] == 20) gSaveContext.ammo[SLOT_BOW] = 1;
+        if (gSaveContext.ammo[SLOT_BOW] == 20)
+            gSaveContext.ammo[SLOT_BOW] = 1;
     }
-    if(cheats[CHEATS_SEEDS]) {
+    if (cheats[CHEATS_SEEDS]) {
         gSaveContext.ammo[SLOT_SLINGSHOT] = 20 + 10 * ((gSaveContext.upgrades >> 14) & 0x7);
-        if (gSaveContext.ammo[SLOT_SLINGSHOT] == 20) gSaveContext.ammo[SLOT_SLINGSHOT] = 1;
+        if (gSaveContext.ammo[SLOT_SLINGSHOT] == 20)
+            gSaveContext.ammo[SLOT_SLINGSHOT] = 1;
     }
-    if(cheats[CHEATS_BOMBCHUS]) {
+    if (cheats[CHEATS_BOMBCHUS]) {
         gSaveContext.ammo[SLOT_BOMBCHU] = 50;
     }
-    if(cheats[CHEATS_BEANS]) {
+    if (cheats[CHEATS_BEANS]) {
         gSaveContext.ammo[SLOT_BEAN] = 10;
     }
-    if(cheats[CHEATS_KEYS] && gGlobalContext->sceneNum >= 0x0000 && gGlobalContext->sceneNum <= 0x0010) {
+    if (cheats[CHEATS_KEYS] && gGlobalContext->sceneNum >= 0x0000 && gGlobalContext->sceneNum <= 0x0010) {
         gSaveContext.dungeonKeys[gGlobalContext->sceneNum] = 1;
     }
-    if(cheats[CHEATS_RUPEES]) {
+    if (cheats[CHEATS_RUPEES]) {
         u8 walletUpgrade = (gSaveContext.upgrades >> 12) & 0x3;
-        switch(walletUpgrade){
+        switch (walletUpgrade) {
             case 0:
                 gSaveContext.rupees = 99;
                 break;
@@ -115,20 +120,21 @@ void applyCheats() {
                 break;
         }
     }
-    if(cheats[CHEATS_NAYRUS_LOVE]) {
+    if (cheats[CHEATS_NAYRUS_LOVE]) {
         gSaveContext.nayrusLoveTimer = 1;
     }
-    if(cheats[CHEATS_FREEZE_TIME]) {
+    if (cheats[CHEATS_FREEZE_TIME]) {
         gSaveContext.dayTime = frozenTime;
     }
-    if(cheats[CHEATS_ISG] && isInGame()) {
+    if (cheats[CHEATS_ISG] && isInGame()) {
         PLAYER->meleeWeaponState = 1;
     }
-    if(cheats[CHEATS_SKIP_SONGS_PLAYBACK] && isInGame()) {
+    if (cheats[CHEATS_SKIP_SONGS_PLAYBACK] && isInGame()) {
         // msgModes 18 to 23 are used to manage the song replays. Skipping to mode 23 ends the replay.
-        // msgMode 18 starts the playback music. It can't be skipped for scarecrow's song (song "12") because it spawns Pierre.
+        // msgMode 18 starts the playback music. It can't be skipped for scarecrow's song (song "12") because it spawns
+        // Pierre.
         if ((gGlobalContext->msgCtx.msgMode == 18 && gGlobalContext->msgCtx.lastPlayedSong != 12) ||
-                gGlobalContext->msgCtx.msgMode == 19) {
+            gGlobalContext->msgCtx.msgMode == 19) {
             gGlobalContext->msgCtx.msgMode = 23;
         }
     }
@@ -162,7 +168,7 @@ void* Cheats_GetFakeItemRestrictions() {
 void Cheats_ForceUsableItems() {
     if (cheats[CHEATS_USABLE_ITEMS_FORCED]) {
         if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
-            gSaveContext.buttonStatus[0] = BTN_ENABLED;;
+            gSaveContext.buttonStatus[0] = BTN_ENABLED;
         }
         for (int i = 1; i < 5; i++) {
             gSaveContext.buttonStatus[i] = BTN_ENABLED;

@@ -11,15 +11,13 @@ Result svcOpenProcess(Handle* process, u32 processId);
 Result svcGetProcessId(u32* out, Handle handle);
 void svcBreak(u32 breakReason);
 
-void loader_main (void)
-    __attribute__((section (".loader")));
+void loader_main(void) __attribute__((section(".loader")));
 
-void loader_main(void)
-{
+void loader_main(void) {
     Result res;
 
-    u32 address = NEWCODE_OFFSET;
-    u32 neededMemory =  (NEWCODE_SIZE + 0xFFF) & ~0xFFF; //rounding up
+    u32 address      = NEWCODE_OFFSET;
+    u32 neededMemory = (NEWCODE_SIZE + 0xFFF) & ~0xFFF; // rounding up
 
     res = svcControlProcessMemory(getCurrentProcessHandle(), address, address, neededMemory, 6, 7);
 
@@ -27,9 +25,8 @@ void loader_main(void)
         svcBreak(1);
 }
 
-Handle getCurrentProcessHandle(void)
-{
-    Handle handle = 0;
+Handle getCurrentProcessHandle(void) {
+    Handle handle  = 0;
     u32 currentPid = 0;
     Result res;
 

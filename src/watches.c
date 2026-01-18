@@ -15,16 +15,7 @@ static void Watches_DrawWatch(Watch watch, u32 color);
 Watch watches[WATCHES_MAX];
 
 static const char* const WatchTypeNames[] = {
-    "S8 ",
-    "U8 ",
-    "X8 ",
-    "S16",
-    "U16",
-    "X16",
-    "S32",
-    "U32",
-    "X32",
-    "F32",
+    "S8 ", "U8 ", "X8 ", "S16", "U16", "X16", "S32", "U32", "X32", "F32",
 };
 
 static void Watches_EditName(char* nameBuf) {
@@ -97,21 +88,19 @@ static void Watches_EditWatch(s32 selected) {
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
-    do
-    {
+    do {
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Watch Edit");
 
-        Draw_DrawFormattedString(30, 30 + WATCHEDIT_NAME * SPACING_Y, COLOR_WHITE,
-                                    "Name:  %s", watches[selected].name);
-        Draw_DrawFormattedString(30, 30 + WATCHEDIT_TYPE * SPACING_Y, COLOR_WHITE,
-                                    "Type:  < %s >", WatchTypeNames[watches[selected].type]);
-        Draw_DrawFormattedString(30, 30 + WATCHEDIT_ADDR * SPACING_Y, COLOR_WHITE,
-                                    "Addr:  0x%08X", watches[selected].addr);
-        Draw_DrawFormattedString(30, 30 + WATCHEDIT_POS * SPACING_Y, COLOR_WHITE,
-                                    "Pos :  x=%03d  y=%03d", watches[selected].posX, watches[selected].posY);
-        Draw_DrawFormattedString(30, 30 + WATCHEDIT_DISPLAY * SPACING_Y, COLOR_WHITE,
-                                    "Draw:  %s", watches[selected].display ? "ON " : "OFF");
+        Draw_DrawFormattedString(30, 30 + WATCHEDIT_NAME * SPACING_Y, COLOR_WHITE, "Name:  %s", watches[selected].name);
+        Draw_DrawFormattedString(30, 30 + WATCHEDIT_TYPE * SPACING_Y, COLOR_WHITE, "Type:  < %s >",
+                                 WatchTypeNames[watches[selected].type]);
+        Draw_DrawFormattedString(30, 30 + WATCHEDIT_ADDR * SPACING_Y, COLOR_WHITE, "Addr:  0x%08X",
+                                 watches[selected].addr);
+        Draw_DrawFormattedString(30, 30 + WATCHEDIT_POS * SPACING_Y, COLOR_WHITE, "Pos :  x=%03d  y=%03d",
+                                 watches[selected].posX, watches[selected].posY);
+        Draw_DrawFormattedString(30, 30 + WATCHEDIT_DISPLAY * SPACING_Y, COLOR_WHITE, "Draw:  %s",
+                                 watches[selected].display ? "ON " : "OFF");
 
         Draw_DrawString(10, SCREEN_BOT_HEIGHT - 20, COLOR_TITLE, "Y: Select address from Memory Editor");
 
@@ -123,60 +112,57 @@ static void Watches_EditWatch(s32 selected) {
         Draw_FlushFramebuffer();
         Draw_Unlock();
 
-        u32 pressed = Input_WaitWithTimeout(1000);
+        u32 pressed    = Input_WaitWithTimeout(1000);
         void* prevAddr = watches[selected].addr;
 
-        if(pressed & BUTTON_B)
+        if (pressed & BUTTON_B)
             break;
-        else if(pressed & BUTTON_A){
+        else if (pressed & BUTTON_A) {
             if (selectedItem == WATCHEDIT_NAME)
                 Watches_EditName(watches[selected].name);
-            else if(selectedItem == WATCHEDIT_ADDR)
+            else if (selectedItem == WATCHEDIT_ADDR)
                 Menu_EditAmount(66, 30 + selectedItem * SPACING_Y, &watches[selected].addr, VARTYPE_U32, 0, 0, 8, TRUE);
-            else if(selectedItem == WATCHEDIT_POS)
+            else if (selectedItem == WATCHEDIT_POS)
                 Watches_EditPos(selected);
-            else if(selectedItem == WATCHEDIT_DISPLAY)
+            else if (selectedItem == WATCHEDIT_DISPLAY)
                 watches[selected].display ^= 1;
-        }
-        else if(pressed & BUTTON_Y){
+        } else if (pressed & BUTTON_Y) {
             Debug_MemoryEditor();
             Draw_Lock();
             Draw_ClearFramebuffer();
             Draw_FlushFramebuffer();
             Draw_Unlock();
             watches[selected].addr = (void*)MemoryEditor_GetSelectedByteAddress();
-        }
-        else if (pressed & BUTTON_L1)
+        } else if (pressed & BUTTON_L1)
             selectedItem = 0;
-        else if(pressed & PAD_UP)
+        else if (pressed & PAD_UP)
             selectedItem = (selectedItem + WATCHEDIT_MAX - 1) % WATCHEDIT_MAX;
-        else if(pressed & PAD_DOWN)
+        else if (pressed & PAD_DOWN)
             selectedItem = (selectedItem + 1) % WATCHEDIT_MAX;
-        else if(selectedItem == WATCHEDIT_TYPE && pressed & PAD_LEFT)
+        else if (selectedItem == WATCHEDIT_TYPE && pressed & PAD_LEFT)
             watches[selected].type = (watches[selected].type + WATCHTYPE_MAX - 1) % WATCHTYPE_MAX;
-        else if(selectedItem == WATCHEDIT_TYPE && pressed & PAD_RIGHT)
+        else if (selectedItem == WATCHEDIT_TYPE && pressed & PAD_RIGHT)
             watches[selected].type = (watches[selected].type + 1) % WATCHTYPE_MAX;
 
         // Init position and enable this watch the first time the address is set
         if (prevAddr == NULL && watches[selected].addr != NULL && watches[selected].posX == 0 &&
-            watches[selected].posY == 0 && watches[selected].display == FALSE
-        ) {
-            watches[selected].posX = 70;
-            watches[selected].posY = 40 + selected * SPACING_Y;
+            watches[selected].posY == 0 && watches[selected].display == FALSE) {
+            watches[selected].posX    = 70;
+            watches[selected].posY    = 40 + selected * SPACING_Y;
             watches[selected].display = TRUE;
         }
-    } while(onMenuLoop());
+    } while (onMenuLoop());
 
-    if (watches[selected].addr == NULL){
+    if (watches[selected].addr == NULL) {
         watches[selected].display = 0;
     }
 }
 
 static void Watches_DeleteWatch(u32 selected) {
-    watches[selected].type = WATCHTYPE_S8;
-    watches[selected].posX = 0;
-    watches[selected].posY = 0;
-    watches[selected].addr = NULL;
+    watches[selected].type    = WATCHTYPE_S8;
+    watches[selected].posX    = 0;
+    watches[selected].posY    = 0;
+    watches[selected].addr    = NULL;
     watches[selected].display = 0;
     memset(watches[selected].name, 0, WATCHES_MAXNAME + 1);
 }
@@ -184,8 +170,8 @@ static void Watches_DeleteWatch(u32 selected) {
 void Watches_ShowWatchesMenu(void) {
 
     static s32 selected = 0;
-    s32 toDelete = -1;
-    s32 toSwap   = -1;
+    s32 toDelete        = -1;
+    s32 toSwap          = -1;
 
     if (SETTING_ENABLED(SETTINGS_RESET_CURSOR)) {
         selected = 0;
@@ -196,12 +182,11 @@ void Watches_ShowWatchesMenu(void) {
     Draw_FlushFramebuffer();
     Draw_Unlock();
 
-    do
-    {
+    do {
         Draw_Lock();
         Draw_DrawString(10, 10, COLOR_TITLE, "Watches");
 
-        for (u32 i = 0; i < WATCHES_MAX; ++i){
+        for (u32 i = 0; i < WATCHES_MAX; ++i) {
             u32 color = (i == toDelete ? COLOR_RED : (i == toSwap ? COLOR_GREEN : COLOR_WHITE));
             Draw_DrawString(30, 30 + i * SPACING_Y, color, watches[i].addr == NULL ? "." : watches[i].name);
             Draw_DrawCharacter(10, 30 + i * SPACING_Y, COLOR_TITLE, selected == i ? '>' : ' ');
@@ -216,16 +201,15 @@ void Watches_ShowWatchesMenu(void) {
         Draw_Unlock();
 
         u32 pressed = Input_WaitWithTimeout(1000);
-        if(pressed & BUTTON_B)
+        if (pressed & BUTTON_B)
             break;
-        else if(pressed & BUTTON_A){
+        else if (pressed & BUTTON_A) {
             Watches_EditWatch(selected);
             Draw_Lock();
             Draw_ClearFramebuffer();
             Draw_FlushFramebuffer();
             Draw_Unlock();
-        }
-        else if(pressed & BUTTON_X){
+        } else if (pressed & BUTTON_X) {
             toSwap = -1;
             if (toDelete == selected) {
                 Watches_DeleteWatch(selected);
@@ -234,12 +218,10 @@ void Watches_ShowWatchesMenu(void) {
                 Draw_FlushFramebuffer();
                 Draw_Unlock();
                 toDelete = -1;
-            }
-            else {
+            } else {
                 toDelete = selected;
             }
-        }
-        else if(pressed & BUTTON_Y){
+        } else if (pressed & BUTTON_Y) {
             MemoryEditor_PushHistory(memoryEditorAddress);
             memoryEditorAddress = (int)watches[selected].addr;
             Debug_MemoryEditor();
@@ -247,48 +229,44 @@ void Watches_ShowWatchesMenu(void) {
             Draw_ClearFramebuffer();
             Draw_FlushFramebuffer();
             Draw_Unlock();
-        }
-        else if(pressed & BUTTON_R1){
+        } else if (pressed & BUTTON_R1) {
             toDelete = -1;
-            if (toSwap == selected){
+            if (toSwap == selected) {
                 toSwap = -1;
-            }
-            else if (toSwap >= 0) {
+            } else if (toSwap >= 0) {
                 // Swap watches in list
-                Watch tempWatch = watches[toSwap];
-                watches[toSwap] = watches[selected];
+                Watch tempWatch   = watches[toSwap];
+                watches[toSwap]   = watches[selected];
                 watches[selected] = tempWatch;
                 // Swap positions
-                u32 tempPos = watches[toSwap].posX;
-                watches[toSwap].posX = watches[selected].posX;
+                u32 tempPos            = watches[toSwap].posX;
+                watches[toSwap].posX   = watches[selected].posX;
                 watches[selected].posX = tempPos;
-                tempPos = watches[toSwap].posY;
-                watches[toSwap].posY = watches[selected].posY;
+                tempPos                = watches[toSwap].posY;
+                watches[toSwap].posY   = watches[selected].posY;
                 watches[selected].posY = tempPos;
                 Draw_Lock();
                 Draw_ClearFramebuffer();
                 Draw_FlushFramebuffer();
                 Draw_Unlock();
                 toSwap = -1;
-            }
-            else {
+            } else {
                 toSwap = selected;
             }
-        }
-        else if (pressed & BUTTON_L1) {
+        } else if (pressed & BUTTON_L1) {
             selected = 0;
-        }
-        else if(pressed & PAD_UP){
+        } else if (pressed & PAD_UP) {
             selected--;
-        }
-        else if(pressed & PAD_DOWN){
+        } else if (pressed & PAD_DOWN) {
             selected++;
         }
 
-        if(selected >= WATCHES_MAX) selected = 0;
-        if(selected < 0) selected = WATCHES_MAX - 1;
+        if (selected >= WATCHES_MAX)
+            selected = 0;
+        if (selected < 0)
+            selected = WATCHES_MAX - 1;
 
-    } while(onMenuLoop());
+    } while (onMenuLoop());
 }
 
 static void Watches_DrawWatch(Watch watch, u32 color) {
@@ -304,48 +282,48 @@ static void Watches_DrawWatch(Watch watch, u32 color) {
         return;
     }
 
-    #define DrawThisWatchWithFormat(format, type) \
-        (Draw_DrawFormattedString(watch.posX, watch.posY, color, "%s: "format, watch.name, *(type*)watch.addr))
+#define DrawThisWatchWithFormat(format, type) \
+    (Draw_DrawFormattedString(watch.posX, watch.posY, color, "%s: " format, watch.name, *(type*)watch.addr))
 
-    switch(watch.type) {
-        case(WATCHTYPE_S8):
+    switch (watch.type) {
+        case (WATCHTYPE_S8):
             DrawThisWatchWithFormat("%03d", s8);
             break;
-        case(WATCHTYPE_U8):
+        case (WATCHTYPE_U8):
             DrawThisWatchWithFormat("%03u", u8);
             break;
-        case(WATCHTYPE_X8):
+        case (WATCHTYPE_X8):
             DrawThisWatchWithFormat("%02X", u8);
             break;
-        case(WATCHTYPE_S16):
+        case (WATCHTYPE_S16):
             DrawThisWatchWithFormat("%05d", s16);
             break;
-        case(WATCHTYPE_U16):
+        case (WATCHTYPE_U16):
             DrawThisWatchWithFormat("%05u", u16);
             break;
-        case(WATCHTYPE_X16):
+        case (WATCHTYPE_X16):
             DrawThisWatchWithFormat("%04X", u16);
             break;
-        case(WATCHTYPE_S32):
+        case (WATCHTYPE_S32):
             DrawThisWatchWithFormat("%010d", s32);
             break;
-        case(WATCHTYPE_U32):
+        case (WATCHTYPE_U32):
             DrawThisWatchWithFormat("%010u", u32);
             break;
         default:
-        case(WATCHTYPE_X32):
+        case (WATCHTYPE_X32):
             DrawThisWatchWithFormat("%08X", u32);
             break;
-        case(WATCHTYPE_F32):
+        case (WATCHTYPE_F32):
             DrawThisWatchWithFormat("%05.2F", f32);
             break;
     }
 
-    #undef DrawThisWatchWithFormat
+#undef DrawThisWatchWithFormat
 }
 
 void Watches_DrawWatches(u32 color) {
-    for(u32 i = 0; i < WATCHES_MAX; ++i) {
+    for (u32 i = 0; i < WATCHES_MAX; ++i) {
         Watches_DrawWatch(watches[i], color);
     }
     Draw_FlushFramebuffer();

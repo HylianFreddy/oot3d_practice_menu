@@ -3,8 +3,8 @@
 #include "menus/scene.h"
 #include "camera.h"
 
-ActorInit vanillaActorInit_Player = {0};
-SamPlusUnk* Player_SamPlusUnk = NULL;
+ActorInit vanillaActorInit_Player = { 0 };
+SamPlusUnk* Player_SamPlusUnk     = NULL;
 
 void PlayerActor_rInit(Actor* thisx, GlobalContext* globalCtx) {
     vanillaActorInit_Player.init(thisx, globalCtx);
