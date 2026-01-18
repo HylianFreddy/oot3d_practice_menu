@@ -18,6 +18,7 @@ void CitraPrint(const char* message, ...);
 
 // Math stuff
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 f32 sqrtf(f32 x);
 f32 vecLen(Vec3f v);
 f32 distXYZ(Vec3f a, Vec3f b);

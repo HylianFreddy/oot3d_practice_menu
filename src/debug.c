@@ -928,39 +928,27 @@ static bool MemoryEditor_ConfirmPermissionOverride(void) {
 }
 
 static void MemoryEditor_GoToPreset(void) {
-
     static s32 selected = 0;
-    static const char* const names[] = {
-        "Save Context",
-        "Static Context / GameInfo",
-        "Global Context / PlayState",
-        "Inventory Items",
-        "Current Scene Segment",
-        "Actor Overlay Table",
+    const struct {
+        const char* name;
+        const void* address;
+    } presets[] = {
+        { "Save Context", &gSaveContext },
+        { "Static Context / GameInfo", &gStaticContext },
+        { "Global Context / PlayState", gGlobalContext },
+        { "Inventory Items", &gSaveContext.items },
+        { "Current Scene Segment", gGlobalContext->sceneSegment },
+        { "Actor Overlay Table", gActorOverlayTable },
 #if !REGION_KOR_TWN
-        "Gear Usability Table",
-        "Item Usability Table",
-        "Entrance Table",
-        "Scene Table",
-        "Draw Item Table",
+        { "Gear Usability Table", gGearUsabilityTable },
+        { "Item Usability Table", gItemUsabilityTable },
+        { "Entrance Table", gEntranceTable },
+        { "Scene Table", gSceneTable },
+        { "Draw Item Table", gDrawItemTable },
 #endif
     };
-    const void* const addresses[] = {
-        &gSaveContext,
-        &gStaticContext,
-        gGlobalContext,
-        &gSaveContext.items,
-        gGlobalContext->sceneSegment,
-        gActorOverlayTable,
-#if !REGION_KOR_TWN
-        gGearUsabilityTable,
-        gItemUsabilityTable,
-        gEntranceTable,
-        gSceneTable,
-        gDrawItemTable,
-#endif
-    };
-    const s32 addressesCount = sizeof(addresses)/sizeof(addresses[0]);
+
+    const s32 presetCount = ARRAY_SIZE(presets);
 
     Draw_Lock();
     Draw_ClearFramebuffer();
@@ -973,8 +961,8 @@ static void MemoryEditor_GoToPreset(void) {
         // Title
         Draw_DrawString(10, 10, COLOR_TITLE, "Preset Memory Addresses");
         // Address presets
-        for (s32 j = 0; j < addressesCount; j++) {
-            Draw_DrawFormattedString(30, 30 + j * SPACING_Y, (selected == j) ? COLOR_TITLE : COLOR_WHITE, "%08X : %s", addresses[j], names[j]);
+        for (s32 j = 0; j < presetCount; j++) {
+            Draw_DrawFormattedString(30, 30 + j * SPACING_Y, (selected == j) ? COLOR_TITLE : COLOR_WHITE, "%08X : %s", presets[j].address, presets[j].name);
             Draw_DrawCharacter(10, 30 + j * SPACING_Y, COLOR_TITLE, (selected == j) ? '>' : ' ');
         }
 
@@ -988,7 +976,7 @@ static void MemoryEditor_GoToPreset(void) {
         }
         else if (pressed & BUTTON_A){
             MemoryEditor_PushHistory(memoryEditorAddress);
-            memoryEditorAddress = (u32)(addresses[selected]);
+            memoryEditorAddress = (u32)(presets[selected].address);
             break;
         }
         else if (pressed & BUTTON_L1) {
@@ -1003,11 +991,11 @@ static void MemoryEditor_GoToPreset(void) {
             }
         }
 
-        if (selected > addressesCount - 1)
+        if (selected > presetCount - 1)
             selected = 0;
 
         if (selected < 0)
-            selected = addressesCount - 1;
+            selected = presetCount - 1;
 
     } while(onMenuLoop());
 
