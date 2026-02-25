@@ -140,11 +140,8 @@ static void Command_StorePos(void) {
 
 static void Command_LoadPos(void) {
     if (isInGame()) {
-        PLAYER->actor.home.pos  = storedPosRot[storedPosIndex].pos;
-        PLAYER->actor.world.pos = storedPosRot[storedPosIndex].pos;
-        PLAYER->actor.world.rot = storedPosRot[storedPosIndex].rot;
-        PLAYER->actor.focus.rot = storedPosRot[storedPosIndex].rot;
-        PLAYER->actor.shape.rot = storedPosRot[storedPosIndex].rot;
+        PLAYER->actor.home.pos = PLAYER->actor.world.pos = storedPosRot[storedPosIndex].pos;
+        PLAYER->actor.shape.rot.y = PLAYER->parallelYaw = storedPosRot[storedPosIndex].rot.y;
 
         char* alert = "Loaded position X";
         alert[16]   = storedPosIndex + '0';
