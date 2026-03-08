@@ -3,7 +3,6 @@
 
 #include "z3Dactor.h"
 #include "z3Dvec.h"
-// #include "z3Dequipment.h"
 #include "z3Dcutscene.h"
 #include "z3Ditem.h"
 #include "z3Dbgcheck.h"
@@ -198,8 +197,6 @@ typedef struct SaveContext {
 } SaveContext; // size = 0x15C4
 _Static_assert(sizeof(SaveContext) == 0x15C4, "Save Context size");
 
-typedef struct GraphicsContext GraphicsContext; // TODO
-typedef struct GlobalContext GlobalContext;
 typedef struct Camera {
     /* 0x000 */ char unk_000[0x080];
     /* 0x080 */ Vec3f at;
@@ -208,7 +205,7 @@ typedef struct Camera {
     /* 0x0A4 */ Vec3f eyeNext;
     /* 0x0B0 */ Vec3f skyboxOffset;
     /* 0x0BC */ char unk_0BC[0x018];
-    /* 0x0D4 */ GlobalContext* globalCtx;
+    /* 0x0D4 */ struct GlobalContext* globalCtx;
     /* 0x0D8 */ Player* player;
     /* 0x0DC */ PosRot playerPosRot;
     /* 0x0F0 */ Actor* target;
@@ -406,13 +403,25 @@ typedef struct {
     /* 0x40 */ u32 size;
 } ObjectFile;
 
+typedef struct Input {
+    /* 0x00 */ pad_t cur;
+    /* 0x10 */ pad_t prev;
+    /* 0x20 */ Vec2f stick;
+    /* 0x28 */ Vec2f taperedStick;
+    // ...
+} Input;
+_Static_assert(sizeof(Input) == 0x30, "Input size");
+
+struct GameState;
+typedef void (*GameStateFunc)(struct GameState* gameState);
 typedef struct GameState {
-    /* 0x00 */ GraphicsContext* gfxCtx;
-    /* 0x04 */ void (*main)(struct GameState*);
-    /* 0x08 */ void (*destroy)(struct GameState*); // "cleanup"
-    /* 0x0C */ void (*init)(struct GameState*);
+    /* 0x00 */ struct GraphicsContext* gfxCtx;
+    /* 0x04 */ GameStateFunc main;
+    /* 0x08 */ GameStateFunc destroy; // "cleanup"
+    /* 0x0C */ GameStateFunc init;
     /* 0x10 */ u32 size;
-    /* 0x14 */ char unk_14[0xED];
+    /* 0x14 */ Input input;
+    /* 0x44 */ char unk_44[0xBD];
     /* 0x101*/ u8 running;
 } GameState;
 _Static_assert(sizeof(GameState) == 0x104, "GameState size");
