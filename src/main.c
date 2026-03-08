@@ -54,11 +54,11 @@ static void init(void) {
 
 // Called once for every update on the `PlayState` GameState.
 void before_Play_Update(GlobalContext* globalCtx) {
+    gGlobalContext = globalCtx;
     if (!gInit) {
         init();
         gInit = 1;
     }
-    gGlobalContext = globalCtx;
 }
 
 // Called between the `PlayState` update and draw functions.
