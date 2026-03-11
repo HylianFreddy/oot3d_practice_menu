@@ -39,13 +39,12 @@ LD_PATCH_TEMPLATE='''\
 '''
 
 ASM_PATCH_TEMPLATE='''
-.section .patch_%s
+PATCH %s
     bl hook_%s
 '''
 
 ASM_HOOK_TEMPLATE='''
-.global hook_%s
-hook_%s:
+HOOK %s
     push {r0-r12, lr}
     bl %s
     pop {r0-r12, lr}
@@ -103,8 +102,8 @@ if isOrderCorrect:
             # Add the template asm to `patches.s` and `hooks.s`
             with open('src/asm/patches.s', 'a', newline='') as file:
                 file.write(ASM_PATCH_TEMPLATE % (newName, newName))
-            with open('src/asm/hooks.s', 'a', newline='') as file:
-                file.write(ASM_HOOK_TEMPLATE % (newName, newName, newName))
+            with open('src/asm/hooks_all_versions.s', 'a', newline='') as file:
+                file.write(ASM_HOOK_TEMPLATE % (newName, newName))
         print('Patch added')
     else:
         print('Symbol added')

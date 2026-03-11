@@ -1,35 +1,36 @@
 .arm
 .text
 
+.macro HOOK name
+    .global hook_\name
+hook_\name:
+.endm
+
 @ Place hooks in this section to exclude them from KOR and TWN builds
 .section .asm_hooks.main_versions_only
 
-.global hook_PlaySound
-hook_PlaySound:
+HOOK PlaySound
     push {r1-r12, lr}
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r3-r7, lr}
     b hookReturn_PlaySound
 
-.global hook_SetBGMEntrance
-hook_SetBGMEntrance:
+HOOK SetBGMEntrance
     push {r1-r12, lr}
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
     b hookReturn_SetBGMEntrance
 
-.global hook_SetBGMDayNight
-hook_SetBGMDayNight:
+HOOK SetBGMDayNight
     push {r1-r12, lr}
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
     push {r4-r6, lr}
     b hookReturn_SetBGMDayNight
 
-.global hook_SetBGMEvent
-hook_SetBGMEvent:
+HOOK SetBGMEvent
     push {r0, r2-r12, lr}
     cpy r0,r1
     bl Cheats_RemoveBGM
@@ -38,8 +39,7 @@ hook_SetBGMEvent:
     push {r4-r11, lr}
     b hookReturn_SetBGMEvent
 
-.global hook_InstantTextFirstLine
-hook_InstantTextFirstLine:
+HOOK InstantTextFirstLine
     cmp r9,#0x0
     bgt NoInstantText
     push {r0-r12, lr}
@@ -58,8 +58,7 @@ NoInstantText:
     cmp r10,#0xFF
     bx lr
 
-.global hook_InstantTextBoxBreak
-hook_InstantTextBoxBreak:
+HOOK InstantTextBoxBreak
     push {r0-r12, lr}
     bl Cheats_IsInstantText
     cmp r0,#0x1
@@ -74,8 +73,7 @@ hook_InstantTextBoxBreak:
     pop {r0-r12, lr}
     bne hookReturn_InstantTextBoxBreak
 
-.global hook_InstantTextRemoveOff
-hook_InstantTextRemoveOff:
+HOOK InstantTextRemoveOff
     push {r0-r12, lr}
     bl Cheats_IsInstantText
     cmp r0,#0x1
@@ -84,8 +82,7 @@ hook_InstantTextRemoveOff:
     ldr r0,[r5,#0x0]
     b hookReturn_InstantTextRemoveOff
 
-.global hook_TurboTextAdvance
-hook_TurboTextAdvance:
+HOOK TurboTextAdvance
     push {r0-r12, lr}
     bl Cheats_IsTurboText
     cmp r0,#0x0
@@ -93,8 +90,7 @@ hook_TurboTextAdvance:
     cmpeq r0,#0x0
     bx lr
 
-.global hook_TurboTextClose
-hook_TurboTextClose:
+HOOK TurboTextClose
     push {r0-r12, lr}
     bl Cheats_IsTurboText
     cmp r0,#0x0
@@ -102,8 +98,7 @@ hook_TurboTextClose:
     cmpeq r0,#0x0
     bx lr
 
-.global hook_TurboTextSignalNPC
-hook_TurboTextSignalNPC:
+HOOK TurboTextSignalNPC
     movne r4,#0x1
     push {r0-r12, lr}
     bl Cheats_IsTurboText
@@ -112,8 +107,7 @@ hook_TurboTextSignalNPC:
     movne r4,#0x1
     bx lr
 
-.global hook_ItemUsability_AnyArea
-hook_ItemUsability_AnyArea:
+HOOK ItemUsability_AnyArea
 @ R11 is InterfaceContext, used after this hook
 @ only to get the restriction flags.
 @ If the cheat is active, the function will
@@ -130,40 +124,35 @@ hook_ItemUsability_AnyArea:
     ldrb r0,[r11,#0x29F]
     bx lr
 
-.global hook_ItemUsability_AnyAction
-hook_ItemUsability_AnyAction:
+HOOK ItemUsability_AnyAction
     push {r0-r12, lr}
     bl Cheats_ForceUsableItems
     pop {r0-r12, lr}
     cmp r7,#0x0
     bx lr
 
-.global hook_Gfx_SleepQueryCallback
-hook_Gfx_SleepQueryCallback:
+HOOK Gfx_SleepQueryCallback
     push {r0-r12, lr}
     bl Gfx_SleepQueryCallback
     pop {r0-r12, lr}
     add r0,r0,#0x9C
     b hookReturn_SleepQueryCallback
 
-.global hook_OverrideSceneSetup
-hook_OverrideSceneSetup:
+HOOK OverrideSceneSetup
     push {r0-r12, lr}
     bl Warps_OverrideSceneSetup
     pop {r0-r12, lr}
     mov r0,#0x2
     bx lr
 
-.global hook_LoadGame
-hook_LoadGame:
+HOOK LoadGame
     add r0, r5, r4
     push {r0-r12, lr}
     bl Settings_LoadGame
     pop {r0-r12, lr}
     bx lr
 
-.global hook_CameraUpdate
-hook_CameraUpdate:
+HOOK CameraUpdate
     push {r0-r12,lr}
     bl Camera_OnCameraUpdate
     cmp r0,#0x0
@@ -172,8 +161,7 @@ hook_CameraUpdate:
     bxeq lr
     ldmia sp!,{r4-r11,pc}
 
-.global hook_BlackScreenFix
-hook_BlackScreenFix:
+HOOK BlackScreenFix
     cmp r0,#0x0 @ cutscene pointer, if 0 the fade-in will start
     bxeq lr
     push {r0-r12, lr}
