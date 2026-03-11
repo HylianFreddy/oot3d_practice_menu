@@ -101,9 +101,9 @@ if isOrderCorrect:
     elif type == TYPE_PATCH:
         if ldFile == MAIN_LD_FILE_NAME:
             # Add the template asm to `patches.s` and `hooks.s`
-            with open('src/patches.s', 'a', newline='') as file:
+            with open('src/asm/patches.s', 'a', newline='') as file:
                 file.write(ASM_PATCH_TEMPLATE % (newName, newName))
-            with open('src/hooks.s', 'a', newline='') as file:
+            with open('src/asm/hooks.s', 'a', newline='') as file:
                 file.write(ASM_HOOK_TEMPLATE % (newName, newName, newName))
         print('Patch added')
     else:
