@@ -92,7 +92,7 @@ CFLAGS += -D GZ3D_EXTRAS=$(GZ3D_EXTRAS)
 #---------------------------------------------------------------------------------
 # Check existing build flags
 #---------------------------------------------------------------------------------
-LAST_BUILD_FLAGS_PATH	:=	$(BUILD)/flags.txt
+LAST_BUILD_FLAGS_PATH	:=	$(BUILD)/_flags.txt
 LAST_BUILD_FLAGS		:=	$(shell cat $(LAST_BUILD_FLAGS_PATH) 2> /dev/null)
 LAST_BUILD_REGION		:=	$(word 1,$(LAST_BUILD_FLAGS))
 LAST_BUILD_KOR_TWN		:=	$(word 2,$(LAST_BUILD_FLAGS))
@@ -169,9 +169,13 @@ endif
 
 #---------------------------------------------------------------------------------
 all:
+	@printf "Writing commit string..."
 	@$(TOPDIR)/write_commit_string.sh
-ifneq ($(LAST_BUILD_KOR_TWN)$(LAST_BUILD_GZ3D_EXTRAS),$(KOR_TWN)$(GZ3D_EXTRAS))
-	@rm -fr $(BUILD)
+	@printf " Done\n"
+ifneq ($(LAST_BUILD_KOR_TWN) $(LAST_BUILD_GZ3D_EXTRAS),$(KOR_TWN) $(GZ3D_EXTRAS))
+	@printf "Build setup changed, cleaning..."
+	@rm -fr $(BUILD) $(TARGET).elf
+	@printf " Done\n"
 else ifneq ($(LAST_BUILD_REGION),$(REGION))
 	@rm -fr $(TARGET).elf
 endif
@@ -182,8 +186,9 @@ endif
 
 #---------------------------------------------------------------------------------
 clean:
-	@echo clean ...
-	@rm -fr $(BUILD)  $(TARGET).elf
+	@printf "Cleaning..."
+	@rm -fr $(BUILD) $(TARGET).elf
+	@printf " Done\n"
 
 
 #---------------------------------------------------------------------------------
