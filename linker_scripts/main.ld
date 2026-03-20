@@ -130,11 +130,6 @@ SECTIONS
 	}
 	_LD_SYMBOL_TEXT_SIZE = __text_end - __text_start;
 
-	/DISCARD/ : {
-		/* discard all unassigned sections */
-		*(*)
-	}
-
 	gStaticContext = 0x08080010 + _LD_OFF;
 	real_hid = 0x10002000 + _LD_OFF;
 	Z3D_TOP_SCREEN_LEFT_1 = 0x14313890 + _LD_OFF;

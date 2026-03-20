@@ -21,6 +21,9 @@ memoryExtension = 0
 ips = b'PATCH'
 with open(elf, 'rb') as e:
     for name, vaddr, offset, size in sections:
+        # Skip useless sections
+        if not name.startswith('.patch') and not name in ['.text', '.loader']:
+            continue
 
         if name == '.text':
             memoryExtension += size
