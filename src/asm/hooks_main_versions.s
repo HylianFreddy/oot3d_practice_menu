@@ -9,7 +9,7 @@ hook_\name:
 @ Place hooks in this section to exclude them from KOR and TWN builds
 .section .asm_hooks.main_versions_only
 
-HOOK PlaySound
+HOOK Audio_PlayFanfare
     push {r1-r12, lr}
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}

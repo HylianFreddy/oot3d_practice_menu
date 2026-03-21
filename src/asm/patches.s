@@ -18,8 +18,8 @@ PATCH before_Play_Update
 PATCH after_Play_Update
     b hook_after_Play_Update
 
-PATCH PlaySound
-    bl hook_PlaySound
+PATCH Audio_PlayFanfare
+    bl hook_Audio_PlayFanfare
 
 PATCH SetBGMEntrance
     bl hook_SetBGMEntrance

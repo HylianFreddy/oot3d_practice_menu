@@ -55,7 +55,7 @@ void PlaySFX(s32 selected) {
     return;
     #endif
     sfxId = PlaySFXMenu.items[selected].amount;
-    PlaySound(0x1000000 + sfxId);
+    Audio_PlayFanfare(0x1000000 + sfxId);
 }
 
 AmountMenu PlaySFXMenu = {

@@ -39,8 +39,8 @@ SECTIONS
 	Effect_Delete = 0x34F0F4 + _LD_OFF;
 	SystemArena_Malloc = 0x35010C + _LD_OFF;
 	EventCheck = 0x350CF4 + _LD_OFF;
-	PlaySound = 0x35C528 + _LD_OFF;
-	.patch_PlaySound 0x35C530 + _LD_OFF : { *(.patch_PlaySound) }
+	Audio_PlayFanfare = 0x35C528 + _LD_OFF;
+	.patch_Audio_PlayFanfare 0x35C530 + _LD_OFF : { *(.patch_Audio_PlayFanfare) }
 	LinkDamage = 0x35D304 + _LD_OFF;
 	FireDamage = 0x35D8D8 + _LD_OFF;
 	CutsceneFlags_Set = 0x366704 + _LD_OFF;

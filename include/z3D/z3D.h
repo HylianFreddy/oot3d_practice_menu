@@ -693,7 +693,8 @@ void Player_SetEquipmentData(GlobalContext* globalCtx, Player* player);
 void CutsceneFlags_Set(GlobalContext* globalCtx, s16 flag);
 void DisplayTextbox(GlobalContext* globalCtx, u16 textId, Actor* actor);
 void Message_CloseTextbox(GlobalContext* globalCtx);
-void PlaySound(u32 sfxId); // This function plays sound effects and music tracks, overlaid on top of the current BGM
+// This function plays sound effects and music tracks, overlaid on top of the current BGM
+void Audio_PlayFanfare(u32 sfxId);
 void Play_Init(GameState* gameState);
 void Play_Main(GameState* gameState);
 void FileSelect_LoadGame(GameState* gameState, s32 fileNum);
