@@ -13,22 +13,22 @@ HOOK PlaySound
     push {r1-r12, lr}
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
-    push {r3-r7, lr}
-    b hookReturn_PlaySound
+    str r0,[r5,#0x88]
+    bx lr
 
 HOOK SetBGMEntrance
     push {r1-r12, lr}
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
-    push {r4-r6, lr}
-    b hookReturn_SetBGMEntrance
+    cpy r4,r0
+    bx lr
 
 HOOK SetBGMDayNight
     push {r1-r12, lr}
     bl Cheats_RemoveBGM
     pop {r1-r12, lr}
-    push {r4-r6, lr}
-    b hookReturn_SetBGMDayNight
+    cpy r5,r0
+    bx lr
 
 HOOK SetBGMEvent
     push {r0, r2-r12, lr}
@@ -36,8 +36,8 @@ HOOK SetBGMEvent
     bl Cheats_RemoveBGM
     cpy r1,r0
     pop {r0, r2-r12, lr}
-    push {r4-r11, lr}
-    b hookReturn_SetBGMEvent
+    cpy r6,r0
+    bx lr
 
 HOOK ParseTextCharacter
     cpy r0,r6
@@ -107,12 +107,12 @@ HOOK ItemUsability_AnyAction
     cmp r7,#0x0
     bx lr
 
-HOOK Gfx_SleepQueryCallback
+HOOK SleepQueryCallback
+    movne r0,#0x2
     push {r0-r12, lr}
     bl Gfx_SleepQueryCallback
     pop {r0-r12, lr}
-    add r0,r0,#0x9C
-    b hookReturn_SleepQueryCallback
+    bx lr
 
 HOOK OverrideSceneSetup
     push {r0-r12, lr}

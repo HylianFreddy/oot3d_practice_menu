@@ -7,7 +7,7 @@
 .endm
 
 PATCH loader
-    b hook_into_loader
+    bl hook_into_loader
 
 PATCH Gfx_Update
     b hook_into_Gfx_Update
@@ -19,16 +19,16 @@ PATCH after_Play_Update
     b hook_after_Play_Update
 
 PATCH PlaySound
-    b hook_PlaySound
+    bl hook_PlaySound
 
 PATCH SetBGMEntrance
-    b hook_SetBGMEntrance
+    bl hook_SetBGMEntrance
 
 PATCH SetBGMDayNight
-    b hook_SetBGMDayNight
+    bl hook_SetBGMDayNight
 
 PATCH SetBGMEvent
-    b hook_SetBGMEvent
+    bl hook_SetBGMEvent
 
 PATCH TurboTextAdvance
     bl hook_TurboTextAdvance
@@ -58,7 +58,7 @@ PATCH ItemUsability_AnyAction
     bl hook_ItemUsability_AnyAction
 
 PATCH SleepQueryCallback
-    b hook_Gfx_SleepQueryCallback
+    bl hook_SleepQueryCallback
 
 PATCH OverrideSceneSetup
     bl hook_OverrideSceneSetup

@@ -8,11 +8,11 @@ hook_\name:
 
 .section .loader
 HOOK into_loader
-    push {r0-r12, lr}
+    push {lr}
     bl loader_main
-    pop {r0-r12, lr}
     bl nninitRegion
-    b  hookReturn_Loader
+    pop {lr}
+    bx lr
 
 @ Place hooks in this section if they're valid for all versions (USA, EUR, JPN, KOR, TWN)
 .section .asm_hooks.all_versions

@@ -8,7 +8,6 @@ SECTIONS
 {
 	. = 0x100000;
 	.patch_loader 0x100000 + _LD_OFF : { *(.patch_loader) }
-	hookReturn_Loader = 0x100004 + _LD_OFF;
 	nninitRegion = 0x100028 + _LD_OFF;
 	OceffSpot_End = 0x10FBD0 + _LD_OFF;
 	EffectBlure_Update = 0x227000 + _LD_OFF;
@@ -31,8 +30,7 @@ SECTIONS
 	WriteDungeonSceneTable = 0x2EAFB4 + _LD_OFF;
 	.patch_Gfx_Update 0x310254 + _LD_OFF : { *(.patch_Gfx_Update) }
 	Object_Spawn = 0x32E21C + _LD_OFF;
-	.patch_SetBGMEntrance 0x331048 + _LD_OFF : { *(.patch_SetBGMEntrance) }
-	hookReturn_SetBGMEntrance = 0x33104C + _LD_OFF;
+	.patch_SetBGMEntrance 0x33104C + _LD_OFF : { *(.patch_SetBGMEntrance) }
 	Math_CosS = 0x338F60 + _LD_OFF;
 	Room_StartTransition = 0x33B6BC + _LD_OFF;
 	.patch_TurboTextSignalNPC 0x3469F4 + _LD_OFF : { *(.patch_TurboTextSignalNPC) }
@@ -41,16 +39,14 @@ SECTIONS
 	Effect_Delete = 0x34F0F4 + _LD_OFF;
 	SystemArena_Malloc = 0x35010C + _LD_OFF;
 	EventCheck = 0x350CF4 + _LD_OFF;
-	.patch_PlaySound 0x35C528 + _LD_OFF : { *(.patch_PlaySound) }
 	PlaySound = 0x35C528 + _LD_OFF;
-	hookReturn_PlaySound = 0x35C52C + _LD_OFF;
+	.patch_PlaySound 0x35C530 + _LD_OFF : { *(.patch_PlaySound) }
 	LinkDamage = 0x35D304 + _LD_OFF;
 	FireDamage = 0x35D8D8 + _LD_OFF;
 	CutsceneFlags_Set = 0x366704 + _LD_OFF;
 	DisplayTextbox = 0x367C7C + _LD_OFF;
 	Room_ClearPrevRoom = 0x36C520 + _LD_OFF;
-	.patch_SetBGMEvent 0x36EC40 + _LD_OFF : { *(.patch_SetBGMEvent) }
-	hookReturn_SetBGMEvent = 0x36EC44 + _LD_OFF;
+	.patch_SetBGMEvent 0x36EC44 + _LD_OFF : { *(.patch_SetBGMEvent) }
 	Actor_HasParent = 0x371E40 + _LD_OFF;
 	GiveItem = 0x3724DC + _LD_OFF;
 	Message_CloseTextbox = 0x3725E0 + _LD_OFF;
@@ -59,8 +55,7 @@ SECTIONS
 	Item_Give = 0x376A78 + _LD_OFF;
 	Inventory_HasEmptyBottle = 0x377A04 + _LD_OFF;
 	/* 0x377D90 */ _LD_OFF = _LD_JPN ? 0x0 : _LD_OFF;
-	.patch_SleepQueryCallback 0x3FD6C4 + _LD_OFF : { *(.patch_SleepQueryCallback) }
-	hookReturn_SleepQueryCallback = 0x3FD6C8 + _LD_OFF;
+	.patch_SleepQueryCallback 0x3FD6DC + _LD_OFF : { *(.patch_SleepQueryCallback) }
 	Message_SetInstantText = 0x40B608 + _LD_OFF;
 	.patch_before_GameState_Loop 0x416340 + _LD_OFF : { *(.patch_before_GameState_Loop) }
 	.patch_after_GameState_Update 0x416398 + _LD_OFF : { *(.patch_after_GameState_Update) }
@@ -82,8 +77,7 @@ SECTIONS
 	.patch_ItemUsability_AnyArea 0x4762C4 + _LD_OFF : { *(.patch_ItemUsability_AnyArea) }
 	CollisionCheck_DrawCollision = 0x47CACC + _LD_OFF;
 	.patch_TurboTextAdvance 0x480928 + _LD_OFF : { *(.patch_TurboTextAdvance) }
-	.patch_SetBGMDayNight 0x483C88 + _LD_OFF : { *(.patch_SetBGMDayNight) }
-	hookReturn_SetBGMDayNight = 0x483C8C + _LD_OFF;
+	.patch_SetBGMDayNight 0x483C8C + _LD_OFF : { *(.patch_SetBGMDayNight) }
 	.patch_TurboTextClose 0x488214 + _LD_OFF : { *(.patch_TurboTextClose) }
 	/* 0x4A5B00 */ _LD_OFF = _LD_EUR || _LD_JPN ? 0x0 : _LD_OFF;
 

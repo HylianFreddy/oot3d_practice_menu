@@ -6,7 +6,6 @@ SECTIONS
 {
 	. = 0x100000;
 	.patch_loader 0x100000 : { *(.patch_loader) }
-	hookReturn_Loader = 0x100004;
 	nninitRegion = 0x100024;
 	.patch_before_GameState_Loop 0x100444 : { *(.patch_before_GameState_Loop) }
 	.patch_after_GameState_Update 0x1004A0 : { *(.patch_after_GameState_Update) }
