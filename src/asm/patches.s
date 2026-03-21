@@ -39,14 +39,17 @@ PATCH TurboTextClose
 PATCH TurboTextSignalNPC
     bl hook_TurboTextSignalNPC
 
-PATCH InstantTextFirstLine
-    bl hook_InstantTextFirstLine
+PATCH ParseTextCharacter
+    bl hook_ParseTextCharacter
 
-PATCH InstantTextBoxBreak
-    b hook_InstantTextBoxBreak
+PATCH ParseTextCharacter_Wide
+    bl hook_ParseTextCharacter
 
-PATCH InstantTextRemoveOff
-    b hook_InstantTextRemoveOff
+PATCH ParseTextControlCode
+    bl hook_ParseTextControlCode
+
+PATCH ParseTextControlCode_Wide
+    bl hook_ParseTextControlCode
 
 PATCH ItemUsability_AnyArea
     bl hook_ItemUsability_AnyArea

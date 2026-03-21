@@ -19,12 +19,10 @@ SECTIONS
 	Math_SinS = 0x2CFCA0 + _LD_OFF;
 	EffectSs_Delete = 0x2D6A50 + _LD_OFF;
 	.patch_CameraUpdate 0x2D84C8 + _LD_OFF : { *(.patch_CameraUpdate) }
-	.patch_InstantTextFirstLine 0x2E049C + _LD_OFF : { *(.patch_InstantTextFirstLine) }
-	.patch_InstantTextBoxBreak 0x2E0664 + _LD_OFF : { *(.patch_InstantTextBoxBreak) }
-	.patch_InstantTextRemoveOff 0x2E06C8 + _LD_OFF : { *(.patch_InstantTextRemoveOff) }
-	hookReturn_InstantTextRemoveOff = 0x2E06CC + _LD_OFF;
-	InstantText_SkipControlCode = 0x2E0ED4 + _LD_OFF;
-	hookReturn_InstantTextBoxBreak = 0x2E0EE0 + _LD_OFF;
+	.patch_ParseTextCharacter_Wide 0x2DF8F4 + _LD_OFF : { *(.patch_ParseTextCharacter_Wide) }
+	.patch_ParseTextControlCode_Wide 0x2DF9E4 + _LD_OFF : { *(.patch_ParseTextControlCode_Wide) }
+	.patch_ParseTextCharacter 0x2E048C + _LD_OFF : { *(.patch_ParseTextCharacter) }
+	.patch_ParseTextControlCode 0x2E057C + _LD_OFF : { *(.patch_ParseTextControlCode) }
 	Play_Draw = 0x2E25F0 + _LD_OFF;
 	.patch_ActorDrawContext 0x2E2CDC + _LD_OFF: { *(.patch_ActorDrawContext) }
 	.patch_BlackScreenFix 0x2E2F48 + _LD_OFF : { *(.patch_BlackScreenFix) }
@@ -63,6 +61,7 @@ SECTIONS
 	/* 0x377D90 */ _LD_OFF = _LD_JPN ? 0x0 : _LD_OFF;
 	.patch_SleepQueryCallback 0x3FD6C4 + _LD_OFF : { *(.patch_SleepQueryCallback) }
 	hookReturn_SleepQueryCallback = 0x3FD6C8 + _LD_OFF;
+	Message_SetInstantText = 0x40B608 + _LD_OFF;
 	.patch_before_GameState_Loop 0x416340 + _LD_OFF : { *(.patch_before_GameState_Loop) }
 	.patch_after_GameState_Update 0x416398 + _LD_OFF : { *(.patch_after_GameState_Update) }
 	GameState_Draw = 0x418B88 + _LD_OFF;

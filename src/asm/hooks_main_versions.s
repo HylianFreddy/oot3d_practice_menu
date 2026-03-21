@@ -39,52 +39,28 @@ HOOK SetBGMEvent
     push {r4-r11, lr}
     b hookReturn_SetBGMEvent
 
-HOOK InstantTextFirstLine
-    cmp r9,#0x0
-    bgt NoInstantText
+HOOK ParseTextCharacter
+    cpy r0,r6
     push {r0-r12, lr}
-    bl Cheats_IsInstantText
-    cmp r0,#0x1
+    cpy r0,r5 @ Text Object
+    @ r1: nextChars
+    cpy r2,r9 @ Char Index (loop counter)
+    bl Message_ApplyInstantText
     pop {r0-r12, lr}
-    bne NoInstantText
-    push {r0-r12, lr}
-    ldr r0,[r5,#0x0]
-    ldr r1,[r0,#0x20]
-    cpy r0,r5
-    blx r1
-    strb r11,[r4,#0x24]
-    pop {r0-r12, lr}
-NoInstantText:
-    cmp r10,#0xFF
     bx lr
 
-HOOK InstantTextBoxBreak
+HOOK ParseTextControlCode
+    ldrb r0,[r6,#0x4] @ Control Code identifier
     push {r0-r12, lr}
-    bl Cheats_IsInstantText
-    cmp r0,#0x1
+    bl Message_ShouldSkipTextControlCode
+    cmp r0,#0x0
     pop {r0-r12, lr}
-    bne hookReturn_InstantTextBoxBreak
-    push {r0-r12, lr}
-    ldr r0,[r5,#0x0]
-    ldr r1,[r0,#0x20]
-    cpy r0,r5
-    blx r1
-    strb r11,[r4,#0x24]
-    pop {r0-r12, lr}
-    bne hookReturn_InstantTextBoxBreak
-
-HOOK InstantTextRemoveOff
-    push {r0-r12, lr}
-    bl Cheats_IsInstantText
-    cmp r0,#0x1
-    pop {r0-r12, lr}
-    beq InstantText_SkipControlCode
-    ldr r0,[r5,#0x0]
-    b hookReturn_InstantTextRemoveOff
+    addne lr,lr,#0x8 @ Skip control code
+    bx lr
 
 HOOK TurboTextAdvance
     push {r0-r12, lr}
-    bl Cheats_IsTurboText
+    bl Message_ShouldAdvanceTurboText
     cmp r0,#0x0
     pop {r0-r12, lr}
     cmpeq r0,#0x0
@@ -92,7 +68,7 @@ HOOK TurboTextAdvance
 
 HOOK TurboTextClose
     push {r0-r12, lr}
-    bl Cheats_IsTurboText
+    bl Message_ShouldAdvanceTurboText
     cmp r0,#0x0
     pop {r0-r12, lr}
     cmpeq r0,#0x0
@@ -101,7 +77,7 @@ HOOK TurboTextClose
 HOOK TurboTextSignalNPC
     movne r4,#0x1
     push {r0-r12, lr}
-    bl Cheats_IsTurboText
+    bl Message_ShouldAdvanceTurboText
     cmp r0,#0x0
     pop {r0-r12, lr}
     movne r4,#0x1

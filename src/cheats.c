@@ -147,14 +147,6 @@ u32 Cheats_RemoveBGM(u32 original) {
     return original;
 }
 
-u32 Cheats_IsInstantText() {
-    return cheats[CHEATS_QUICK_TEXT];
-}
-
-u32 Cheats_IsTurboText() {
-    return (cheats[CHEATS_QUICK_TEXT] && rInputCtx.cur.b);
-}
-
 void* Cheats_GetFakeItemRestrictions() {
     static u8 emptyRestrictions[12] = { 0 };
 
