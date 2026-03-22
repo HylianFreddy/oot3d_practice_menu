@@ -4,6 +4,12 @@
 #include "menus/scene.h"
 #include <string.h>
 
+void Actor_Kill(Actor* actor) {
+    actor->draw   = NULL;
+    actor->update = NULL;
+    actor->flags &= ~0x1;
+}
+
 void Actor_Init() {
     memcpy(&vanillaActorInit_Player, gActorOverlayTable[0x0].initInfo, sizeof(ActorInit));
 

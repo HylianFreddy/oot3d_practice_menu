@@ -7,6 +7,12 @@
 #include "z3D/z3Dequipment.h"
 #include <stdio.h>
 
+static const u32 ItemSlots[] = {
+    0,  1,  2,  3,  4,  5,  6,  7,  7,  8,  9,  9,  10, 11, 12, 13, 14, 15, 16, //
+    17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 23, 23, 23, 23, 23,
+    23, 23, 23, 23, 23, 23, 23, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22,
+};
+
 static u32 SelectedBottle;
 
 Menu InventoryMenu = {

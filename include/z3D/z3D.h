@@ -632,8 +632,6 @@ _Static_assert(sizeof(MainClass) == MAIN_CLASS_TEMP_SIZE, "MainClass size");
 
 extern GlobalContext* gGlobalContext;
 extern void* gStoredActorHeapAddress;
-extern const u32 ItemSlots[];
-extern const char DungeonNames[][25];
 
 extern SaveContext gSaveContext;
 extern StaticContext gStaticContext;
