@@ -44,12 +44,12 @@ This lets you set some values to test advanced glitches:
     - 4 = Boss Challenge Menu
     - 5 = Unused
     - 6 = Unlock Master Quest
-* **Scene Setup Index**<br>
+* **Scene Layer**<br>
   This value is used when loading a scene to determine both the Entrance Offset and the Alternate Header Index. This means you can reach cutscene areas or age-specific areas as the wrong age by changing it.
   It is overwritten on every scene load, so if you want to force a value during loads, you must hold R when setting it to enable the override. To disable the override, simply select the value again.
-    - 0-1 = Child scene setups
-    - 2-3 = Adult scene setups
-    - 4-14 = Cutscene setups; these will cause Wrong Warps to happen on every load
+    - 0-1 = Child scene layers
+    - 2-3 = Adult scene layers
+    - 4-14 = Cutscene layers; these will cause Wrong Warps to happen on every load
 
   Note: the index is also used when loading rooms and to change some actors' behaviors, which will be affected if you select a different value even without the override.
 * **ZoneoutType/RespawnFlag**<br>

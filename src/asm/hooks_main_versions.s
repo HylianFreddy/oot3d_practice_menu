@@ -114,9 +114,9 @@ HOOK SleepQueryCallback
     pop {r0-r12, lr}
     bx lr
 
-HOOK OverrideSceneSetup
+HOOK OverrideSceneLayer
     push {r0-r12, lr}
-    bl Warps_OverrideSceneSetup
+    bl Warps_OverrideSceneLayer
     pop {r0-r12, lr}
     mov r0,#0x2
     bx lr

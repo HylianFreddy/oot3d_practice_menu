@@ -8,7 +8,7 @@
 #include "z3D/entrances.h"
 #include <stdio.h>
 
-static u8 sceneSetupOverrideActive = 0;
+static u8 sceneLayerOverrideActive = 0;
 
 Menu WarpsMenu = {
     "Warps",
@@ -44,8 +44,8 @@ AmountMenu WarpsOverridesMenu = {
             .max      = 14,
             .nDigits  = 2,
             .hex      = false,
-            .title    = "Scene Setup Index - Override OFF",
-            .method   = Warps_OverrideSceneSetupIndex,
+            .title    = "Scene Layer - Override OFF",
+            .method   = Warps_SetSceneLayerOverride,
         },
         {
             .amount   = 0,
@@ -289,7 +289,7 @@ void ClearCutscenePointer(void) {
 
 void Warps_OverridesMenuInit(void) {
     WarpsOverridesMenu.items[WARPS_GAME_MODE].amount         = gSaveContext.gameMode;
-    WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount = gSaveContext.sceneSetupIndex;
+    WarpsOverridesMenu.items[WARPS_SCENE_LAYER_INDEX].amount = gSaveContext.sceneLayer;
     WarpsOverridesMenu.items[WARPS_RESPAWN_FLAG].amount      = gSaveContext.respawnFlag;
 }
 
@@ -302,20 +302,20 @@ void Warps_OverrideGameMode(s32 selected) {
     gSaveContext.gameMode = WarpsOverridesMenu.items[WARPS_GAME_MODE].amount;
 }
 
-void Warps_OverrideSceneSetupIndex(s32 selected) {
-    gSaveContext.sceneSetupIndex = WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount;
+void Warps_SetSceneLayerOverride(s32 selected) {
+    gSaveContext.sceneLayer = WarpsOverridesMenu.items[WARPS_SCENE_LAYER_INDEX].amount;
     if (ADDITIONAL_FLAG_BUTTON) {
-        sceneSetupOverrideActive                                = 1;
-        WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].title = "Scene Setup Index - Override ON ";
+        sceneLayerOverrideActive                                = 1;
+        WarpsOverridesMenu.items[WARPS_SCENE_LAYER_INDEX].title = "Scene Layer - Override ON ";
     } else {
-        sceneSetupOverrideActive                                = 0;
-        WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].title = "Scene Setup Index - Override OFF";
+        sceneLayerOverrideActive                                = 0;
+        WarpsOverridesMenu.items[WARPS_SCENE_LAYER_INDEX].title = "Scene Layer - Override OFF";
     }
 }
 
-void Warps_OverrideSceneSetup(void) {
-    if (sceneSetupOverrideActive) {
-        gSaveContext.sceneSetupIndex = WarpsOverridesMenu.items[WARPS_SCENE_SETUP_INDEX].amount;
+void Warps_OverrideSceneLayer(void) {
+    if (sceneLayerOverrideActive) {
+        gSaveContext.sceneLayer = WarpsOverridesMenu.items[WARPS_SCENE_LAYER_INDEX].amount;
     }
 }
 

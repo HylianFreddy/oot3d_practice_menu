@@ -60,8 +60,8 @@ PATCH ItemUsability_AnyAction
 PATCH SleepQueryCallback
     bl hook_SleepQueryCallback
 
-PATCH OverrideSceneSetup
-    bl hook_OverrideSceneSetup
+PATCH OverrideSceneLayer
+    bl hook_OverrideSceneLayer
 
 PATCH LoadGame
     bl hook_LoadGame

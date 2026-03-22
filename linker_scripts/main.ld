@@ -68,7 +68,7 @@ SECTIONS
 	Load_Savefiles_Buffer = 0x447150 + _LD_OFF;
 	FileSelect_LoadGame = 0x44735C + _LD_OFF;
 	.patch_LoadGame 0x447380 + _LD_OFF : { *(.patch_LoadGame) }
-	.patch_OverrideSceneSetup 0x4487B8 + _LD_OFF : { *(.patch_OverrideSceneSetup) }
+	.patch_OverrideSceneLayer 0x4487B8 + _LD_OFF : { *(.patch_OverrideSceneLayer) }
 	Play_Main = 0x45238C + _LD_OFF;
 	.patch_before_Play_Update 0x452390 + _LD_OFF : { *(.patch_before_Play_Update) }
 	.patch_after_Play_Update 0x452434 + _LD_OFF : { *(.patch_after_Play_Update) }

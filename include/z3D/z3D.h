@@ -160,7 +160,7 @@ typedef struct SaveContext {
     /* 0x14DC */ s32 fileNum;           // "file_no"
     /* 0x14E0 */ char unk_14E0[0x0004];
     /* 0x14E4 */ s32 gameMode;
-    /* 0x14E8 */ s32 sceneSetupIndex;
+    /* 0x14E8 */ s32 sceneLayer;
     /* 0x14EC */ s32 respawnFlag;        // "restart_flag"
     /* 0x14F0 */ RespawnData respawn[3]; // "restart_data"
     /* 0x1544 */ char unk_1544[0x000E];
@@ -530,7 +530,7 @@ typedef struct GlobalContext {
     /* 0x5C04 */ u8 numRooms;
     /* 0x5C08 */ RomFile* roomList;
     /* 0x5C0C */ char unk_5C0C[0x0010];
-    /* 0x5C1C */ s16* setupExitList;
+    /* 0x5C1C */ s16* exitList;
     /* 0x5C20 */ char unk_5C20[0x000D];
     /* 0x5C2D */ s8 transitionTrigger; // "fade_direction"
     /* 0x5C2E */ char unk_5C2E[0x0004];
