@@ -35,20 +35,20 @@ SECTIONS
 	Room_StartTransition = 0x33B6BC + _LD_OFF;
 	.patch_TurboTextSignalNPC 0x3469F4 + _LD_OFF : { *(.patch_TurboTextSignalNPC) }
 	Player_SetEquipmentData = 0x34913C + _LD_OFF;
-	EventSet = 0x34CBF8 + _LD_OFF;
+	Flags_SetEventChkInf = 0x34CBF8 + _LD_OFF;
 	Effect_Delete = 0x34F0F4 + _LD_OFF;
 	SystemArena_Malloc = 0x35010C + _LD_OFF;
-	EventCheck = 0x350CF4 + _LD_OFF;
+	Flags_GetEventChkInf = 0x350CF4 + _LD_OFF;
 	Audio_PlayFanfare = 0x35C528 + _LD_OFF;
 	.patch_Audio_PlayFanfare 0x35C530 + _LD_OFF : { *(.patch_Audio_PlayFanfare) }
-	LinkDamage = 0x35D304 + _LD_OFF;
-	FireDamage = 0x35D8D8 + _LD_OFF;
+	Player_LinkDamage = 0x35D304 + _LD_OFF;
+	Player_FireDamage = 0x35D8D8 + _LD_OFF;
 	CutsceneFlags_Set = 0x366704 + _LD_OFF;
-	DisplayTextbox = 0x367C7C + _LD_OFF;
+	Message_StartTextbox = 0x367C7C + _LD_OFF;
 	Room_ClearPrevRoom = 0x36C520 + _LD_OFF;
 	.patch_SetBGMEvent 0x36EC44 + _LD_OFF : { *(.patch_SetBGMEvent) }
 	Actor_HasParent = 0x371E40 + _LD_OFF;
-	GiveItem = 0x3724DC + _LD_OFF;
+	Actor_OfferGetItem = 0x3724DC + _LD_OFF;
 	Message_CloseTextbox = 0x3725E0 + _LD_OFF;
 	Actor_Spawn = 0x3738D0 + _LD_OFF;
 	Rupees_ChangeBy = 0x376A60 + _LD_OFF;
@@ -58,7 +58,7 @@ SECTIONS
 	.patch_SleepQueryCallback 0x3FD6DC + _LD_OFF : { *(.patch_SleepQueryCallback) }
 	Message_SetInstantText = 0x40B608 + _LD_OFF;
 	.patch_before_GameState_Loop 0x416340 + _LD_OFF : { *(.patch_before_GameState_Loop) }
-	.patch_after_GameState_Update 0x416398 + _LD_OFF : { *(.patch_after_GameState_Update) }
+	.patch_WrapGameStateDraw 0x416398 + _LD_OFF : { *(.patch_WrapGameStateDraw) }
 	GameState_Draw = 0x418B88 + _LD_OFF;
 	/* 0x41A144 */ _LD_OFF = _LD_EUR ? 0x24 : _LD_JPN ? -0x28 : _LD_OFF;
 	.patch_GameButtonInputs 0x41ABD4 + _LD_OFF : { *(.patch_GameButtonInputs) }

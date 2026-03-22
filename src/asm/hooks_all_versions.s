@@ -71,7 +71,7 @@ HOOK before_GameState_Loop
     bx lr
 .endif
 
-HOOK after_GameState_Update
+HOOK WrapGameStateDraw
     push {r0-r12, lr}
     bl checkFastForward
     cmp r0,#0x0

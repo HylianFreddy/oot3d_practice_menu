@@ -650,7 +650,7 @@ extern DrawItemTableEntry gDrawItemTable[];
 extern RestrictionFlags gRestrictionFlags[];
 extern f32 ControlStick_X;
 extern f32 ControlStick_Y;
-extern void* gActorHeapAddress;
+extern void* gActorHeapAddress; // ZeldaArena
 extern MainClass gMainClass;
 
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
@@ -691,7 +691,7 @@ Actor* Actor_Spawn(ActorContext* actorCtx, GlobalContext* globalCtx, s16 actorId
 s32 Object_Spawn(ObjectContext* objectCtx, s16 objectId);
 void Player_SetEquipmentData(GlobalContext* globalCtx, Player* player);
 void CutsceneFlags_Set(GlobalContext* globalCtx, s16 flag);
-void DisplayTextbox(GlobalContext* globalCtx, u16 textId, Actor* actor);
+void Message_StartTextbox(GlobalContext* globalCtx, u16 textId, Actor* actor);
 void Message_CloseTextbox(GlobalContext* globalCtx);
 // This function plays sound effects and music tracks, overlaid on top of the current BGM
 void Audio_PlayFanfare(u32 sfxId);

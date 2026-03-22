@@ -8,7 +8,7 @@ SECTIONS
 	.patch_loader 0x100000 : { *(.patch_loader) }
 	nninitRegion = 0x100024;
 	.patch_before_GameState_Loop 0x100444 : { *(.patch_before_GameState_Loop) }
-	.patch_after_GameState_Update 0x1004A0 : { *(.patch_after_GameState_Update) }
+	.patch_WrapGameStateDraw 0x1004A0 : { *(.patch_WrapGameStateDraw) }
 	GameState_Draw = 0x102880;
 	.patch_GameButtonInputs 0x104D0C : { *(.patch_GameButtonInputs) }
 	Play_Init = 0x11EE6C;

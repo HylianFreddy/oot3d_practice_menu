@@ -75,8 +75,8 @@ PATCH HaltActors
 PATCH before_GameState_Loop
     bl hook_before_GameState_Loop
 
-PATCH after_GameState_Update
-    bl hook_after_GameState_Update
+PATCH WrapGameStateDraw
+    bl hook_WrapGameStateDraw
 
 PATCH ActorDrawContext
     bl hook_ActorDrawContext
