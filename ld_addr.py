@@ -1,15 +1,15 @@
-# This script adds a new symbol or patch address to `main.ld`, checking that the order is correct.
-# When creating a patch, it also adds template asm instructions to `patches.s` and `hooks_main_versions.s`.
+# This script adds a new symbol or patch address to `MAIN.ld`, checking that the order is correct.
+# When creating a patch, it also adds template asm instructions to `patches.s` and `hooks.s`.
 # Use by passing, in any order, `s` or `p` for Symbol or Patch, the hexadecimal address, a name,
 # and optionally `KOR` for the Korean and Taiwanese regions (e.g. `p 0x4352F4 PlayInit`).
-# Call with no arguments to just check the address order in `main.ld`.
+# Call with no arguments to just check the address order in `MAIN.ld`.
 
 import sys, re
 
 TYPE_PATCH = 'p'
 TYPE_SYMBOL = 's'
 
-MAIN_LD_FILE_NAME = 'main'
+MAIN_LD_FILE_NAME = 'MAIN.ld'
 
 newAddress = None
 newName = None
@@ -31,11 +31,11 @@ if type == None:
     type = TYPE_PATCH
 
 LD_SYM_TEMPLATE='''\
-	%s = 0x%X%s;
+	%s = 0x%X + _LD_OFF;
 '''
 
 LD_PATCH_TEMPLATE='''\
-	.patch_%s 0x%X%s : { *(.patch_%s) }
+	.patch_%s 0x%X + _LD_OFF : { *(.patch_%s) }
 '''
 
 ASM_PATCH_TEMPLATE='''
@@ -56,7 +56,7 @@ lastAddress = 0
 isOrderCorrect = True
 insertIndex = 0
 
-with open('linker_scripts/%s.ld' % ldFile, 'r+', newline='') as file:
+with open('linker_scripts/%s' % ldFile, 'r+', newline='') as file:
     lines = file.readlines()
     for lineIndex, line in enumerate(lines):
         # Search lines with memory addresses
@@ -85,11 +85,10 @@ with open('linker_scripts/%s.ld' % ldFile, 'r+', newline='') as file:
     if newAddress and isOrderCorrect:
         if not newName:
             newName = input('Insert name for the new %s' % 'patch: patch_' if type == TYPE_PATCH else 'symbol: ')
-        offsetStr = ' + _LD_OFF' if ldFile == MAIN_LD_FILE_NAME else ''
         if type == TYPE_PATCH:
-            newLine = LD_PATCH_TEMPLATE % (newName, newAddress, offsetStr, newName)
+            newLine = LD_PATCH_TEMPLATE % (newName, newAddress, newName)
         else:
-            newLine = LD_SYM_TEMPLATE % (newName, newAddress, offsetStr)
+            newLine = LD_SYM_TEMPLATE % (newName, newAddress)
         lines.insert(insertIndex, newLine)
         file.seek(0)
         file.writelines(lines)

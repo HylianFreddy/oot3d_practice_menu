@@ -1,11 +1,10 @@
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(loader_patch)
-
-_LD_OFF = 0;
-
 SECTIONS
 {
+	_LD_OFF = 0;
+
 	. = 0x100000 + _LD_OFF;
 	.patch_loader 0x100000 + _LD_OFF : { *(.patch_loader) }
 	nninitRegion = 0x100024 + _LD_OFF;
@@ -58,7 +57,7 @@ SECTIONS
 	gMainClass = 0x5C5AA4 + _LD_OFF;
 
 	. = 0x005CE000 + _LD_OFF;
-	_LD_SYMBOL_TEXT_START = . ;
+	_LD_TEXT_START = . ;
 	.text : {
 		__text_start = . ;
 		*(.text)
@@ -71,7 +70,7 @@ SECTIONS
 		*(.bss)
 		*(COMMON)
 	}
-	_LD_SYMBOL_TEXT_SIZE = __text_end - __text_start;
+	_LD_TEXT_SIZE = __text_end - __text_start;
 
 	/DISCARD/ : {
 		/* Discard patches not implemented for KOR/TWN */

@@ -70,7 +70,7 @@ REGION_INDEX		:=	$(shell py -c 'print("$(VALID_REGIONS)".split().index("$(REGION
 UNSELECTED_REGIONS	:=	$(subst $(REGION),,$(VALID_REGIONS))
 
 ifneq ($(filter $(REGION),$(MAIN_REGIONS)),)
-	LINK_SCRIPT	:=	linker_scripts/main.ld
+	LINK_SCRIPT	:=	linker_scripts/MAIN.ld
 endif
 ifneq ($(filter $(REGION),$(KOR_TWN_REGIONS)),)
 	LINK_SCRIPT	:=	linker_scripts/KOR_TWN.ld

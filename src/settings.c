@@ -4,6 +4,8 @@
 #include "common.h"
 #include "draw.h"
 #include "input.h"
+#include "ld_symbols.h"
+
 #include <string.h>
 
 static void Settings_AlertProfileLoad(WatchUpdateResult res);

@@ -1,18 +1,20 @@
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(loader_patch)
-
-_LD_OFF = 0;
-
 SECTIONS
 {
-	. = 0x100000;
+	_LD_OFF = 0;
+
+	. = 0x100000 + _LD_OFF;
 	.patch_loader 0x100000 + _LD_OFF : { *(.patch_loader) }
 	nninitRegion = 0x100028 + _LD_OFF;
 	OceffSpot_End = 0x10FBD0 + _LD_OFF;
 	EffectBlure_Update = 0x227000 + _LD_OFF;
+
 	/* 0x2B6D4C */ _LD_OFF = _LD_JPN ? 0xC0B5C : _LD_OFF;
+
 	/* 0x2B7234 */ _LD_OFF = _LD_JPN ? -0x4E8 : _LD_OFF;
+
 	BgCheck_GetStaticLookupIndicesFromPos = 0x2BF5B0 + _LD_OFF;
 	Collider_DrawPolyImpl = 0x2C56C4 + _LD_OFF;
 	Math_SinS = 0x2CFCA0 + _LD_OFF;
@@ -54,17 +56,24 @@ SECTIONS
 	Rupees_ChangeBy = 0x376A60 + _LD_OFF;
 	Item_Give = 0x376A78 + _LD_OFF;
 	Inventory_HasEmptyBottle = 0x377A04 + _LD_OFF;
+
 	/* 0x377D90 */ _LD_OFF = _LD_JPN ? 0x0 : _LD_OFF;
+
 	.patch_SleepQueryCallback 0x3FD6DC + _LD_OFF : { *(.patch_SleepQueryCallback) }
 	Message_SetInstantText = 0x40B608 + _LD_OFF;
 	.patch_before_GameState_Loop 0x416340 + _LD_OFF : { *(.patch_before_GameState_Loop) }
 	.patch_WrapGameStateDraw 0x416398 + _LD_OFF : { *(.patch_WrapGameStateDraw) }
 	GameState_Draw = 0x418B88 + _LD_OFF;
+
+	/* 0x419E18 - 0x41A143 : Language related function, don't place anything in this range */
 	/* 0x41A144 */ _LD_OFF = _LD_EUR ? 0x24 : _LD_JPN ? -0x28 : _LD_OFF;
+
 	.patch_GameButtonInputs 0x41ABD4 + _LD_OFF : { *(.patch_GameButtonInputs) }
 	.patch_ItemUsability_AnyAction 0x42E544 + _LD_OFF : { *(.patch_ItemUsability_AnyAction) }
 	Play_Init = 0x4352F0 + _LD_OFF;
+
 	/* 0x436690 */ _LD_OFF = _LD_EUR ? 0x20 : _LD_OFF;
+
 	Load_Savefiles_Buffer = 0x447150 + _LD_OFF;
 	FileSelect_LoadGame = 0x44735C + _LD_OFF;
 	.patch_LoadGame 0x447380 + _LD_OFF : { *(.patch_LoadGame) }
@@ -79,9 +88,10 @@ SECTIONS
 	.patch_TurboTextAdvance 0x480928 + _LD_OFF : { *(.patch_TurboTextAdvance) }
 	.patch_SetBGMDayNight 0x483C8C + _LD_OFF : { *(.patch_SetBGMDayNight) }
 	.patch_TurboTextClose 0x488214 + _LD_OFF : { *(.patch_TurboTextClose) }
+
 	/* 0x4A5B00 */ _LD_OFF = _LD_EUR || _LD_JPN ? 0x0 : _LD_OFF;
 
-	. = 0x4C99A8;
+	. = 0x4C99A8 + _LD_OFF;
 	. = ALIGN(4);
 	.loader : {
 		*(.loader*)
@@ -107,8 +117,8 @@ SECTIONS
 	gActorHeapAddress = 0x5A2E3C + _LD_OFF;
 	gMainClass = 0x5BE5B8 + _LD_OFF;
 
-	. = 0x005C7000;
-	_LD_SYMBOL_TEXT_START = . ;
+	. = 0x005C7000 + _LD_OFF;
+	_LD_TEXT_START = . ;
 	.text : {
 		__text_start = . ;
 		*(.text)
@@ -121,7 +131,7 @@ SECTIONS
 		*(.bss)
 		*(COMMON)
 	}
-	_LD_SYMBOL_TEXT_SIZE = __text_end - __text_start;
+	_LD_TEXT_SIZE = __text_end - __text_start;
 
 	gStaticContext = 0x08080010 + _LD_OFF;
 	real_hid = 0x10002000 + _LD_OFF;
@@ -131,5 +141,6 @@ SECTIONS
 	Z3D_BOTTOM_SCREEN_2 = 0x143D86C0 + _LD_OFF;
 	Z3D_TOP_SCREEN_RIGHT_1 = 0x14410AD0 + _LD_OFF;
 	Z3D_TOP_SCREEN_RIGHT_2 = 0x14456FE0 + _LD_OFF;
+
 	/* 0xFFFFFFFF */
 }

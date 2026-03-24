@@ -6,9 +6,6 @@
 
 #define EXTSAVEDATA_VERSION 0
 
-extern char _LD_CURRENT_REGION_ID;
-#define CURRENT_REGION_ID ((u32) & _LD_CURRENT_REGION_ID)
-
 extern ToggleMenu SettingsMenu;
 extern Menu ProfilesMenu;
 #define SETTING_ENABLED(opt) (SettingsMenu.items[opt].on)
