@@ -1,7 +1,7 @@
 # This script adds a new symbol or patch address to `main.ld`, checking that the order is correct.
-# When creating a patch, it also adds template asm instructions to `patches.s` and `hooks.s`.
+# When creating a patch, it also adds template asm instructions to `patches.s` and `hooks_main_versions.s`.
 # Use by passing, in any order, `s` or `p` for Symbol or Patch, the hexadecimal address, a name,
-# and optionally `KOR` or `TWN` for those regions (e.g. `p 0x4352F4 PlayInit`).
+# and optionally `KOR` for the Korean and Taiwanese regions (e.g. `p 0x4352F4 PlayInit`).
 # Call with no arguments to just check the address order in `main.ld`.
 
 import sys, re
@@ -19,8 +19,8 @@ ldFile = MAIN_LD_FILE_NAME
 for arg in sys.argv[1:]:
     if arg in [TYPE_PATCH, TYPE_SYMBOL]:
         type = arg
-    elif arg in ['KOR', 'TWN']:
-        ldFile = arg
+    elif arg in ['KOR', 'KOR_TWN']:
+        ldFile = 'KOR_TWN.ld'
     else:
         try:
             newAddress = int(arg, 16)

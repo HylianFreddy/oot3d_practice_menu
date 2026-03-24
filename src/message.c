@@ -17,6 +17,7 @@ u32 Message_ShouldSkipTextControlCode(TextControlCode ctrl) {
 }
 
 void Message_ApplyInstantText(void* textObj, char* nextChars, u32 charIdx) {
+#if !REGION_KOR_TWN
     if (!cheats[CHEATS_QUICK_TEXT]) {
         return;
     }
@@ -28,4 +29,5 @@ void Message_ApplyInstantText(void* textObj, char* nextChars, u32 charIdx) {
     if (isFirstChar || isAfterBoxBreak8BitChar || isAfterBoxBreak16BitChar) {
         Message_SetInstantText(textObj);
     }
+#endif
 }

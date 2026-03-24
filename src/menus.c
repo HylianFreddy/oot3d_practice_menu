@@ -46,16 +46,16 @@
 #include "menus/settings.h"
 
 #if GZ3D_EXTRAS
-static u32 sfxId = 0;
 AmountMenu PlaySFXMenu;
 
 void PlaySFX(s32 selected) {
     #if REGION_KOR_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
-    return;
-    #endif
-    sfxId = PlaySFXMenu.items[selected].amount;
+    #else
+    static u32 sfxId = 0;
+    sfxId            = PlaySFXMenu.items[selected].amount;
     Audio_PlayFanfare(0x1000000 + sfxId);
+    #endif
 }
 
 AmountMenu PlaySFXMenu = {
@@ -91,12 +91,12 @@ void quitGame(void) {
 
     #if REGION_KOR_TWN
     setAlert(UNSUPPORTED_WARNING, 90);
-    return;
-    #endif
+    #else
     gGlobalContext->state.running = 0;
     gGlobalContext->state.init    = 0;
     *((u8*)0x5C6605)              = 1; // break loop calling Graph_ThreadEntry
     menuOpen                      = false;
+    #endif
 }
 #endif // GZ3D_EXTRAS
 

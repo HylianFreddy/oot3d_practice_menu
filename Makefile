@@ -59,6 +59,8 @@ REGION	?= USA
 
 VALID_REGIONS	:=	USA EUR JPN KOR TWN
 MAIN_REGIONS	:=	USA EUR JPN
+KOR_TWN_REGIONS	:=	KOR TWN
+KOR_TWN			:=	0
 
 ifeq ($(filter $(REGION),$(VALID_REGIONS)),)
 	$(error "Invalid region: $(REGION)")
@@ -67,11 +69,11 @@ endif
 REGION_INDEX		:=	$(shell py -c 'print("$(VALID_REGIONS)".split().index("$(REGION)") + 1)')
 UNSELECTED_REGIONS	:=	$(subst $(REGION),,$(VALID_REGIONS))
 
-ifneq ($(findstring $(REGION),$(MAIN_REGIONS)),)
+ifneq ($(filter $(REGION),$(MAIN_REGIONS)),)
 	LINK_SCRIPT	:=	linker_scripts/main.ld
-	KOR_TWN		:=	0
-else
-	LINK_SCRIPT	:=	linker_scripts/$(REGION).ld
+endif
+ifneq ($(filter $(REGION),$(KOR_TWN_REGIONS)),)
+	LINK_SCRIPT	:=	linker_scripts/KOR_TWN.ld
 	KOR_TWN		:=	1
 endif
 
