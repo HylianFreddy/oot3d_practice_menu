@@ -69,7 +69,7 @@ SECTIONS
 	/* 0x41A144 */ _LD_OFF = _LD_EUR ? 0x24 : _LD_JPN ? -0x28 : _LD_OFF;
 
 	.patch_GameButtonInputs 0x41ABD4 + _LD_OFF : { *(.patch_GameButtonInputs) }
-	.patch_ItemUsability_AnyAction 0x42E544 + _LD_OFF : { *(.patch_ItemUsability_AnyAction) }
+	.patch_ItemUsability_AnyAction 0x42E560 + _LD_OFF : { *(.patch_ItemUsability_AnyAction) }
 	Play_Init = 0x4352F0 + _LD_OFF;
 
 	/* 0x436690 */ _LD_OFF = _LD_EUR ? 0x20 : _LD_OFF;

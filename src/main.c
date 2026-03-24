@@ -286,21 +286,20 @@ bool onMenuLoop(void) {
 };
 
 void autoLoadSaveFile(void) {
-    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 && shouldAutoloadSavefile) {
+    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 && //
+        shouldAutoloadSavefile && !DEMO_VERSION) {
         Load_Savefiles_Buffer();
         FileSelect_LoadGame(&gGlobalContext->state, 0);
         if (gSaveContext.saveCount > 0) {
             setAlert("Autoload File 1", 90);
             gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
-#if GZ3D_EXTRAS && !REGION_KOR_TWN
-            if (gSaveContext.masterQuestFlag) {
+            if (GZ3D_EXTRAS && !REGION_KOR_TWN && gSaveContext.masterQuestFlag) {
                 // These static variables are used at some point during the load to overwrite the MQ flag.
                 // Setting them like this is kind of broken (saving the game will save onto MQ slot 1),
                 // but the autoloaded file shouldn't be MQ anyway.
                 *(u8*)0x587934 = 0xBE; // Enable quest type buttons on title screen
                 *(u8*)0x587953 = 0xEF; // Pressed the MQ button
             }
-#endif
         } else {
             setAlert("File 1 is empty", 90);
         }

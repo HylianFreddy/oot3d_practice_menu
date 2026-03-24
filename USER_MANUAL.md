@@ -202,6 +202,8 @@ This menu provides a number of built in quick cheats. These cheats include:
   Skips the cutscene where each ocarina melody plays back after you pressed the last note.
 - **Fix Black Screen Glitch**<br>
   Forces the screen fade-in to work when you perform a DHWW to a cutscene area, enabling loading zones.
+- **Infinite Demo Timer (Demo versions only)**<br>
+  Prevents the demo timer from advancing.
 
 ## Inventory
 ### Items

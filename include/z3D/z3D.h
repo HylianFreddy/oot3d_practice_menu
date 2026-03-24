@@ -193,9 +193,18 @@ typedef struct SaveContext {
     /* 0x15AB */ u8 nextTransition;
     /* 0x15AC */ char unk_15AC[0x006];
     /* 0x15B2 */ s16 healthAccumulator;
-    /* 0x15B4 */ char unk_15B4[0x10];
-} SaveContext; // size = 0x15C4
-_Static_assert(sizeof(SaveContext) == 0x15C4, "Save Context size");
+    /* 0x15B4 */ u32 extraNaviTimer;
+    /* 0x15B8 */ Color_RGBA8_u32 extraTransitionColor;
+    /* 0x15BC */ u8 extraTransitionFlag;
+    /* 0x15BD */ char unk_15BD[0x003];
+    /* 0x15C0 */ s16 extraSavedSceneId;
+    /* 0x15C2 */ char unk_15C2[0x002];
+#if DEMO_VERSION
+    /* 0x15C4 */ s32 demoTimer;
+    /* 0x15C8 */ s32 unk_15C8;
+#endif
+} SaveContext;
+_Static_assert(sizeof(SaveContext) == 0x15C4 + (!!DEMO_VERSION * 8), "Save Context size");
 
 typedef struct Camera {
     /* 0x000 */ char unk_000[0x080];

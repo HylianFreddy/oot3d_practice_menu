@@ -89,7 +89,7 @@ void quitGame(void) {
         return;
     }
 
-    #if REGION_KOR_TWN
+    #if REGION_KOR_TWN || DEMO_VERSION
     setAlert(UNSUPPORTED_WARNING, 90);
     #else
     gGlobalContext->state.running = 0;

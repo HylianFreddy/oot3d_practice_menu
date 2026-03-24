@@ -10,6 +10,8 @@ Download the latest release [here](https://github.com/HylianFreddy/oot3d_practic
 * `0004000000033400` : Japan
 * `0004000000033500` : North America
 * `0004000000033600` : Europe
+* `0004000000057300` : Europe (Demo)
+* `0004000000057400` : North America (Demo)
 * `000400000008F800` : Korea
 * `000400000008F900` : Taiwan, Hong Kong
 

@@ -104,7 +104,7 @@ HOOK ItemUsability_AnyAction
     push {r0-r12, lr}
     bl Cheats_ForceUsableItems
     pop {r0-r12, lr}
-    cmp r7,#0x0
+    cmp r0,#0x17
     bx lr
 
 HOOK SleepQueryCallback

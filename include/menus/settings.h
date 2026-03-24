@@ -28,6 +28,8 @@ enum Region {
     REGION_ID_JPN,
     REGION_ID_KOR,
     REGION_ID_TWN,
+    REGION_ID_DEMO_USA,
+    REGION_ID_DEMO_EUR,
 };
 
 enum SettingsEnum {

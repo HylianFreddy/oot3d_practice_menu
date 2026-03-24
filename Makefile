@@ -57,10 +57,12 @@ LIBS	:=	-lgcc
 # Region selection
 REGION	?= USA
 
-VALID_REGIONS	:=	USA EUR JPN KOR TWN
+VALID_REGIONS	:=	USA EUR JPN KOR TWN DEMO_USA DEMO_EUR
 MAIN_REGIONS	:=	USA EUR JPN
 KOR_TWN_REGIONS	:=	KOR TWN
+DEMO_REGIONS	:=	DEMO_USA DEMO_EUR
 KOR_TWN			:=	0
+DEMO			:=	0
 
 ifeq ($(filter $(REGION),$(VALID_REGIONS)),)
 	$(error "Invalid region: $(REGION)")
@@ -76,12 +78,16 @@ ifneq ($(filter $(REGION),$(KOR_TWN_REGIONS)),)
 	LINK_SCRIPT	:=	linker_scripts/KOR_TWN.ld
 	KOR_TWN		:=	1
 endif
+ifneq ($(filter $(REGION),$(DEMO_REGIONS)),)
+	LINK_SCRIPT	:=	linker_scripts/DEMO.ld
+	DEMO		:=	1
+endif
 
 # Define region for the Assembly code
-ASFLAGS	+=	-D _KOR_TWN_=$(KOR_TWN)
+ASFLAGS	+=	-D _KOR_TWN_=$(KOR_TWN) -D _DEMO_=$(DEMO)
 
 # Define region for the C code
-CFLAGS	+=	-D REGION_KOR_TWN=$(KOR_TWN)
+CFLAGS	+=	-D REGION_KOR_TWN=$(KOR_TWN) -D DEMO_VERSION=$(DEMO)
 
 # Define region for the Linker Script
 LDFLAGS +=	-Wl,--defsym,_LD_$(REGION)=1 $(foreach region,$(UNSELECTED_REGIONS),-Wl,--defsym,_LD_$(region)=0)
@@ -98,7 +104,8 @@ LAST_BUILD_FLAGS_PATH	:=	$(BUILD)/_flags.txt
 LAST_BUILD_FLAGS		:=	$(shell cat $(LAST_BUILD_FLAGS_PATH) 2> /dev/null)
 LAST_BUILD_REGION		:=	$(word 1,$(LAST_BUILD_FLAGS))
 LAST_BUILD_KOR_TWN		:=	$(word 2,$(LAST_BUILD_FLAGS))
-LAST_BUILD_GZ3D_EXTRAS	:=	$(word 3,$(LAST_BUILD_FLAGS))
+LAST_BUILD_DEMO			:=	$(word 3,$(LAST_BUILD_FLAGS))
+LAST_BUILD_GZ3D_EXTRAS	:=	$(word 4,$(LAST_BUILD_FLAGS))
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -174,7 +181,7 @@ all:
 	@printf "Writing commit string..."
 	@$(TOPDIR)/write_commit_string.sh
 	@printf " Done\n"
-ifneq ($(LAST_BUILD_KOR_TWN) $(LAST_BUILD_GZ3D_EXTRAS),$(KOR_TWN) $(GZ3D_EXTRAS))
+ifneq ($(LAST_BUILD_KOR_TWN) $(LAST_BUILD_DEMO) $(LAST_BUILD_GZ3D_EXTRAS),$(KOR_TWN) $(DEMO) $(GZ3D_EXTRAS))
 	@printf "Build setup changed, cleaning..."
 	@rm -fr $(BUILD) $(TARGET).elf
 	@printf " Done\n"
@@ -182,7 +189,7 @@ else ifneq ($(LAST_BUILD_REGION),$(REGION))
 	@rm -fr $(TARGET).elf
 endif
 	@[ -d $(BUILD) ] || mkdir -p $(BUILD)
-	@echo $(REGION) $(KOR_TWN) $(GZ3D_EXTRAS) > $(LAST_BUILD_FLAGS_PATH)
+	@echo $(REGION) $(KOR_TWN) $(DEMO) $(GZ3D_EXTRAS) > $(LAST_BUILD_FLAGS_PATH)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 	@py patch.py $(OUTPUT).elf $(REGION);
 

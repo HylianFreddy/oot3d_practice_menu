@@ -6,7 +6,8 @@ Edits to USA exheader template:
 - service access controls in second ACI, starts at 0x650, appended "ir:rst" at 0x728
 - kernel capabilities descriptors, starts at 0x370, inserted "\x00\x00\x01\xF4" at 0x37C, shifting data until 0x39F
 
-EUR and JPN versions work with the USA exheader, even though the original file stores the title id in a couple of places, and can have some other differences like SDApplication flag and AccessDesc signature.
+EUR, JPN, DEMO_USA, DEMO_EUR:
+These versions work with the USA exheader, even though the original file stores the title id in a couple of places, and can have some other differences like SDApplication flag and AccessDesc signature.
 
 
 Edits to KOR exheader template:

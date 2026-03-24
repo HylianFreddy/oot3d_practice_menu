@@ -62,6 +62,9 @@ ToggleMenu CheatsMenu = {
         { 0, "Turbo Text", .method = Cheats_Toggle },
         { 0, "Skip Songs Playback", .method = Cheats_Toggle },
         { 0, "Fix Black Screen Glitch", .method = Cheats_Toggle },
+#if DEMO_VERSION
+        { 0, "Infinite Demo Timer", .method = Cheats_Toggle },
+#endif
     },
 };
 
@@ -138,6 +141,11 @@ void applyCheats() {
             gGlobalContext->msgCtx.msgMode = 23;
         }
     }
+#if DEMO_VERSION
+    if (cheats[CHEATS_DEMO_TIMER]) {
+        gSaveContext.demoTimer = 0x3138; // vanilla initial value, 7 minutes
+    }
+#endif
 }
 
 u32 Cheats_RemoveBGM(u32 original) {

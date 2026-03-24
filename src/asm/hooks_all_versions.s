@@ -14,7 +14,8 @@ HOOK into_loader
     pop {lr}
     bx lr
 
-@ Place hooks in this section if they're valid for all versions (USA, EUR, JPN, KOR, TWN)
+@ Place hooks in this section if they're valid for all versions
+@ (USA, EUR, JPN, KOR, TWN, DEMO_USA, DEMO_EUR)
 .section .asm_hooks.all_versions
 
 HOOK into_Gfx_Update
@@ -56,20 +57,23 @@ HOOK HaltActors
 
 HOOK before_GameState_Loop
 .if _KOR_TWN_
-    push {r0-r12, lr}
-    cpy r0,r4
-    bl before_GameState_Loop
-    pop {r0-r12, lr}
-    cpy r0,r9
-    bx lr
+    REG_GAMESTATE .req r4
+    REG_ORIG_PARAM .req r9
+.elseif _DEMO_
+    REG_GAMESTATE .req r4
+    REG_ORIG_PARAM .req r6
 .else
+    REG_GAMESTATE .req r5
+    REG_ORIG_PARAM .req r4
+.endif
     push {r0-r12, lr}
-    cpy r0,r5
+    cpy r0, REG_GAMESTATE
     bl before_GameState_Loop
     pop {r0-r12, lr}
-    cpy r0,r4
+    cpy r0, REG_ORIG_PARAM
     bx lr
-.endif
+.unreq REG_GAMESTATE
+.unreq REG_ORIG_PARAM
 
 HOOK WrapGameStateDraw
     push {r0-r12, lr}
