@@ -8,10 +8,14 @@
 
 #include <string.h>
 
+static void Settings_Toggle(s32 selected);
+static void Settings_SelectProfile(void);
+static void Settings_InitExtSaveData(void);
+static void Settings_SaveExtSaveData(void);
 static void Settings_AlertProfileLoad(WatchUpdateResult res);
 
-ExtSaveData gExtSaveData;
-u8 selectedProfile = 0;
+static ExtSaveData gExtSaveData;
+static u8 selectedProfile = 0;
 
 ToggleMenu SettingsMenu = {
     "Settings",
@@ -29,7 +33,7 @@ Menu ProfilesMenu = {
     .nbItems          = PROFILES_MAX,
     .initialCursorPos = 0,
     {
-        { "Profile: 0", METHOD, .method = Settings_CycleProfile },
+        { "Profile: 0", METHOD, .method = Settings_SelectProfile },
         { "Save Profile", METHOD, .method = Settings_SaveExtSaveData },
         { "Load Profile", METHOD, .method = Settings_LoadExtSaveData },
     },
@@ -44,18 +48,17 @@ static void Settings_ApplyOptions(void) {
     setAlert("", 0);
 }
 
-void Settings_Toggle(s32 selected) {
+static void Settings_Toggle(s32 selected) {
     SettingsMenu.items[selected].on = !SettingsMenu.items[selected].on;
     Settings_ApplyOptions();
 }
 
-void Settings_CycleProfile(void) {
-    selectedProfile++;
-    selectedProfile %= 3;
+static void Settings_SelectProfile(void) {
+    Menu_EditAmount(30 + 8 * SPACING_X, 30, &selectedProfile, VARTYPE_U8, 0, 9, 1, FALSE);
     ProfilesMenu.items[PROFILES_NUMBER].title[9] = selectedProfile + '0';
 }
 
-void Settings_InitExtSaveData(void) {
+static void Settings_InitExtSaveData(void) {
     memset(&gExtSaveData, 0, sizeof(gExtSaveData));
     gExtSaveData.version = EXTSAVEDATA_VERSION; // Do not change this line
     memcpy(gExtSaveData.cheats, cheats, sizeof(cheats));
@@ -70,7 +73,7 @@ void Settings_InitExtSaveData(void) {
 }
 
 // copies saved values to the menu structs
-void Settings_ApplyExtSaveData(void) {
+static void Settings_ApplyExtSaveData(void) {
     memcpy(cheats, gExtSaveData.cheats, sizeof(cheats));
     for (u32 i = 0; i < NUMBER_OF_COMMANDS; i++) {
         commandList[i].comboLen = gExtSaveData.commands[i].comboLen;
@@ -85,7 +88,7 @@ void Settings_ApplyExtSaveData(void) {
     Settings_ApplyOptions();
 }
 
-void Settings_SaveExtSaveData(void) {
+static void Settings_SaveExtSaveData(void) {
     Settings_InitExtSaveData();
 
     char path[] = "/gz3D_X.bin";
