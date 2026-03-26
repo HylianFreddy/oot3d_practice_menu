@@ -59,7 +59,7 @@ SECTIONS
 
 	/* 0x377D90 */ _LD_OFF = _LD_JPN ? 0x0 : _LD_OFF;
 
-	.patch_SleepQueryCallback 0x3FD6DC + _LD_OFF : { *(.patch_SleepQueryCallback) }
+	.patch_SleepQueryCallback 0x3FD6E0 + _LD_OFF : { *(.patch_SleepQueryCallback) }
 	Message_SetInstantText = 0x40B608 + _LD_OFF;
 	.patch_before_GameState_Loop 0x416340 + _LD_OFF : { *(.patch_before_GameState_Loop) }
 	.patch_WrapGameStateDraw 0x416398 + _LD_OFF : { *(.patch_WrapGameStateDraw) }
@@ -116,6 +116,7 @@ SECTIONS
 	gEffectSsInfo = 0x598530 + _LD_OFF;
 	gActorHeapAddress = 0x5A2E3C + _LD_OFF;
 	gMainClass = 0x5BE5B8 + _LD_OFF;
+	nnMainLoopFlag = 0x5C6605 + _LD_OFF;
 
 	. = 0x005C7000 + _LD_OFF;
 	_LD_TEXT_START = . ;

@@ -15,8 +15,6 @@ Download the latest release [here](https://github.com/HylianFreddy/oot3d_practic
 * `000400000008F800` : Korea
 * `000400000008F900` : Taiwan, Hong Kong
 
-Note: the Korean and Taiwanese versions are only partially supported, as not all features have been implemented. Nothing should crash the game, but some things won't behave correctly.
-
 ### 3DS
 * If you haven't already, install custom firmware on your 3DS by following this guide: https://3ds.hacks.guide/
 * Open `3DS` in the release archive and select the correct title id following the table above. If you don't know what region you have you can simply select all folders to apply the patch to all regions.

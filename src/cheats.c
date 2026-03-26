@@ -155,14 +155,19 @@ u32 Cheats_RemoveBGM(u32 original) {
     return original;
 }
 
-void* Cheats_GetFakeItemRestrictions() {
-    static u8 emptyRestrictions[12] = { 0 };
+/**
+ * Called from function that reads interfaceCtx to get restriction flags
+ * If the cheat is active, return forged pointer so that dereferencing it
+ * to obtain restriction flags will find the array of null restrictions.
+ */
+void* Cheats_OverrideItemRestrictions(void* interfaceCtx) {
+    static u8 nullRestrictions[12] = { 0 };
 
     if (cheats[CHEATS_USABLE_ITEMS_NORMAL]) {
-        return &emptyRestrictions;
+        return &nullRestrictions - 0x29F;
     }
 
-    return 0;
+    return interfaceCtx;
 }
 
 void Cheats_ForceUsableItems() {

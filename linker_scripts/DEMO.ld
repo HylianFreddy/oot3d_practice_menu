@@ -51,7 +51,7 @@ SECTIONS
 	Rupees_ChangeBy = 0x372950 + _LD_OFF;
 	Item_Give = 0x372968 + _LD_OFF;
 	Inventory_HasEmptyBottle = 0x3738F4 + _LD_OFF;
-	.patch_SleepQueryCallback 0x3FAB58 + _LD_OFF : { *(.patch_SleepQueryCallback) }
+	.patch_SleepQueryCallback 0x3FAB5C + _LD_OFF : { *(.patch_SleepQueryCallback) }
 	Message_SetInstantText = 0x40869C + _LD_OFF;
 	.patch_before_GameState_Loop 0x4133DC + _LD_OFF : { *(.patch_before_GameState_Loop) }
 	.patch_WrapGameStateDraw 0x413438 + _LD_OFF : { *(.patch_WrapGameStateDraw) }
@@ -105,6 +105,7 @@ SECTIONS
 	gEffectSsInfo = 0x596728 + _LD_OFF;
 	gActorHeapAddress = 0x5A1034 + _LD_OFF;
 	gMainClass = 0x5BC7B8 + _LD_OFF;
+	nnMainLoopFlag = 0x5C4805 + _LD_OFF;
 
 	. = 0x005C5000 + _LD_OFF;
 	_LD_TEXT_START = . ;

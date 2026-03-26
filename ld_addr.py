@@ -103,7 +103,7 @@ if isOrderCorrect:
             # Add the template asm to `patches.s` and `hooks.s`
             with open('src/asm/patches.s', 'a', newline='') as file:
                 file.write(ASM_PATCH_TEMPLATE % (newName, newName))
-            with open('src/asm/hooks_main_versions.s', 'a', newline='') as file:
+            with open('src/asm/hooks.s', 'a', newline='') as file:
                 file.write(ASM_HOOK_TEMPLATE % (newName, newName))
         print('Patch added')
     else:

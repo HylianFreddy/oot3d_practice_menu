@@ -428,11 +428,7 @@ static void Debug_ShowObjects(void) {
         if (pressed & BUTTON_B)
             break;
         else if ((pressed & BUTTON_Y) && objectId != 0 && gGlobalContext->objectCtx.num < OBJECT_EXCHANGE_BANK_MAX) {
-#if REGION_KOR_TWN
-            setAlert(UNSUPPORTED_WARNING, 90);
-#else
             Object_Spawn(&(gGlobalContext->objectCtx), (s16)objectId);
-#endif
         } else if ((pressed & BUTTON_X) && gGlobalContext->objectCtx.num > 0) {
             gGlobalContext->objectCtx.status[--gGlobalContext->objectCtx.num].id = 0;
             Draw_Lock();
@@ -973,13 +969,11 @@ static void MemoryEditor_GoToPreset(void) {
         { "Inventory Items", &gSaveContext.items },
         { "Current Scene Segment", gGlobalContext->sceneSegment },
         { "Actor Overlay Table", gActorOverlayTable },
-#if !REGION_KOR_TWN
         { "Gear Usability Table", gGearUsabilityTable },
         { "Item Usability Table", gItemUsabilityTable },
         { "Entrance Table", gEntranceTable },
         { "Scene Table", gSceneTable },
         { "Draw Item Table", gDrawItemTable },
-#endif
     };
 
     const s32 presetCount = ARRAY_SIZE(presets);

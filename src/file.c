@@ -235,9 +235,7 @@ static void File_ToggleBlueWarps(s32 selected) {
 
 static void File_ToggleMasterQuest(s32 selected) {
     gSaveContext.masterQuestFlag = FileMenu.items[selected].on = !FileMenu.items[selected].on;
-#if !REGION_KOR_TWN
     WriteDungeonSceneTable();
-#endif
 }
 
 static void File_TimersMenuInit(void) {
