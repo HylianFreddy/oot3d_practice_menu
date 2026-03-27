@@ -46,15 +46,15 @@
 #include "menus/settings.h"
 
 #if GZ3D_EXTRAS
-AmountMenu PlaySFXMenu;
+static AmountMenu PlaySFXMenu;
 
-void PlaySFX(s32 selected) {
+static void PlaySFX(s32 selected) {
     static u32 sfxId = 0;
     sfxId            = PlaySFXMenu.items[selected].amount;
     Audio_PlayFanfare(0x1000000 + sfxId);
 }
 
-AmountMenu PlaySFXMenu = {
+static AmountMenu PlaySFXMenu = {
     "Play SFX",
     .nbItems          = 1,
     .initialCursorPos = 0,
@@ -72,11 +72,13 @@ AmountMenu PlaySFXMenu = {
     },
 };
 
-void showSFXMenu(void) {
+static void ShowSFXMenu(void) {
     AmountMenuShow(&PlaySFXMenu);
 }
+#endif // GZ3D_EXTRAS
 
-void quitGame(void) {
+#if GZ3D_EXTRAS || DEMO_VERSION
+static void QuitGame(void) {
     if (!gGlobalContext) {
         return;
     }
@@ -91,11 +93,11 @@ void quitGame(void) {
     nnMainLoopFlag = 1; // break loop calling Graph_ThreadEntry
     menuOpen       = false;
 }
-#endif // GZ3D_EXTRAS
+#endif // GZ3D_EXTRAS || DEMO_VERSION
 
 Menu gz3DMenu = {
     "Practice Menu (" COMMIT_STRING ")",
-    .nbItems          = 11 + (!!GZ3D_EXTRAS * 2),
+    .nbItems          = 11 + !!GZ3D_EXTRAS + !!(GZ3D_EXTRAS || DEMO_VERSION),
     .initialCursorPos = 0,
     {
         { "Warps", MENU, .menu = &WarpsMenu },
@@ -110,8 +112,10 @@ Menu gz3DMenu = {
         { "Settings", METHOD, .method = Settings_ShowSettingsMenu },
         { "Profiles", MENU, .menu = &ProfilesMenu },
 #if GZ3D_EXTRAS
-        { "Play SFX", METHOD, .method = showSFXMenu },
-        { "Quit Game", METHOD, .method = quitGame },
-#endif // GZ3D_EXTRAS
+        { "Play SFX", METHOD, .method = ShowSFXMenu },
+#endif
+#if GZ3D_EXTRAS || DEMO_VERSION
+        { "Quit Game", METHOD, .method = QuitGame },
+#endif
     },
 };
