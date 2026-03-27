@@ -53,9 +53,18 @@ with open("code.ips", 'wb') as patchFile:
 print("created code.ips")
 
 # Create exheader file by adding code size info to the template
+ExheaderRegionByPatchRegion = {
+    'USA': 'USA',
+    'EUR': 'USA',
+    'JPN': 'USA',
+    'KOR': 'KOR',
+    'TWN': 'KOR',
+    'DEMO_USA': 'DEMO_USA',
+    'DEMO_EUR': 'DEMO_USA',
+}
+exhRegion = ExheaderRegionByPatchRegion.get(region)
+exhTemplatePath = os.path.join('exheader', 'exheader_template_%s.bin' % exhRegion)
 for citra in [False, True]:
-    exhRegion = 'KOR' if region in ['KOR', 'TWN'] else 'USA'
-    exhTemplatePath = os.path.join('exheader', 'exheader_template_%s.bin' % exhRegion)
     exhFileName = 'exheader_%s.bin' % ('citra' if citra else '3ds')
     with open(exhTemplatePath, 'rb') as exhTemplate, open(exhFileName, 'wb') as exh:
         exh.write(exhTemplate.read(0x34))

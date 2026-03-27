@@ -16,3 +16,11 @@ Edits to KOR exheader template:
 - service access controls in second ACI, starts at 0x650, appended "ir:rst" at 0x730
 
 TWN version works with KOR exheader.
+
+
+Edits to DEMO_USA exheader template:
+- text section size, at 0x18, changed from 0x3C6CCC to 0x3C7000
+- service access controls in first ACI, starts at 0x250, appended "ir:rst" at 0x328
+- service access controls in second ACI, starts at 0x650, appended "ir:rst" at 0x728
+
+DEMO_EUR version works with DEMO_USA exheader
