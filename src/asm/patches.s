@@ -37,6 +37,9 @@ PATCH TurboTextClose
     bl hook_TurboTextClose
 
 PATCH TurboTextSignalNPC
+.if _KOR_TWN_
+    moveq r4,#0x0
+.endif
     bl hook_TurboTextSignalNPC
 
 PATCH ParseTextCharacter
