@@ -32,9 +32,14 @@ You will need to install Git, Python, and the 3DS toolchains from [devkitPro](ht
 
 Clone the repository with this command: `git clone https://github.com/HylianFreddy/oot3d_practice_menu.git`
 
-Open the MSYS2 terminal bundled with the devkitPro toolchains, then run `make` in the project directory to build the patch files. You can pass the following arguments to the command:
-
-* `REGION=X` to select what regional version of the game to build the patch for. `X` must be one of `USA`, `EUR`, `JPN`, `KOR`, `TWN`. The default is `USA`.
+Open the MSYS2 terminal bundled with the devkitPro toolchains, then run `make` in the project directory to build the patch files. You can select the regional version of the game to build the patch for by adding the argument `REGION=<region>`, where `<region>` must be one of the following values:
+* `USA` (this is the default region)
+* `EUR`
+* `JPN`
+* `KOR`
+* `TWN`
+* `DEMO_USA`
+* `DEMO_EUR`
 
 To speed up the build using more threads you can use the `-jN` flag (e.g. `make -j12`).
 
