@@ -53,7 +53,7 @@ typedef struct Command {
     u32 comboLen;
     u32 curIdx;
     u32 inputs[COMMAND_COMBO_MAX];
-    void (*method)(void);
+    s32 (*method)(void); // return true if command succeeded
     commandType type;
     u32 waiting; // to prevent press types from re-executing. unused for other types
     u32 strict;  // whether the button combo is strict or not

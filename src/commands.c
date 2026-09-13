@@ -46,11 +46,12 @@ static char buttonNames[15][COMMAND_BUTTON_NAME_LENGTH] = {
     "ZR  ",    // BUTTON_ZR
 };
 
-static void Command_OpenMenu(void) {
+static s32 Command_OpenMenu(void) {
     menuOpen = true;
+    return TRUE;
 }
 
-static void Command_Break(void) {
+static s32 Command_Break(void) {
     if (isInGame()) {
         if (gGlobalContext->csCtx.state != CS_STATE_IDLE) {
             gGlobalContext->csCtx.state = CS_STATE_STOP;
@@ -70,42 +71,57 @@ static void Command_Break(void) {
         }
 
         setAlert("Break", 40);
+        return TRUE;
     }
+    return FALSE;
 }
 
-static void Command_Levitate(void) {
-    if (isInGame())
+static s32 Command_Levitate(void) {
+    if (isInGame()) {
         PLAYER->actor.velocity.y = 6.34375f;
+        return TRUE;
+    }
+    return FALSE;
 }
 
-static void Command_Fall(void) {
+static s32 Command_Fall(void) {
     if (isInGame()) {
         PLAYER->actor.home.pos.y = -4096.f;
+        return TRUE;
     }
+    return FALSE;
 }
 
-static void Command_RunFast(void) {
-    if (isInGame())
+static s32 Command_RunFast(void) {
+    if (isInGame()) {
         PLAYER->xzSpeed = 27.f;
+        return TRUE;
+    }
+    return FALSE;
 }
 
-static void Command_Reset(void) {
+static s32 Command_Reset(void) {
     if (isInGame()) {
         gSaveContext.respawnFlag = 0;
         EntranceWarp(0xFFFF, 0, -1, 0, FALSE);
+        return TRUE;
     }
+    return FALSE;
 }
 
-static void Command_ReloadScene(void) {
+static s32 Command_ReloadScene(void) {
     if (isInGame()) {
-        if (gGlobalContext->nextEntranceIndex != -1)
+        if (gGlobalContext->nextEntranceIndex != -1) {
             EntranceWarp(gGlobalContext->nextEntranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
-        else
+        } else {
             EntranceWarp(gSaveContext.entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0, FALSE);
+        }
+        return TRUE;
     }
+    return FALSE;
 }
 
-static void Command_VoidOut(void) {
+static s32 Command_VoidOut(void) {
     if (isInGame()) {
         gSaveContext.respawn[RESPAWN_MODE_DOWN].tempSwchFlags    = gGlobalContext->actorCtx.flags.tempSwch;
         gSaveContext.respawn[RESPAWN_MODE_DOWN].tempCollectFlags = gGlobalContext->actorCtx.flags.tempCollect;
@@ -114,18 +130,21 @@ static void Command_VoidOut(void) {
             EntranceWarp(gSaveContext.respawn[RESPAWN_MODE_DOWN].entranceIndex, gGlobalContext->linkAgeOnLoad, -1, 0,
                          FALSE);
         }
+        return TRUE;
     }
+    return FALSE;
 }
 
-static void Command_ToggleAge(void) {
+static s32 Command_ToggleAge(void) {
     gGlobalContext->linkAgeOnLoad = 1 - gGlobalContext->linkAgeOnLoad;
     setAlert(gGlobalContext->linkAgeOnLoad ? "Child on next load" : "Adult on next load", 75);
+    return TRUE;
 }
 
 // static void Command_SaveState(void);
 // static void Command_LoadState(void);
 
-static void Command_StorePos(void) {
+static s32 Command_StorePos(void) {
     if (isInGame()) {
         storedPosRot[storedPosIndex].pos = PLAYER->actor.world.pos;
         storedPosRot[storedPosIndex].rot = PLAYER->actor.world.rot;
@@ -133,10 +152,12 @@ static void Command_StorePos(void) {
         char* alert = "Stored position X";
         alert[16]   = storedPosIndex + '0';
         setAlert(alert, 90);
+        return TRUE;
     }
+    return FALSE;
 }
 
-static void Command_LoadPos(void) {
+static s32 Command_LoadPos(void) {
     if (isInGame()) {
         PLAYER->actor.home.pos = PLAYER->actor.world.pos = storedPosRot[storedPosIndex].pos;
         PLAYER->actor.shape.rot.y = PLAYER->parallelYaw = storedPosRot[storedPosIndex].rot.y;
@@ -144,7 +165,9 @@ static void Command_LoadPos(void) {
         char* alert = "Loaded position X";
         alert[16]   = storedPosIndex + '0';
         setAlert(alert, 90);
+        return TRUE;
     }
+    return FALSE;
 }
 
 static void AlertPosIndex(void) {
@@ -153,54 +176,62 @@ static void AlertPosIndex(void) {
     setAlert(alert, 75);
 }
 
-static void Command_PreviousPos(void) {
+static s32 Command_PreviousPos(void) {
     storedPosIndex = (storedPosIndex + STORED_POS_COUNT - 1) % STORED_POS_COUNT;
     AlertPosIndex();
-}
-static void Command_NextPos(void) {
-    storedPosIndex = (storedPosIndex + 1) % STORED_POS_COUNT;
-    AlertPosIndex();
+    return TRUE;
 }
 
-static void Command_PauseUnpause(void) {
+static s32 Command_NextPos(void) {
+    storedPosIndex = (storedPosIndex + 1) % STORED_POS_COUNT;
+    AlertPosIndex();
+    return TRUE;
+}
+
+static s32 Command_PauseUnpause(void) {
     pauseUnpause = 1;
     if (advance_ctx.advance_state == NORMAL) {
         pauseDisplay(); // appear when triggered from menu
     }
+    return TRUE;
 }
 
-static void Command_FrameAdvance(void) {
+static s32 Command_FrameAdvance(void) {
     frameAdvance = 1;
     if (advance_ctx.advance_state == NORMAL) {
         pauseDisplay(); // appear when triggered from menu
     }
+    return TRUE;
 }
 
 // static void Command_RecordMacro(void);
 // static void Command_PlayMacro(void);
 
-static void Command_CollisionView(void) {
+static s32 Command_CollisionView(void) {
     CollisionMenu.items[COLVIEW_SHOW_COLLISION].on ^= 1;
+    return TRUE;
 }
 
-static void Command_HitboxView(void) {
+static s32 Command_HitboxView(void) {
     gStaticContext.showColliders ^= 1;
+    return TRUE;
 }
 
-static void Command_ToggleWatches(void) {
+static s32 Command_ToggleWatches(void) {
     shouldDrawWatches = !shouldDrawWatches;
     if (advance_ctx.advance_state == PAUSED) {
         Watches_DrawWatches(shouldDrawWatches ? COLOR_WHITE : COLOR_BLACK);
     }
+    return TRUE;
 }
 
-static void Command_FreeCam(void) {
+static s32 Command_FreeCam(void) {
     if (!freeCam.enabled) {
         FreeCam_Toggle();
     } else if (freeCam.locked) {
         FreeCam_ToggleLock();
     } else {
-        return;
+        return FALSE;
     }
 
     if (advance_ctx.advance_state == PAUSED) {
@@ -209,14 +240,17 @@ static void Command_FreeCam(void) {
     }
 
     waitingButtonRelease = 1;
+    return TRUE;
 }
 
-static void Command_TriggerSavefileAutoload(void) {
+static s32 Command_TriggerSavefileAutoload(void) {
     shouldAutoloadSavefile = 1;
+    return TRUE;
 }
 
-static void Command_TriggerFastForward(void) {
+static s32 Command_TriggerFastForward(void) {
     shouldFastForward = 1;
+    return TRUE;
 }
 
 Command commandList[NUMBER_OF_COMMANDS] = {
@@ -341,8 +375,7 @@ void Command_UpdateCommands(u32 curInputs) { // curInputs should be all the held
     for (int i = 0; i < NUMBER_OF_COMMANDS; i++) {
         Command* cmd = &commandList[i];
 
-        if (cmd->comboLen == 0 || (i == COMMAND_AUTOLOAD_SAVEFILE &&
-                                   (gSaveContext.entranceIndex != 0x629 || gSaveContext.cutsceneIndex != 0xFFF3))) {
+        if (cmd->comboLen == 0) {
             continue;
         }
 
@@ -353,9 +386,10 @@ void Command_UpdateCommands(u32 curInputs) { // curInputs should be all the held
             (!cmd->strict && (curInputs & nextInputs) == nextInputs)) { // case where we hit the new button
 
             if (cmd->curIdx == cmd->comboLen - 1) { // time to execute the command
+                s32 commandSuccess = FALSE;
                 switch (cmd->type) {
                     case COMMAND_HOLD_TYPE:
-                        cmd->method();
+                        commandSuccess = cmd->method();
                         break;
                     case COMMAND_PRESS_ONCE_TYPE:
                         cmd->curIdx = 0;
@@ -363,15 +397,17 @@ void Command_UpdateCommands(u32 curInputs) { // curInputs should be all the held
                     case COMMAND_PRESS_TYPE:
                         // execute at most one "press" or "press_once" command per update cycle
                         if (cmd->waiting == 0 && !executedPressCommand) {
-                            cmd->method();
+                            commandSuccess       = cmd->method();
                             cmd->waiting         = 1;
                             executedPressCommand = 1;
                         }
                         break;
                 }
-                u32 lastButton =
-                    cmd->inputs[cmd->comboLen - 1] & ~(cmd->comboLen > 1 ? cmd->inputs[cmd->comboLen - 2] : 0);
-                Commands_SetButtonsToIgnore(lastButton);
+                if (commandSuccess) {
+                    u32 lastButton =
+                        cmd->inputs[cmd->comboLen - 1] & ~(cmd->comboLen > 1 ? cmd->inputs[cmd->comboLen - 2] : 0);
+                    Commands_SetButtonsToIgnore(lastButton);
+                }
             } else {
                 cmd->curIdx++;
             }

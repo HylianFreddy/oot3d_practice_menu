@@ -165,7 +165,7 @@ static void Scene_ClearFlags(void) {
     gGlobalContext->actorCtx.flags.tempCollect = 0;
 }
 
-void Scene_NoClipToggle(void) {
+s32 Scene_NoClipToggle(void) {
     if (isInGame() && !FreeCam_Moving) {
         if (!noClip) {
             haltActors = 1;
@@ -180,7 +180,9 @@ void Scene_NoClipToggle(void) {
         }
         menuOpen             = false;
         waitingButtonRelease = 1;
+        return TRUE;
     }
+    return FALSE;
 }
 
 static void Scene_NoClipDescription(void) {

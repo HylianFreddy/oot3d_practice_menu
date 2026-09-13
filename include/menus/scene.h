@@ -30,4 +30,4 @@ extern u8 noClip;
 extern u8 waitingButtonRelease;
 extern u8 haltActors;
 
-void Scene_NoClipToggle(void);
+s32 Scene_NoClipToggle(void);
