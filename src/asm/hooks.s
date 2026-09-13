@@ -14,9 +14,7 @@ HOOK into_loader
     pop {lr}
     bx lr
 
-@ Place hooks in this section if they're valid for all versions
-@ (USA, EUR, JPN, KOR, TWN, DEMO_USA, DEMO_EUR)
-.section .asm_hooks.all_versions
+.section .text.asm_hooks
 
 HOOK into_Gfx_Update
     push {r0-r12,lr}

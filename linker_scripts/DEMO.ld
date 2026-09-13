@@ -80,6 +80,7 @@ SECTIONS
 
 	/* 0x4A5B00 */ _LD_OFF = _LD_DEMO_EUR ? 0x0 : _LD_OFF;
 
+	/* 0x4C6CCB: End of vanilla code in .text section */
 	. = 0x4C6CCC + _LD_OFF;
 	. = ALIGN(4);
 	.loader : {
@@ -107,21 +108,24 @@ SECTIONS
 	gMainClass = 0x5BC7B8 + _LD_OFF;
 	nnMainLoopFlag = 0x5C4805 + _LD_OFF;
 
+	/* 0x005C4807: End of vanilla .bss section */
 	. = 0x005C5000 + _LD_OFF;
 	_LD_TEXT_START = . ;
 	.text : {
 		__text_start = . ;
-		*(.text)
-		*(.text.*)
-		*(.asm_hooks.*)
+		*(.text*)
 		__text_end = . ;
-		*(.rodata)
-		*(.rodata.*)
-		*(.data)
-		*(.bss)
+		*(.rodata*)
+		*(.data*)
+		*(.bss*)
 		*(COMMON)
 	}
 	_LD_TEXT_SIZE = __text_end - __text_start;
+
+	/* Section not included in patch. */
+	.other : {
+		*(.eh_frame)
+	}
 
 	gStaticContext = 0x8080010 + _LD_OFF;
 	real_hid = 0x10002000 + _LD_OFF;

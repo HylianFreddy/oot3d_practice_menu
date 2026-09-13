@@ -68,6 +68,7 @@ SECTIONS
 	.patch_SleepQueryCallback 0x4ACC30 + _LD_OFF : { *(.patch_SleepQueryCallback) }
 	Message_SetInstantText = 0x4BC5BC + _LD_OFF;
 
+	/* 0x4CF2C3: End of vanilla code in .text section */
 	. = 0x4CF2C4 + _LD_OFF;
 	. = ALIGN(4);
 	.loader : {
@@ -89,25 +90,23 @@ SECTIONS
 	gMainClass = 0x5C5AA4 + _LD_OFF;
 	nnMainLoopFlag = 0x5CDB1D + _LD_OFF;
 
+	/* 0x005CDB1F: End of vanilla .bss section */
 	. = 0x005CE000 + _LD_OFF;
 	_LD_TEXT_START = . ;
 	.text : {
 		__text_start = . ;
-		*(.text)
-		*(.text.*)
-		*(.asm_hooks.all_versions)
+		*(.text*)
 		__text_end = . ;
-		*(.rodata)
-		*(.rodata.*)
-		*(.data)
-		*(.bss)
+		*(.rodata*)
+		*(.data*)
+		*(.bss*)
 		*(COMMON)
 	}
 	_LD_TEXT_SIZE = __text_end - __text_start;
 
-	/DISCARD/ : {
-		/* Discard patches not implemented for KOR/TWN */
-		*(.patch_*)
+	/* Section not included in patch. */
+	.other : {
+		*(.eh_frame)
 	}
 
 	gStaticContext = 0x8080010 + _LD_OFF;
