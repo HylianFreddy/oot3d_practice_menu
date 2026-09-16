@@ -17,7 +17,7 @@
 u32 pauseUnpause             = 0; // tells main to pause/unpause
 u32 frameAdvance             = 0; // tells main to frame advance
 bool shouldDrawWatches       = 1;
-u32 shouldAutoloadSavefile   = 0;
+s8 gFileAutoloadMQFlag       = -1;
 u32 shouldFastForward        = 0;
 u32 gFastForwardCycleCounter = 0;
 
@@ -243,9 +243,60 @@ static s32 Command_FreeCam(void) {
     return TRUE;
 }
 
-static s32 Command_TriggerSavefileAutoload(void) {
-    shouldAutoloadSavefile = 1;
-    return TRUE;
+static s32 Command_AutoloadSavefile(void) {
+    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 && !DEMO_VERSION) {
+        gUnkStruct587934.selectedQuestButton = SELECTED_REGULAR_QUEST;
+        Load_Savefiles_Buffer();
+        if (gUnkStruct587934.questButtonsStatus == QUEST_BUTTONS_ENABLED) {
+            gUnkStruct587934.selectedQuestButton = SELECTED_MASTER_QUEST;
+            Load_Savefiles_Buffer();
+        }
+
+        s32 chosenSaveIdx = -1;
+        u8 settingValue   = SettingsMenu.items[SETTINGS_AUTOLOAD_FILE_NUM].on;
+        if (settingValue) {
+            chosenSaveIdx = settingValue - 1;
+        } else {
+            u64 chosenSaveTimeKey = 0;
+            for (s32 i = 0; i < ARRAY_SIZE(gSaveFiles); i++) {
+                SaveContext* save = &gSaveFiles[i];
+                if (save->saveCount == 0) {
+                    continue;
+                }
+                SaveTime* t     = &save->saveTime;
+                u64 saveTimeKey = ((u64)t->year << 32) | ((u64)t->month << 24) | ((u64)t->day << 16) |
+                                  ((u64)t->hour << 8) | ((u64)t->minute);
+
+                if (saveTimeKey > chosenSaveTimeKey) {
+                    chosenSaveIdx     = i;
+                    chosenSaveTimeKey = saveTimeKey;
+                }
+            }
+        }
+
+        if (chosenSaveIdx >= 0) {
+            const char* questMarker = "";
+            if (chosenSaveIdx < 3) {
+                gUnkStruct587934.selectedQuestButton = SELECTED_REGULAR_QUEST;
+            } else {
+                gUnkStruct587934.selectedQuestButton = SELECTED_MASTER_QUEST;
+                chosenSaveIdx -= 3;
+                questMarker = "MQ ";
+            }
+            FileSelect_LoadGame(&gGlobalContext->state, chosenSaveIdx);
+            gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
+            gFileAutoloadMQFlag           = gSaveContext.masterQuestFlag;
+
+            static char autoloadMsg[20];
+            const char* formatStr = gGlobalContext->state.running == 0 ? "Autoload File %s%d" : "File %s%d is empty";
+            snprintf(autoloadMsg, sizeof(autoloadMsg), formatStr, questMarker, chosenSaveIdx + 1);
+            setAlert(autoloadMsg, 90);
+        } else {
+            setAlert("All files are empty", 90);
+        }
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static s32 Command_TriggerFastForward(void) {
@@ -274,7 +325,7 @@ Command commandList[NUMBER_OF_COMMANDS] = {
     { "Break Free", 0, 0, { 0 }, Command_Break, COMMAND_HOLD_TYPE, 0, 0 },
     { "NoClip", 0, 0, { 0 }, Scene_NoClipToggle, COMMAND_PRESS_ONCE_TYPE, 0, 0 },
     { "Free Camera", 0, 0, { 0 }, Command_FreeCam, COMMAND_PRESS_ONCE_TYPE, 0, 0 },
-    { "Autoload Savefile", 0, 0, { 0 }, Command_TriggerSavefileAutoload, COMMAND_HOLD_TYPE, 0, 0 },
+    { "Autoload Savefile", 0, 0, { 0 }, Command_AutoloadSavefile, COMMAND_HOLD_TYPE, 0, 0 },
     { "Fast Forward", 0, 0, { 0 }, Command_TriggerFastForward, COMMAND_HOLD_TYPE, 0, 0 },
 };
 
@@ -358,9 +409,8 @@ void Command_UpdateCommands(u32 curInputs) { // curInputs should be all the held
         commandInit = 1;
     }
 
-    // Reset these every time
-    shouldAutoloadSavefile = 0;
-    shouldFastForward      = 0;
+    // Reset this every time
+    shouldFastForward = 0;
 
     if (commandList[COMMAND_OPEN_MENU].comboLen == 0) { // prevent getting locked out of the menu
         commandList[COMMAND_OPEN_MENU].comboLen  = 3;

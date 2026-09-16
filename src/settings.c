@@ -9,6 +9,7 @@
 #include <string.h>
 
 static void Settings_Toggle(s32 selected);
+static void Settings_SelectAutoloadedFile(s32 selected);
 static void Settings_SelectProfile(void);
 static void Settings_InitExtSaveData(void);
 static void Settings_SaveExtSaveData(void);
@@ -25,6 +26,7 @@ ToggleMenu SettingsMenu = {
         { 0, "Hide Pause/Commands Display", Settings_Toggle },
         { 0, "Reset cursor position when leaving menu", Settings_Toggle },
         { 0, "Use light blue color in menu", Settings_Toggle },
+        { 0, "Select autoloaded file slot", Settings_SelectAutoloadedFile },
     },
 };
 
@@ -51,6 +53,55 @@ static void Settings_ApplyOptions(void) {
 static void Settings_Toggle(s32 selected) {
     SettingsMenu.items[selected].on = !SettingsMenu.items[selected].on;
     Settings_ApplyOptions();
+}
+
+static void Settings_SelectAutoloadedFile(s32 selected) {
+    ToggleMenuItem* opt        = &SettingsMenu.items[selected];
+    static u8 lastEnabledValue = 1;
+
+    if (opt->on) {
+        lastEnabledValue = opt->on;
+        opt->on          = 0;
+    } else {
+        s8 optVal = lastEnabledValue;
+        do {
+            Draw_Lock();
+
+            // Draw value
+            u8 fileIdx      = optVal;
+            char* formatStr = "%u   ";
+            if (fileIdx > 3) {
+                fileIdx -= 3;
+                formatStr = "MQ %u";
+            }
+            u32 posX = 30 + 33 * SPACING_X;
+            u32 posY = 30 + (selected % TOGGLE_MENU_MAX_SHOW) * SPACING_Y;
+            Draw_DrawFormattedString(posX, posY, COLOR_GREEN, formatStr, fileIdx);
+
+            Draw_FlushFramebuffer();
+            Draw_Unlock();
+
+            // Handle input
+            u32 pressed = Input_WaitWithTimeout(1000);
+
+            if (pressed & BUTTON_A) {
+                opt->on = optVal;
+                break;
+            } else if (pressed & BUTTON_B) {
+                break;
+            } else if (pressed & PAD_RIGHT) {
+                optVal++;
+                if (optVal > 6) {
+                    optVal = 1;
+                }
+            } else if (pressed & PAD_LEFT) {
+                optVal--;
+                if (optVal < 1) {
+                    optVal = 6;
+                }
+            }
+        } while (onMenuLoop());
+    }
 }
 
 static void Settings_SelectProfile(void) {

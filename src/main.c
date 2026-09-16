@@ -38,7 +38,6 @@ GlobalContext* gGlobalContext;
 void* gStoredActorHeapAddress;
 u8 gInit = 0;
 
-void autoLoadSaveFile(void);
 void NoClip_Update(void);
 
 static void init(void) {
@@ -77,6 +76,13 @@ void after_Play_Draw() {
 
 // Called once for every update on any GameState, before all the functions in the Graph_ThreadEntry loop.
 void before_GameState_Loop(GameState* gameState) {
+    // Restore MQ flag after file autoload in case Play_Destroy reset it to the wrong value
+    if (gFileAutoloadMQFlag != -1) {
+        gSaveContext.masterQuestFlag = gFileAutoloadMQFlag;
+        WriteDungeonSceneTable();
+        gFileAutoloadMQFlag = -1;
+    }
+
     if (!gInit || gameState->running != 2)
         return;
 
@@ -84,7 +90,6 @@ void before_GameState_Loop(GameState* gameState) {
 
     Command_UpdateCommands(rInputCtx.cur.val);
     applyCheats();
-    autoLoadSaveFile();
 }
 
 static void toggle_advance(void) {
@@ -284,27 +289,6 @@ bool onMenuLoop(void) {
     drawAlert();
     return menuOpen;
 };
-
-void autoLoadSaveFile(void) {
-    if (gSaveContext.entranceIndex == 0x629 && gSaveContext.cutsceneIndex == 0xFFF3 && //
-        shouldAutoloadSavefile && !DEMO_VERSION) {
-        Load_Savefiles_Buffer();
-        FileSelect_LoadGame(&gGlobalContext->state, 0);
-        if (gSaveContext.saveCount > 0) {
-            setAlert("Autoload File 1", 90);
-            gGlobalContext->linkAgeOnLoad = gSaveContext.linkAge;
-            if (GZ3D_EXTRAS && !REGION_KOR_TWN && gSaveContext.masterQuestFlag) {
-                // These static variables are used at some point during the load to overwrite the MQ flag.
-                // Setting them like this is kind of broken (saving the game will save onto MQ slot 1),
-                // but the autoloaded file shouldn't be MQ anyway.
-                *(u8*)0x587934 = 0xBE; // Enable quest type buttons on title screen
-                *(u8*)0x587953 = 0xEF; // Pressed the MQ button
-            }
-        } else {
-            setAlert("File 1 is empty", 90);
-        }
-    }
-}
 
 // Called for every update cycle in Graph_ThreadEntry
 // Returning true will skip drawing the frame on screen, making the game speed-up significantly

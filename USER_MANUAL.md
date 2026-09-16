@@ -363,9 +363,9 @@ The following commands are available:
   Enables [NoClip](#noclip--move-link).
 - **Free Camera**<br>
   Enables [Free Camera](#free-camera). If it is already enabled and locked, this command will unlock it.
-- **Autoload Savefile**<br>
-  Only applies on the Title Screen, where it automatically loads File 1 (Regular Quest) without having to go through the File Select Screen.<br>
-  Currently this can't be done for Master Quest files. Even if you save a Master Quest file into Slot 1 of Regular Quest, triggering this command will load it as a Regular Quest file.
+- **Autoload Savefile**<a id="autoload-savefile"></a><br>
+  Only applies on the Title Screen, where it automatically loads a save file without having to go through the File Select Screen.<br>
+  By default the loaded file will be the one with the most recent save time; if you instead prefer to always autoload a specific file, you can set it with a [setting](#autoload-savefile-setting).
 - **Fast Forward**<br>
   Speeds up almost everything in the game, which can be useful to fast-forward cutscenes or animations.
 
@@ -377,6 +377,8 @@ This menu contains some general toggles.
   By default every menu will remember the position of the cursor when you leave it. Toggle this if you prefer the cursor to always start at the top.
 - **Use light blue color in menu**<br>
   This will change the blue color in the menus to be the same as in the Luma3DS Rosalina menu.
+- **Select autoloaded file slot**<a id="autoload-savefile-setting"></a><br>
+  Set this if you want the [Autoload Savefile command](#autoload-savefile) to always load a fixed file. Use left and right to choose a file, then press A to select it.
 
 ## Profiles
 Here you can save up to 3 profiles with your command combos, watches, cheats and settings. You can cycle through the profiles by clicking Profile, then save or load the data with the respective options. If you save Profile 0, it will be loaded automatically whenever you launch the game.

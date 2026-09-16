@@ -110,8 +110,10 @@ SECTIONS
 	gObjectTable = 0x53CCF4 + _LD_OFF;
 	gEntranceTable = 0x543BB8 + _LD_OFF;
 	gSceneTable = 0x545484 + _LD_OFF;
+	gSaveFiles = 0x55BEC0 + _LD_OFF;
 	ControlStick_X = 0x5655C0 + _LD_OFF;
 	ControlStick_Y = 0x5655C4 + _LD_OFF;
+	gUnkStruct587934 = 0x587934 + _LD_OFF;
 	gSaveContext = 0x587958 + _LD_OFF;
 	gEffectContext = 0x58B2E0 + _LD_OFF;
 	gEffectSsInfo = 0x598530 + _LD_OFF;

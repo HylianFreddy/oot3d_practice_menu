@@ -62,6 +62,14 @@ typedef enum {
     /* 0xFF */ BTN_DISABLED = 0xFF
 } ButtonStatus;
 
+typedef struct SaveTime {
+    /* 0x00 */ u32 year;
+    /* 0x04 */ u32 month;
+    /* 0x08 */ u32 day;
+    /* 0x0C */ u32 hour;
+    /* 0x10 */ u32 minute;
+} SaveTime;
+
 typedef struct SaveContext {
     /* 0x0000 */ s32 entranceIndex;
     /* 0x0004 */ s32 linkAge; // 0: Adult; 1: Child
@@ -147,13 +155,7 @@ typedef struct SaveContext {
     /* 0x138A */ u8 itemMenuChild[24];
     /* 0x13A2 */ u8 itemMenuAdult[24];
     /* 0x13BA */ char unk_13BA[0x0002];
-    struct {
-        /* 0x13BC */ u32 year;
-        /* 0x13C0 */ u32 month;
-        /* 0x13C4 */ u32 day;
-        /* 0x13C8 */ u32 hour;
-        /* 0x13CC */ u32 minute;
-    } saveTime;
+    /* 0x13BC */ SaveTime saveTime;
     /* 0x13D0 */ char unk_13D0[0x0080];
     /* 0x1450 */ u32 bossBattleVictories[9];
     /* 0x1474 */ u32 bossBattleScores[9];
@@ -641,6 +643,21 @@ typedef struct MainClass {
 #define MAIN_CLASS_TEMP_SIZE (0x32C0 + REGION_KOR_TWN * 4)
 _Static_assert(sizeof(MainClass) == MAIN_CLASS_TEMP_SIZE, "MainClass size");
 
+typedef enum SelectedQuest : u8 {
+    SELECTED_REGULAR_QUEST = 0,
+    SELECTED_MASTER_QUEST  = 0xEF,
+} SelectedQuest;
+
+#define QUEST_BUTTONS_ENABLED 0xBE
+
+typedef struct UnkStruct_587934 {
+    /* 0x00 */ u8 questButtonsStatus;
+    /* 0x01 */ char unk_01[0x1E];
+    /* 0x1F */ u8 selectedQuestButton;
+    /* 0x20 */ char unk_20[0x04];
+} UnkStruct_587934;
+_Static_assert(sizeof(UnkStruct_587934) == 0x24, "UnkStruct_587934 size");
+
 extern GlobalContext* gGlobalContext;
 extern void* gStoredActorHeapAddress;
 
@@ -661,6 +678,8 @@ extern f32 ControlStick_X;
 extern f32 ControlStick_Y;
 extern void* gActorHeapAddress; // ZeldaArena
 extern MainClass gMainClass;
+extern SaveContext gSaveFiles[6];
+extern UnkStruct_587934 gUnkStruct587934;
 
 #define PLAYER ((Player*)gGlobalContext->actorCtx.actorList[ACTORTYPE_PLAYER].first)
 

@@ -83,8 +83,10 @@ SECTIONS
 	gActorOverlayTable = 0x5184AC + _LD_OFF;
 	gEntranceTable = 0x5518F8 + _LD_OFF;
 	gSceneTable = 0x5531D8 + _LD_OFF;
+	gSaveFiles = 0x56A538 + _LD_OFF;
 	ControlStick_X = 0x573C38 + _LD_OFF;
 	ControlStick_Y = 0x573C3C + _LD_OFF;
+	gUnkStruct587934 = 0x595FAC + _LD_OFF;
 	gSaveContext = 0x595FD0 + _LD_OFF;
 	gActorHeapAddress = 0x5B14B4 + _LD_OFF;
 	gMainClass = 0x5C5AA4 + _LD_OFF;
